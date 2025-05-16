@@ -20,9 +20,8 @@ export async function middleware(request: NextRequest) {
   });
 
   if (!token) {
-    const redirectUrl = encodeURIComponent(request.url);
     return NextResponse.redirect(
-      new URL(`/login?callbackUrl=${redirectUrl}`, request.url),
+      new URL(`/login`, request.url),
     );
   }
 
