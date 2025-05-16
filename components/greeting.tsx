@@ -22,7 +22,16 @@ export const Greeting = () => {
         transition={{ delay: 0.6 }}
         className="text-2xl text-zinc-500"
       >
-        How can I help you today?
+        Welcome to Dark Alpha Capital?
+      </motion.div>
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: 10 }}
+        transition={{ delay: 0.6 }}
+        className="text-lg text-zinc-500"
+      >
+        Ask anything about Dark Alpha Capital...
       </motion.div>
     </div>
   );

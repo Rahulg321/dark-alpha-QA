@@ -19,24 +19,24 @@ function PureSuggestedActions({
 }: SuggestedActionsProps) {
   const suggestedActions = [
     {
-      title: 'What are the advantages',
-      label: 'of using Next.js?',
-      action: 'What are the advantages of using Next.js?',
+      title: 'What is the primary deal screening criteria',
+      label: 'of Dark Alpha Capital?',
+      action: 'What is the primary deal screening criteria of Dark Alpha Capital?',
     },
     {
-      title: 'Write code to',
-      label: `demonstrate djikstra's algorithm`,
-      action: `Write code to demonstrate djikstra's algorithm`,
+      title: 'What industries and business models',
+      label: `are automatically screened out, and why?`,
+      action: `What industries and business models are automatically screened out, and why`,
     },
     {
-      title: 'Help me write an essay',
-      label: `about silicon valley`,
-      action: `Help me write an essay about silicon valley`,
+      title: 'How does Dark Alpha handle EBITDA changes',
+      label: `made by sellers?`,
+      action: `How does Dark Alpha handle EBITDA changes made by sellers?`,
     },
     {
-      title: 'What is the weather',
-      label: 'in San Francisco?',
-      action: 'What is the weather in San Francisco?',
+      title: 'How do you assess the stability and sustainability ',
+      label: `of revenue and EBITDA growth?`,
+      action: 'How do you assess the stability and sustainability of revenue and EBITDA growth?',
     },
   ];
 
