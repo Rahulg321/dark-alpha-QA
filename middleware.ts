@@ -5,11 +5,15 @@ import { isDevelopmentEnvironment } from './lib/constants';
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  if (pathname.startsWith('/ping')) {
-    return new Response('pong', { status: 200 });
-  }
-
-  if (pathname.startsWith('/api/auth')) {
+  // Allow public routes and API routes to pass through
+  if (
+    pathname.startsWith('/ping') ||
+    pathname.startsWith('/api/auth') ||
+    pathname.startsWith('/api/chat') ||
+    pathname.startsWith('/_next') ||
+    pathname.startsWith('/static') ||
+    pathname.includes('.') // This will allow static files
+  ) {
     return NextResponse.next();
   }
 
@@ -19,14 +23,23 @@ export async function middleware(request: NextRequest) {
     secureCookie: !isDevelopmentEnvironment,
   });
 
-  if (!token) {
-    return NextResponse.redirect(
-      new URL(`/login`, request.url),
-    );
+  // Handle auth pages
+  if (['/login', '/register'].includes(pathname)) {
+    if (token) {
+      // If user is authenticated, redirect to home
+      return NextResponse.redirect(new URL('/', request.url));
+    }
+    // If not authenticated, allow access to auth pages
+    return NextResponse.next();
   }
 
-  if (['/login', '/register'].includes(pathname)) {
-    return NextResponse.redirect(new URL('/', request.url));
+  // For all other routes, check authentication
+  if (!token) {
+    // Store the original URL to redirect back after login
+    const callbackUrl = encodeURIComponent(request.url);
+    return NextResponse.redirect(
+      new URL(`/login?callbackUrl=${callbackUrl}`, request.url)
+    );
   }
 
   return NextResponse.next();
@@ -34,11 +47,13 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/',
-    '/chat/:id',
-    '/api/:path*',
-    '/login',
-    '/register',
-    '/((?!_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)',
+    /*
+     * Match all request paths except for the ones starting with:
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     * - public folder
+     */
+    '/((?!_next/static|_next/image|favicon.ico|public/).*)',
   ],
 };
