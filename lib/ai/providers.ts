@@ -34,8 +34,8 @@ export const myProvider = isTestEnvironment
           model: openai('gpt-o3-mini'),
           middleware: extractReasoningMiddleware({ tagName: 'think' }),
         }),
-        'title-model': openai('gpt-o3-mini'),
-        'artifact-model': openai('gpt-o3-mini'),
+        'title-model': openai('gpt-4o'),
+        'artifact-model': openai('gpt-4o'),
       },
    
     });
