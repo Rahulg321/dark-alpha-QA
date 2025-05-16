@@ -12,11 +12,20 @@ import {
   titleModel,
 } from './models.test';
 import { createOpenAI } from '@ai-sdk/openai';
+import OpenAI from "openai";
+
+
 
 const openai = createOpenAI({
   apiKey: process.env.AI_API_KEY, 
   compatibility: 'strict',
 });
+
+export const openaiClient = new OpenAI({
+  apiKey: process.env.AI_API_KEY,
+});
+
+
 
 export const myProvider = isTestEnvironment
   ? customProvider({
