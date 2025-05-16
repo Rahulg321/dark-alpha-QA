@@ -11,6 +11,12 @@ import {
   reasoningModel,
   titleModel,
 } from './models.test';
+import { createOpenAI } from '@ai-sdk/openai';
+
+const openai = createOpenAI({
+  apiKey: process.env.AI_API_KEY, 
+  compatibility: 'strict',
+});
 
 export const myProvider = isTestEnvironment
   ? customProvider({
@@ -23,15 +29,13 @@ export const myProvider = isTestEnvironment
     })
   : customProvider({
       languageModels: {
-        'chat-model': xai('grok-2-vision-1212'),
+        'chat-model': openai('gpt-4o'),
         'chat-model-reasoning': wrapLanguageModel({
-          model: xai('grok-3-mini-beta'),
+          model: openai('gpt-o3-mini'),
           middleware: extractReasoningMiddleware({ tagName: 'think' }),
         }),
-        'title-model': xai('grok-2-1212'),
-        'artifact-model': xai('grok-2-1212'),
+        'title-model': openai('gpt-o3-mini'),
+        'artifact-model': openai('gpt-o3-mini'),
       },
-      imageModels: {
-        'small-model': xai.image('grok-2-image'),
-      },
+   
     });
