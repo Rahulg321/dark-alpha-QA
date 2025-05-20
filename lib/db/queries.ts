@@ -27,6 +27,7 @@ import {
   type DBMessage,
   type Chat,
   stream,
+  ticket,
 } from './schema';
 import type { ArtifactKind } from '@/components/artifact';
 import { generateUUID } from '../utils';
@@ -50,6 +51,16 @@ export async function getUser(email: string): Promise<Array<User>> {
       'bad_request:database',
       'Failed to get user by email',
     );
+  }
+}
+
+
+
+export async function createTicket(title:string, description:string, content:string, userId:string){
+  try {
+    return await db.insert(ticket).values({title, description, content, userId, status: "open"}).returning()
+  } catch (error) {
+    throw new ChatSDKError('bad_request:database', 'Failed to create ticket');
   }
 }
 

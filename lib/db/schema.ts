@@ -173,9 +173,11 @@ export type Stream = InferSelectModel<typeof stream>;
 
 export const ticket = pgTable("Ticket", {
   id:uuid("id").notNull().defaultRandom(), 
-  createdAt:timestamp("createdAt").notNull(), 
-  title:text("title").notNull(), 
+  createdAt:timestamp("createdAt").notNull().defaultNow(), 
+  title:text("title").notNull(),
+  tags:text("tags").array(),
   description:text("description"), 
+  content:text("content"), 
   status:varchar("status", {enum:["open", "closed"]}).notNull().default("open"), 
   userId:uuid("userId").notNull().references(() => user.id), 
 }, (pgTable)=>({
