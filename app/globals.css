@@ -162,3 +162,45 @@
 .suggestion-highlight {
   @apply bg-blue-200 hover:bg-blue-300 dark:hover:bg-blue-400/50 dark:text-blue-50 dark:bg-blue-500/40;
 }
+
+* {
+  font-family: var(--font-roboto);
+}
+
+.parent-container {
+  display: grid;
+  min-height: 100dvh;
+  grid-template-rows: auto 1fr auto;
+}
+
+.big-container {
+  margin-inline: auto;
+  width: min(90%, 70.5rem);
+}
+
+.narrow-container {
+  margin-inline: auto;
+  width: min(90%, 42.5rem);
+}
+
+.block-space {
+  padding-block: min(12vh, 17rem);
+}
+
+.block-space-large {
+  padding-block: min(14vh, 20rem);
+}
+
+.block-space-mini {
+  padding-block: min(3vh, 6rem);
+}
+
+.blog-index {
+  display: columns;
+  columns: 4;
+}
+
+.blog-index > * {
+  break-inside: avoid;
+  margin-bottom: 1.5em;
+}

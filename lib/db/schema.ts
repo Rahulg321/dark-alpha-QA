@@ -168,3 +168,24 @@ export const stream = pgTable(
 );
 
 export type Stream = InferSelectModel<typeof stream>;
+
+
+
+export const ticket = pgTable("Ticket", {
+  id:uuid("id").notNull().defaultRandom(), 
+  createdAt:timestamp("createdAt").notNull(), 
+  title:text("title").notNull(), 
+  description:text("description"), 
+  status:varchar("status", {enum:["open", "closed"]}).notNull().default("open"), 
+  userId:uuid("userId").notNull().references(() => user.id), 
+}, (pgTable)=>({
+  pk:primaryKey({columns:[pgTable.id]}), 
+  userIdRef:foreignKey({
+    columns:[pgTable.userId], 
+    foreignColumns:[user.id]
+  })
+}))
+
+export type Ticket = InferSelectModel<typeof ticket>;
+
+
