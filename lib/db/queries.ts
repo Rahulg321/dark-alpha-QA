@@ -58,8 +58,10 @@ export async function getUser(email: string): Promise<Array<User>> {
 
 export async function createTicket(title:string, description:string, content:string, userId:string){
   try {
-    return await db.insert(ticket).values({title, description, content, userId, status: "open"}).returning()
+    console.log("Created a ticket");
+    return await db.insert(ticket).values({title, description, content, userId, status: "open"}).returning();
   } catch (error) {
+    console.log(error);
     throw new ChatSDKError('bad_request:database', 'Failed to create ticket');
   }
 }

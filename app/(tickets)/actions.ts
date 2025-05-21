@@ -4,6 +4,7 @@ import { ticket, Ticket } from "@/lib/db/schema";
 import { newTicketFormSchema, NewTicketFormSchemaType } from "@/components/forms/new-ticket-form";
 import { auth } from "../(auth)/auth";
 import { createTicket } from "@/lib/db/queries";
+import * as z from "zod";
 import { revalidatePath } from "next/cache";
 
 export async function createTicketServerAction(
@@ -22,19 +23,7 @@ export async function createTicketServerAction(
     
     const userId = authSession.user.id;
 
-    const {success, data, error} = newTicketFormSchema.safeParse({
-        title: ticketFormValues.title,
-        description: ticketFormValues.description,
-        content: content,
-    });
-
-    if (!success) {
-        return {
-            error: "Invalid ticket data"
-        }
-    }
-
-    const [insertedTicket] = await createTicket(data.title, data.description, content, userId);
+    const [insertedTicket] = await createTicket(ticketFormValues.title, ticketFormValues.description, content, userId);
     console.log(insertedTicket);
 
     revalidatePath("/tickets");

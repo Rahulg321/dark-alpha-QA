@@ -15,10 +15,11 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import MDEditor from "@uiw/react-md-editor";
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import rehypeSanitize from "rehype-sanitize";
 import { useTheme } from "next-themes";
 import ReactMarkdown from "react-markdown";
+import { createTicketServerAction } from "@/app/(tickets)/actions";
 
 export const newTicketFormSchema = z.object({
   title: z.string().min(2).max(50),
@@ -28,6 +29,7 @@ export const newTicketFormSchema = z.object({
 export type NewTicketFormSchemaType = z.infer<typeof newTicketFormSchema>;
 
 const NewTicketForm = () => {
+  const [isPending, startTransition] = useTransition();
   const { theme } = useTheme();
   const [content, setContent] = useState("");
   const [error, setError] = useState<Record<string, string>>({});
@@ -47,10 +49,26 @@ const NewTicketForm = () => {
   });
 
   // 2. Define a submit handler.
-  function onSubmit(values: z.infer<typeof newTicketFormSchema>) {
+  async function onSubmit(values: z.infer<typeof newTicketFormSchema>) {
     if (content.length < 10) {
       setError({ content: "Content must be at least 10 characters" });
       return;
+    } else {
+      startTransition(async() => {
+        try {
+          const response = await createTicketServerAction(values, content);
+
+          if ("error" in response) {
+            console.log(response.error);
+            return;
+          } else {
+            console.log(response.message || "Ticket created");
+            onSuccess?.();
+          }
+        } catch (error) {
+          console.log(error);
+        }
+      });
     }
     console.log(values);
   }
@@ -66,7 +84,7 @@ const NewTicketForm = () => {
               <FormItem>
                 <FormLabel>Title</FormLabel>
                 <FormControl>
-                  <Input placeholder="shadcn" {...field} />
+                  <Input placeholder="Title" {...field} />
                 </FormControl>
 
                 <FormMessage />
@@ -80,7 +98,7 @@ const NewTicketForm = () => {
               <FormItem>
                 <FormLabel>Description</FormLabel>
                 <FormControl>
-                  <Input placeholder="shadcn" {...field} />
+                  <Input placeholder="Lorem ipsum, dolor sit amet" {...field} />
                 </FormControl>
 
                 <FormMessage />
@@ -110,7 +128,7 @@ const NewTicketForm = () => {
             )}
           </div>
 
-          <Button type="submit">Submit</Button>
+          <Button type="submit" disabled={isPending}>Submit</Button>
         </form>
       </Form>
     </div>
