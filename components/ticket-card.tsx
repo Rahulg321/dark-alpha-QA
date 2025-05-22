@@ -1,8 +1,13 @@
+"use client"
+
 import { formatDistanceToNow } from "date-fns"
 import { AlertCircle, CheckCircle, Clock } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Ticket } from "@/lib/db/schema"
+import DeleteTicketFromDB from "@/app/actions/delete-ticket";
+import Link from "next/link";
 
 interface TicketCardProps {
   ticket: Ticket
@@ -31,7 +36,13 @@ export function TicketCard({ ticket }: TicketCardProps) {
     }
   }
 
-  
+  const handleDelete = async () => {
+    try {
+      const response = await DeleteTicketFromDB(ticket.id);
+    } catch (error) {
+      console.log("FAILED TO DELETE");
+    }
+  }
 
   const formatDate = (date: Date) => {
     return date.toLocaleString("en-US", {
@@ -43,6 +54,8 @@ export function TicketCard({ ticket }: TicketCardProps) {
     })
   }
 
+  const detailLink = `/tickets/${ticket.id}`;
+
   return (
     <Card className="overflow-hidden transition-all hover:shadow-md">
       <CardHeader className="p-4">
@@ -50,6 +63,11 @@ export function TicketCard({ ticket }: TicketCardProps) {
           <div className="flex items-center gap-2">
             <span className="font-mono text-sm text-muted-foreground">{ticket.id}</span>
             <h3 className="font-semibold">{ticket.title}</h3>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <Button className="w-full bg-primary/90 hover:bg-primary" onClick={handleDelete}>
+              <p>Delete Ticket</p>
+              </Button>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <Badge variant="outline" className={getStatusColor()}>
@@ -72,6 +90,9 @@ export function TicketCard({ ticket }: TicketCardProps) {
           <div>Submitted: {formatDate(ticket.createdAt)}</div>
           <div>{formatDistanceToNow(ticket.createdAt, { addSuffix: true })}</div>
         </div>
+        <Button className="w-full bg-primary/90 hover:bg-primary" asChild>
+          <Link href={detailLink}>View Details</Link>
+        </Button>
       </CardFooter>
     </Card>
   ) 
