@@ -9,7 +9,11 @@ import {
   primaryKey,
   foreignKey,
   boolean,
+  index, 
+  vector
 } from 'drizzle-orm/pg-core';
+import { z } from 'zod';
+import { createSelectSchema } from "drizzle-zod";
 
 export const user = pgTable('User', {
   id: uuid('id').primaryKey().notNull().defaultRandom(),
@@ -189,5 +193,51 @@ export const ticket = pgTable("Ticket", {
 }))
 
 export type Ticket = InferSelectModel<typeof ticket>;
+
+
+
+export const resources = pgTable(
+  'resources',
+  {
+    id: uuid("id").notNull().defaultRandom(),
+    content: text('content'),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+    updatedAt: timestamp('updated_at').notNull().defaultNow(),
+  }, (pgTable)=>({
+    pk:primaryKey({columns:[pgTable.id]}), 
+  })
+);
+
+// Schema for resources - used to validate API requests
+export const insertResourceSchema = createSelectSchema(resources)
+  .extend({})
+  .omit({
+    id: true,
+    createdAt: true,
+    updatedAt: true,
+  });
+
+export type Resource = InferSelectModel<typeof resources>;
+
+export const embeddings = pgTable(
+  'embeddings',
+  {
+    id: uuid("id").notNull().defaultRandom(),
+    resourceId: uuid('resource_id').notNull().references(
+      () => resources.id,
+      { onDelete: 'cascade' },
+    ),
+    content: text('content').notNull(),
+    embedding: vector('embedding', { dimensions: 1536 }).notNull(),
+  },
+  table => ({
+    pk:primaryKey({columns:[table.id]}), 
+   
+    embeddingIndex: index('embeddingIndex').using(
+      'hnsw',
+      table.embedding.op('vector_cosine_ops'),
+    ),
+  }),
+);
 
 

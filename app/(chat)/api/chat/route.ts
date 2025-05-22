@@ -37,6 +37,8 @@ import { after } from 'next/server';
 import type { Chat } from '@/lib/db/schema';
 import { differenceInSeconds } from 'date-fns';
 import { ChatSDKError } from '@/lib/errors';
+import { addResource } from '@/lib/ai/tools/add-resource';
+import { getInformation } from '@/lib/ai/tools/get-information';
 
 export const maxDuration = 60;
 
@@ -151,12 +153,14 @@ export async function POST(request: Request) {
           model: myProvider.languageModel(selectedChatModel),
           system: systemPrompt({ selectedChatModel, requestHints }),
           messages,
-          maxSteps: 5,
+          maxSteps: 10,
           experimental_activeTools:
             selectedChatModel === 'chat-model-reasoning'
               ? []
               : [
                   'getWeather',
+                  'addResource',
+                  'getInformation',
                   'createDocument',
                   'updateDocument',
                   'requestSuggestions',
@@ -167,6 +171,8 @@ export async function POST(request: Request) {
           tools: {
             getWeather,
             darkAlphaOps,
+            addResource,
+            getInformation,
             createDocument: createDocument({ session, dataStream }),
             updateDocument: updateDocument({ session, dataStream }),
             requestSuggestions: requestSuggestions({
