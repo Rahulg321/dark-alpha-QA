@@ -19,6 +19,8 @@ import { useState } from "react";
 import rehypeSanitize from "rehype-sanitize";
 import { useTheme } from "next-themes";
 import ReactMarkdown from "react-markdown";
+import { TagInput } from "../tag-input";
+import { Label } from "../ui/label";
 
 export const newTicketFormSchema = z.object({
   title: z.string().min(2).max(50),
@@ -31,6 +33,12 @@ const NewTicketForm = () => {
   const { theme } = useTheme();
   const [content, setContent] = useState("");
   const [error, setError] = useState<Record<string, string>>({});
+  const [tags, setTags] = useState<string[]>([]);
+
+  const handleTagsChange = (newTags: string[]) => {
+    setTags(newTags);
+    console.log("Tags updated:", newTags);
+  };
 
   const handleContentChange = (value: string | undefined) => {
     if (value) {
@@ -73,6 +81,19 @@ const NewTicketForm = () => {
               </FormItem>
             )}
           />
+          <div>
+            <Label>Add Tags</Label>
+
+            <TagInput
+              tags={tags}
+              setTags={handleTagsChange}
+              placeholder="Add tags..."
+              maxTags={10}
+              onTagAdd={(tag) => console.log(`Added: ${tag}`)}
+              onTagRemove={(tag) => console.log(`Removed: ${tag}`)}
+            />
+          </div>
+
           <FormField
             control={form.control}
             name="description"
@@ -89,6 +110,7 @@ const NewTicketForm = () => {
           />
 
           <div>
+            <Label>Content</Label>
             <MDEditor
               value={content}
               onChange={handleContentChange}

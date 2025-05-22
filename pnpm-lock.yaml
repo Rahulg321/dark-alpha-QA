@@ -10,13 +10,13 @@ importers:
     dependencies:
       '@ai-sdk/openai':
         specifier: ^1.3.22
-        version: 1.3.22(zod@3.24.2)
+        version: 1.3.22(zod@3.25.20)
       '@ai-sdk/react':
         specifier: ^1.2.11
-        version: 1.2.11(react@19.0.0-rc-45804af1-20241021)(zod@3.24.2)
+        version: 1.2.11(react@19.0.0-rc-45804af1-20241021)(zod@3.25.20)
       '@ai-sdk/xai':
         specifier: ^1.2.15
-        version: 1.2.15(zod@3.24.2)
+        version: 1.2.15(zod@3.25.20)
       '@codemirror/lang-javascript':
         specifier: ^6.2.2
         version: 6.2.3
@@ -94,7 +94,7 @@ importers:
         version: 0.10.0
       ai:
         specifier: 4.3.13
-        version: 4.3.13(react@19.0.0-rc-45804af1-20241021)(zod@3.24.2)
+        version: 4.3.13(react@19.0.0-rc-45804af1-20241021)(zod@3.25.20)
       bcrypt-ts:
         specifier: ^5.0.2
         version: 5.0.3
@@ -120,8 +120,11 @@ importers:
         specifier: ^16.4.5
         version: 16.4.7
       drizzle-orm:
-        specifier: ^0.34.0
-        version: 0.34.1(@neondatabase/serverless@0.9.5)(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(@types/react@18.3.18)(@vercel/postgres@0.10.0)(postgres@3.4.5)(react@19.0.0-rc-45804af1-20241021)
+        specifier: ^0.43.1
+        version: 0.43.1(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(@vercel/postgres@0.10.0)(postgres@3.4.5)
+      drizzle-zod:
+        specifier: ^0.8.1
+        version: 0.8.1(drizzle-orm@0.43.1(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(@vercel/postgres@0.10.0)(postgres@3.4.5))(zod@3.25.20)
       fast-deep-equal:
         specifier: ^3.1.3
         version: 3.1.3
@@ -148,7 +151,7 @@ importers:
         version: 0.3.0(react-dom@19.0.0-rc-45804af1-20241021(react@19.0.0-rc-45804af1-20241021))(react@19.0.0-rc-45804af1-20241021)
       openai:
         specifier: ^4.99.0
-        version: 4.99.0(ws@8.18.1(bufferutil@4.0.9))(zod@3.24.2)
+        version: 4.99.0(ws@8.18.1(bufferutil@4.0.9))(zod@3.25.20)
       orderedmap:
         specifier: ^2.1.1
         version: 2.1.1
@@ -231,8 +234,8 @@ importers:
         specifier: ^3.1.0
         version: 3.1.1(react@19.0.0-rc-45804af1-20241021)
       zod:
-        specifier: ^3.24.2
-        version: 3.24.2
+        specifier: ^3.25.20
+        version: 3.25.20
     devDependencies:
       '@biomejs/biome':
         specifier: 1.9.4
@@ -2278,35 +2281,35 @@ packages:
     resolution: {integrity: sha512-Rcf0nYCAKizwjWQCY+d3zytyuTbDb81NcaPor+8NebESlUz1+9W3uGl0+r9FhU4Qal5Zv9j/7neXCSCe7DHzjA==}
     hasBin: true
 
-  drizzle-orm@0.34.1:
-    resolution: {integrity: sha512-t+zCwyWWt8xTqtYV4doE/xYmT7hpv1L8pQ66zddEz+3VWyedBBtctjMAp22mAJPfyWurRQXUJ1nrTtqLq+DqNA==}
+  drizzle-orm@0.43.1:
+    resolution: {integrity: sha512-dUcDaZtE/zN4RV/xqGrVSMpnEczxd5cIaoDeor7Zst9wOe/HzC/7eAaulywWGYXdDEc9oBPMjayVEDg0ziTLJA==}
     peerDependencies:
       '@aws-sdk/client-rds-data': '>=3'
-      '@cloudflare/workers-types': '>=3'
-      '@electric-sql/pglite': '>=0.1.1'
+      '@cloudflare/workers-types': '>=4'
+      '@electric-sql/pglite': '>=0.2.0'
       '@libsql/client': '>=0.10.0'
-      '@neondatabase/serverless': '>=0.1'
+      '@libsql/client-wasm': '>=0.10.0'
+      '@neondatabase/serverless': '>=0.10.0'
       '@op-engineering/op-sqlite': '>=2'
       '@opentelemetry/api': ^1.4.1
-      '@planetscale/database': '>=1'
+      '@planetscale/database': '>=1.13'
       '@prisma/client': '*'
       '@tidbcloud/serverless': '*'
       '@types/better-sqlite3': '*'
       '@types/pg': '*'
-      '@types/react': '>=18'
       '@types/sql.js': '*'
       '@vercel/postgres': '>=0.8.0'
       '@xata.io/client': '*'
       better-sqlite3: '>=7'
       bun-types: '*'
-      expo-sqlite: '>=13.2.0'
+      expo-sqlite: '>=14.0.0'
+      gel: '>=2'
       knex: '*'
       kysely: '*'
       mysql2: '>=2'
       pg: '>=8'
       postgres: '>=3'
       prisma: '*'
-      react: '>=18'
       sql.js: '>=1'
       sqlite3: '>=5'
     peerDependenciesMeta:
@@ -2317,6 +2320,8 @@ packages:
       '@electric-sql/pglite':
         optional: true
       '@libsql/client':
+        optional: true
+      '@libsql/client-wasm':
         optional: true
       '@neondatabase/serverless':
         optional: true
@@ -2334,8 +2339,6 @@ packages:
         optional: true
       '@types/pg':
         optional: true
-      '@types/react':
-        optional: true
       '@types/sql.js':
         optional: true
       '@vercel/postgres':
@@ -2347,6 +2350,8 @@ packages:
       bun-types:
         optional: true
       expo-sqlite:
+        optional: true
+      gel:
         optional: true
       knex:
         optional: true
@@ -2360,12 +2365,16 @@ packages:
         optional: true
       prisma:
         optional: true
-      react:
-        optional: true
       sql.js:
         optional: true
       sqlite3:
         optional: true
+
+  drizzle-zod@0.8.1:
+    resolution: {integrity: sha512-k2/2cwBz3Vjb7CWPVCeMNajZpG43V7SqhNrZ8LsWJOz8TztQ5YtU2ifgnfnxqZXsxeHmdQnsl6eXm7GwDZnq/Q==}
+    peerDependencies:
+      drizzle-orm: '>=0.36.0'
+      zod: ^3.25.1
 
   dunder-proto@1.0.1:
     resolution: {integrity: sha512-KIN/nDJBQRcXw0MLVhZE9iQHmG68qAVIBg9CqmUYjmQIhgij9U5MFvrqkUL5FbtyyzZuOeOt0zdeRe4UY7ct+A==}
@@ -4350,67 +4359,67 @@ packages:
     peerDependencies:
       zod: ^3.24.1
 
-  zod@3.24.2:
-    resolution: {integrity: sha512-lY7CDW43ECgW9u1TcT3IoXHflywfVqDYze4waEz812jR/bZ8FHDsl7pFQoSZTz5N+2NqRXs8GBwnAwo3ZNxqhQ==}
+  zod@3.25.20:
+    resolution: {integrity: sha512-z03fqpTMDF1G02VLKUMt6vyACE7rNWkh3gpXVHgPTw28NPtDFRGvcpTtPwn2kMKtQ0idtYJUTxchytmnqYswcw==}
 
   zwitch@2.0.4:
     resolution: {integrity: sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A==}
 
 snapshots:
 
-  '@ai-sdk/openai-compatible@0.2.13(zod@3.24.2)':
+  '@ai-sdk/openai-compatible@0.2.13(zod@3.25.20)':
     dependencies:
       '@ai-sdk/provider': 1.1.3
-      '@ai-sdk/provider-utils': 2.2.7(zod@3.24.2)
-      zod: 3.24.2
+      '@ai-sdk/provider-utils': 2.2.7(zod@3.25.20)
+      zod: 3.25.20
 
-  '@ai-sdk/openai@1.3.22(zod@3.24.2)':
+  '@ai-sdk/openai@1.3.22(zod@3.25.20)':
     dependencies:
       '@ai-sdk/provider': 1.1.3
-      '@ai-sdk/provider-utils': 2.2.8(zod@3.24.2)
-      zod: 3.24.2
+      '@ai-sdk/provider-utils': 2.2.8(zod@3.25.20)
+      zod: 3.25.20
 
-  '@ai-sdk/provider-utils@2.2.7(zod@3.24.2)':
+  '@ai-sdk/provider-utils@2.2.7(zod@3.25.20)':
     dependencies:
       '@ai-sdk/provider': 1.1.3
       nanoid: 3.3.11
       secure-json-parse: 2.7.0
-      zod: 3.24.2
+      zod: 3.25.20
 
-  '@ai-sdk/provider-utils@2.2.8(zod@3.24.2)':
+  '@ai-sdk/provider-utils@2.2.8(zod@3.25.20)':
     dependencies:
       '@ai-sdk/provider': 1.1.3
       nanoid: 3.3.11
       secure-json-parse: 2.7.0
-      zod: 3.24.2
+      zod: 3.25.20
 
   '@ai-sdk/provider@1.1.3':
     dependencies:
       json-schema: 0.4.0
 
-  '@ai-sdk/react@1.2.11(react@19.0.0-rc-45804af1-20241021)(zod@3.24.2)':
+  '@ai-sdk/react@1.2.11(react@19.0.0-rc-45804af1-20241021)(zod@3.25.20)':
     dependencies:
-      '@ai-sdk/provider-utils': 2.2.7(zod@3.24.2)
-      '@ai-sdk/ui-utils': 1.2.10(zod@3.24.2)
+      '@ai-sdk/provider-utils': 2.2.7(zod@3.25.20)
+      '@ai-sdk/ui-utils': 1.2.10(zod@3.25.20)
       react: 19.0.0-rc-45804af1-20241021
       swr: 2.3.3(react@19.0.0-rc-45804af1-20241021)
       throttleit: 2.1.0
     optionalDependencies:
-      zod: 3.24.2
+      zod: 3.25.20
 
-  '@ai-sdk/ui-utils@1.2.10(zod@3.24.2)':
+  '@ai-sdk/ui-utils@1.2.10(zod@3.25.20)':
     dependencies:
       '@ai-sdk/provider': 1.1.3
-      '@ai-sdk/provider-utils': 2.2.7(zod@3.24.2)
-      zod: 3.24.2
-      zod-to-json-schema: 3.24.5(zod@3.24.2)
+      '@ai-sdk/provider-utils': 2.2.7(zod@3.25.20)
+      zod: 3.25.20
+      zod-to-json-schema: 3.24.5(zod@3.25.20)
 
-  '@ai-sdk/xai@1.2.15(zod@3.24.2)':
+  '@ai-sdk/xai@1.2.15(zod@3.25.20)':
     dependencies:
-      '@ai-sdk/openai-compatible': 0.2.13(zod@3.24.2)
+      '@ai-sdk/openai-compatible': 0.2.13(zod@3.25.20)
       '@ai-sdk/provider': 1.1.3
-      '@ai-sdk/provider-utils': 2.2.7(zod@3.24.2)
-      zod: 3.24.2
+      '@ai-sdk/provider-utils': 2.2.7(zod@3.25.20)
+      zod: 3.25.20
 
   '@alloc/quick-lru@5.2.0': {}
 
@@ -5695,15 +5704,15 @@ snapshots:
     dependencies:
       humanize-ms: 1.2.1
 
-  ai@4.3.13(react@19.0.0-rc-45804af1-20241021)(zod@3.24.2):
+  ai@4.3.13(react@19.0.0-rc-45804af1-20241021)(zod@3.25.20):
     dependencies:
       '@ai-sdk/provider': 1.1.3
-      '@ai-sdk/provider-utils': 2.2.7(zod@3.24.2)
-      '@ai-sdk/react': 1.2.11(react@19.0.0-rc-45804af1-20241021)(zod@3.24.2)
-      '@ai-sdk/ui-utils': 1.2.10(zod@3.24.2)
+      '@ai-sdk/provider-utils': 2.2.7(zod@3.25.20)
+      '@ai-sdk/react': 1.2.11(react@19.0.0-rc-45804af1-20241021)(zod@3.25.20)
+      '@ai-sdk/ui-utils': 1.2.10(zod@3.25.20)
       '@opentelemetry/api': 1.9.0
       jsondiffpatch: 0.6.0
-      zod: 3.24.2
+      zod: 3.25.20
     optionalDependencies:
       react: 19.0.0-rc-45804af1-20241021
 
@@ -6073,15 +6082,17 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  drizzle-orm@0.34.1(@neondatabase/serverless@0.9.5)(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(@types/react@18.3.18)(@vercel/postgres@0.10.0)(postgres@3.4.5)(react@19.0.0-rc-45804af1-20241021):
+  drizzle-orm@0.43.1(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(@vercel/postgres@0.10.0)(postgres@3.4.5):
     optionalDependencies:
-      '@neondatabase/serverless': 0.9.5
       '@opentelemetry/api': 1.9.0
       '@types/pg': 8.11.6
-      '@types/react': 18.3.18
       '@vercel/postgres': 0.10.0
       postgres: 3.4.5
-      react: 19.0.0-rc-45804af1-20241021
+
+  drizzle-zod@0.8.1(drizzle-orm@0.43.1(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(@vercel/postgres@0.10.0)(postgres@3.4.5))(zod@3.25.20):
+    dependencies:
+      drizzle-orm: 0.43.1(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(@vercel/postgres@0.10.0)(postgres@3.4.5)
+      zod: 3.25.20
 
   dunder-proto@1.0.1:
     dependencies:
@@ -7650,7 +7661,7 @@ snapshots:
     dependencies:
       wrappy: 1.0.2
 
-  openai@4.99.0(ws@8.18.1(bufferutil@4.0.9))(zod@3.24.2):
+  openai@4.99.0(ws@8.18.1(bufferutil@4.0.9))(zod@3.25.20):
     dependencies:
       '@types/node': 18.19.100
       '@types/node-fetch': 2.6.12
@@ -7661,7 +7672,7 @@ snapshots:
       node-fetch: 2.7.0
     optionalDependencies:
       ws: 8.18.1(bufferutil@4.0.9)
-      zod: 3.24.2
+      zod: 3.25.20
     transitivePeerDependencies:
       - encoding
 
@@ -8795,10 +8806,10 @@ snapshots:
 
   yocto-queue@0.1.0: {}
 
-  zod-to-json-schema@3.24.5(zod@3.24.2):
+  zod-to-json-schema@3.24.5(zod@3.25.20):
     dependencies:
-      zod: 3.24.2
+      zod: 3.25.20
 
-  zod@3.24.2: {}
+  zod@3.25.20: {}
 
   zwitch@2.0.4: {}
