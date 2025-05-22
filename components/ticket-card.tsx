@@ -55,6 +55,7 @@ export function TicketCard({ ticket }: TicketCardProps) {
   }
 
   const detailLink = `/tickets/${ticket.id}`;
+  const editLink = `/tickets/${ticket.id}/edit`;
 
   return (
     <Card className="overflow-hidden transition-all hover:shadow-md">
@@ -67,8 +68,13 @@ export function TicketCard({ ticket }: TicketCardProps) {
           <div className="flex flex-wrap items-center gap-2">
             <Button className="w-full bg-primary/90 hover:bg-primary" onClick={handleDelete}>
               <p>Delete Ticket</p>
-              </Button>
+            </Button>
           </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <Button className="w-full bg-primary/90 hover:bg-primary">
+                <Link href={editLink}>Edit Ticket</Link>
+              </Button>
+            </div>
           <div className="flex flex-wrap items-center gap-2">
             <Badge variant="outline" className={getStatusColor()}>
               <span className="flex items-center gap-1">

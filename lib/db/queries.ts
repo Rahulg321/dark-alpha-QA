@@ -54,7 +54,40 @@ export async function getUser(email: string): Promise<Array<User>> {
   }
 }
 
+export async function getTicket(ticketId: string) {
+  try {
+    return await db.select().from(ticket).where(eq(ticket.id, ticketId));
+  } catch (error) {
+    console.log(error)
+    throw new ChatSDKError(
+      'bad_request:database',
+      'Failed to get ticket by ID',
+    );
+  }
+}
 
+export async function editTicket(title: string, description: string, content: string, ticketId: string) {
+  try {
+    return await db.update(ticket).set({title: title, description: description, content: content}).where(eq(ticket.id, ticketId)).returning();
+  } catch (error) {
+    console.log(error)
+    throw new ChatSDKError(
+      'bad_request:database',
+      'Failed to edit ticket',
+    );
+  }
+}
+
+export async function getTickets() {
+  try {
+    return await db.select.from(ticket).where();
+  } catch (error) {
+    throw new ChatSDKError(
+      'bad_request:database',
+      'Failed to get tickets',
+    );
+  }
+}
 
 export async function createTicket(title:string, description:string, content:string, userId:string){
   try {
