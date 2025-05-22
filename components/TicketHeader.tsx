@@ -38,7 +38,7 @@ const TicketHeader = ({ session }: { session: Session | null }) => {
                 </nav>
               </SheetContent>
             </Sheet>
-            <h1 className="text-xl font-semibold">Alpha Dashboard</h1>
+            <h1 className="text-xl font-semibold">Dark Alpha</h1>
             <div className="hidden md:flex items-center gap-2 text-muted-foreground">
               <Link href="/tickets" className="text-sm hover:text-primary">
                 Tickets
