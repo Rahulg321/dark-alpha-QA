@@ -10,7 +10,8 @@ import {
   foreignKey,
   boolean,
   index, 
-  vector
+  vector,
+  integer
 } from 'drizzle-orm/pg-core';
 import { z } from 'zod';
 import { createSelectSchema } from "drizzle-zod";
@@ -219,4 +220,12 @@ export const insertResourceSchema = createSelectSchema(resources)
 
 export type Resource = InferSelectModel<typeof resources>;
 
+export const tags = pgTable(
+  'tags',
+  {
+    name: text("name").notNull().unique(),
+    count: integer("count").notNull().default(0),
+  }
+);
 
+export type Tags = InferSelectModel<typeof tags>;

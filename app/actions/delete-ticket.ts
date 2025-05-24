@@ -21,7 +21,13 @@ const db = drizzle(client);
 
 const DeleteTicketFromDB = async (ticketId: string) => {
   try {
-    await db.delete(ticket).where(eq(ticket.id, ticketId));
+    const oldTicket = await db.select().from(ticket).where(eq(ticket.id, ticketId));
+    await db.transaction(async (t) => {
+      for (let i = 0; i < oldTicket.tags.length; ++i) {
+          await t.update(tags).where({name: oldTicket.tags[i]}).set({ count: sql`${tags.count} - 1` } );
+      }
+      await db.delete(ticket).where(eq(ticket.id, ticketId));
+    });
   } catch (error) {
     console.log("FAILED TO DELETE TICKET");
     console.log(error);

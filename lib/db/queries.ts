@@ -10,6 +10,7 @@ import {
   gte,
   inArray,
   lt,
+  sql,
   type SQL,
 } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/postgres-js';
@@ -28,6 +29,8 @@ import {
   type Chat,
   stream,
   ticket,
+  tags,
+  type Tags
 } from './schema';
 import type { ArtifactKind } from '@/components/artifact';
 import { generateUUID } from '../utils';
@@ -66,10 +69,21 @@ export async function getTicket(ticketId: string) {
   }
 }
 
-export async function editTicket(title: string, description: string, tags: string[], content: string, ticketId: string) {
+export async function editTicket(title: string, description: string, newTags: string[], content: string, ticketId: string) {
   try {
     console.log(tags);
-    return await db.update(ticket).set({title, description, tags, content}).where(eq(ticket.id, ticketId)).returning();
+    const newTicket: Ticket = await db.transaction(async (t) => {
+      const oldTags = await t.getTicket(ticketId).tags;
+      for (let i = 0; i < newTags.length; ++i) {
+        if (oldTags.indexOf(newTags[i]) == -1) {
+          await t.insert(tags).values({name: newTags[i], count: 1}).onConflictDoUpdate({target: tags.name, set: { count: sql`${tags.count} + 1` } });
+        } else if (newTags.indexOf(oldTags[i]) == -1) {
+          await t.update(tags).where({name: newTags[i]}).set({ count: sql`${tags.count} + 1` } );
+        }
+      }
+      return await t.update(ticket).set({title, description, tags: newTags, content}).where(eq(ticket.id, ticketId)).returning();
+    })
+    return newTicket;
   } catch (error) {
     console.log(error)
     throw new ChatSDKError(
@@ -81,7 +95,7 @@ export async function editTicket(title: string, description: string, tags: strin
 
 export async function getTickets() {
   try {
-    return await db.select.from(ticket).where();
+    return await db.select().from(ticket).where();
   } catch (error) {
     throw new ChatSDKError(
       'bad_request:database',
@@ -90,10 +104,17 @@ export async function getTickets() {
   }
 }
 
-export async function createTicket(title:string, description:string, tags: string[], content:string, userId:string){
+export async function createTicket(title:string, description:string, newTags: string[], content:string, userId:string){
   try {
     console.log("Created a ticket");
-    return await db.insert(ticket).values({title, description, tags, content, userId, status: "open"}).returning();
+    const newTicket: Ticket = await db.transaction(async (t) => {
+      const ticketMade = await t.insert(ticket).values({title, description, tags: newTags, content, userId, status: "open"}).returning();
+      for (let i = 0; i < newTags.length; ++i) {
+        await t.insert(tags).values({name: newTags[i], count: 1}).onConflictDoUpdate({target: tags.name, set: { count: sql`${tags.count} + 1` } });
+      }
+      return ticketMade;
+    });
+    return newTicket;
   } catch (error) {
     console.log(error);
     throw new ChatSDKError('bad_request:database', 'Failed to create ticket');
