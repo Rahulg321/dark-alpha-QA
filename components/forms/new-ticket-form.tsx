@@ -53,6 +53,7 @@ const NewTicketForm = () => {
     defaultValues: {
       title: "",
       description: "",
+      tags: [],
     },
   });
 
@@ -64,7 +65,7 @@ const NewTicketForm = () => {
     } else {
       startTransition(async() => {
         try {
-          const response = await createTicketServerAction(values, content);
+          const response = await createTicketServerAction(values, content, tags);
 
           if ("error" in response) {
             console.log(response.error);

@@ -66,9 +66,10 @@ export async function getTicket(ticketId: string) {
   }
 }
 
-export async function editTicket(title: string, description: string, content: string, ticketId: string) {
+export async function editTicket(title: string, description: string, tags: string[], content: string, ticketId: string) {
   try {
-    return await db.update(ticket).set({title: title, description: description, content: content}).where(eq(ticket.id, ticketId)).returning();
+    console.log(tags);
+    return await db.update(ticket).set({title, description, tags, content}).where(eq(ticket.id, ticketId)).returning();
   } catch (error) {
     console.log(error)
     throw new ChatSDKError(
@@ -89,10 +90,10 @@ export async function getTickets() {
   }
 }
 
-export async function createTicket(title:string, description:string, content:string, userId:string){
+export async function createTicket(title:string, description:string, tags: string[], content:string, userId:string){
   try {
     console.log("Created a ticket");
-    return await db.insert(ticket).values({title, description, content, userId, status: "open"}).returning();
+    return await db.insert(ticket).values({title, description, tags, content, userId, status: "open"}).returning();
   } catch (error) {
     console.log(error);
     throw new ChatSDKError('bad_request:database', 'Failed to create ticket');

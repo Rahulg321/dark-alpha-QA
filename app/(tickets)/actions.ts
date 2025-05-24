@@ -16,7 +16,8 @@ export async function getTicketById(
 
 export async function createTicketServerAction(
   ticketFormValues: NewTicketFormSchemaType,
-  content: string
+  content: string,
+  tags: string[],
 ) {
 
     try {
@@ -30,7 +31,7 @@ export async function createTicketServerAction(
     
     const userId = authSession.user.id;
 
-    const [insertedTicket] = await createTicket(ticketFormValues.title, ticketFormValues.description, content, userId);
+    const [insertedTicket] = await createTicket(ticketFormValues.title, ticketFormValues.description, tags, content, userId);
     console.log(insertedTicket);
 
     revalidatePath("/tickets");
@@ -51,6 +52,7 @@ export async function createTicketServerAction(
 export async function editTicketServerAction(
     ticketFormValues: EditTicketFormSchemaType,
     content: string,
+    tags: string[],
     ticketId: string,
 ) {
     try {
@@ -64,7 +66,7 @@ export async function editTicketServerAction(
 
         const userId = authSession.user.id;
 
-        const [editedTicket] = await editTicket(ticketFormValues.title, ticketFormValues.description, content, ticketId);
+        const [editedTicket] = await editTicket(ticketFormValues.title, ticketFormValues.description, tags, content, ticketId);
 
         revalidatePath("/tickets");
 

@@ -26,7 +26,7 @@ import { Label } from "../ui/label";
 
 export const EditTicketFormSchema = z.object({
   title: z.string().min(2).max(50),
-  description: z.string().min(10).max(100),
+  description: z.string().min(10).max(100)
 });
 
 export type EditTicketFormSchemaType = z.infer<typeof EditTicketFormSchema>;
@@ -38,17 +38,18 @@ type EditTicketFormProps = {
 const EditTicketForm = ({ ticket }: EditTicketFormProps) => {
   const {
     title,
-    description
+    description,
+    content,
   } = ticket;
   const ticketId = ticket.id;
   const [isPending, startTransition] = useTransition();
   const { theme } = useTheme();
-  const [content, setContent] = useState("");
+  const [setContent] = useState("");
   const [error, setError] = useState<Record<string, string>>({});
-  const [tags, setTags] = useState<string[]>([]);
+  const [tags, setTags] = useState<string[]>(ticket.tags);
 
   const handleTagsChange = (newTags: string[]) => {
-    setTags(newTags);
+    setTags([...tags, newTags]);
     console.log("Tags updated:", newTags);
   };
 
@@ -67,14 +68,14 @@ const EditTicketForm = ({ ticket }: EditTicketFormProps) => {
   });
 
   // 2. Define a submit handler.
-  async function onSubmit(values: z.infer<typeof editTicketFormSchema>) {
+  async function onSubmit(values: z.infer<typeof EditTicketFormSchema>) {
     if (content.length < 10) {
       setError({ content: "Content must be at least 10 characters" });
       return;
     } else {
       startTransition(async() => {
         try {
-          const response = await editTicketServerAction(values, content, ticketId);
+          const response = await editTicketServerAction(values, content, tags, ticketId);
 
           if ("error" in response) {
             console.log(response.error);

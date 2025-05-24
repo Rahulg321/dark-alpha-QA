@@ -175,7 +175,7 @@ export type Stream = InferSelectModel<typeof stream>;
 
 
 
-export const ticket = pgTable("Ticket", {
+export const ticket = pgTable("ticket", {
   id:uuid("id").notNull().defaultRandom(), 
   createdAt:timestamp("createdAt").notNull().defaultNow(), 
   title:text("title").notNull(),
@@ -218,26 +218,5 @@ export const insertResourceSchema = createSelectSchema(resources)
   });
 
 export type Resource = InferSelectModel<typeof resources>;
-
-export const embeddings = pgTable(
-  'embeddings',
-  {
-    id: uuid("id").notNull().defaultRandom(),
-    resourceId: uuid('resource_id').notNull().references(
-      () => resources.id,
-      { onDelete: 'cascade' },
-    ),
-    content: text('content').notNull(),
-    embedding: vector('embedding', { dimensions: 1536 }).notNull(),
-  },
-  table => ({
-    pk:primaryKey({columns:[table.id]}), 
-   
-    embeddingIndex: index('embeddingIndex').using(
-      'hnsw',
-      table.embedding.op('vector_cosine_ops'),
-    ),
-  }),
-);
 
 
