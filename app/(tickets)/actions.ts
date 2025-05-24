@@ -2,13 +2,22 @@
 
 import { ticket, Ticket } from "@/lib/db/schema";
 import { newTicketFormSchema, NewTicketFormSchemaType } from "@/components/forms/new-ticket-form";
+import { editTicketFormSchema, EditTicketFormSchemaType } from "@/components/forms/edit-ticket-form";
 import { auth } from "../(auth)/auth";
-import { createTicket } from "@/lib/db/queries";
+import { createTicket, editTicket, getTicket } from "@/lib/db/queries";
+import * as z from "zod";
 import { revalidatePath } from "next/cache";
+
+export async function getTicketById(
+    ticketId: string
+) {
+    return await getTicket(ticketId);
+}
 
 export async function createTicketServerAction(
   ticketFormValues: NewTicketFormSchemaType,
-  content: string
+  content: string,
+  tags: string[],
 ) {
 
     try {
@@ -22,19 +31,7 @@ export async function createTicketServerAction(
     
     const userId = authSession.user.id;
 
-    const {success, data, error} = newTicketFormSchema.safeParse({
-        title: ticketFormValues.title,
-        description: ticketFormValues.description,
-        content: content,
-    });
-
-    if (!success) {
-        return {
-            error: "Invalid ticket data"
-        }
-    }
-
-    const [insertedTicket] = await createTicket(data.title, data.description, content, userId);
+    const [insertedTicket] = await createTicket(ticketFormValues.title, ticketFormValues.description, tags, content, userId);
     console.log(insertedTicket);
 
     revalidatePath("/tickets");
@@ -52,4 +49,37 @@ export async function createTicketServerAction(
     }
 }
 
+export async function editTicketServerAction(
+    ticketFormValues: EditTicketFormSchemaType,
+    content: string,
+    tags: string[],
+    ticketId: string,
+) {
+    try {
+        const authSession = await auth();
+
+        if (!authSession?.user) {
+            return {
+                error: "Unauthorized"
+            }
+        }
+
+        const userId = authSession.user.id;
+
+        const [editedTicket] = await editTicket(ticketFormValues.title, ticketFormValues.description, tags, content, ticketId);
+
+        revalidatePath("/tickets");
+
+        return {
+            success: true,
+            data: editedTicket
+        }
+    } catch (error) {
+        console.error(error);
+        return {
+            error: "Failed to edit ticket"
+        }
+
+    }
+}
 

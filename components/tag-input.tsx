@@ -39,12 +39,15 @@ export function TagInput({
   };
 
   const addTag = (tag: string) => {
+    console.log("AT LEAST WE'RE HJERE")
     const trimmedTag = tag.trim();
 
     // Don't add empty tags or duplicates
     if (!trimmedTag || tags.includes(trimmedTag)) {
       return;
     }
+
+    console.log(tag)
 
     // Check if we've reached the maximum number of tags
     if (maxTags !== undefined && tags.length >= maxTags) {
@@ -67,6 +70,7 @@ export function TagInput({
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && inputValue) {
+      console.log("HERE?")
       e.preventDefault();
       addTag(inputValue);
     } else if (e.key === "Backspace" && !inputValue && tags.length > 0) {
