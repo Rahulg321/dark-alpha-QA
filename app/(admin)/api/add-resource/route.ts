@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PDFLoader } from "@/lib/pdf-loader";
 import { DocxLoader } from "@/lib/docx-loader";
-import { split } from "sentence-splitter";
 import {
   generateChunksFromText,
   generateEmbeddingsFromChunks,
 } from "@/lib/ai/embedding";
 import { db } from "@/lib/db/queries";
 import { embeddings as embeddingsTable, resources } from "@/lib/db/schema";
+import { openaiClient } from "@/lib/ai/providers";
 
 export async function POST(request: NextRequest) {
   try {
@@ -24,40 +24,13 @@ export async function POST(request: NextRequest) {
     const fileType = file.type;
     const buffer = await file.arrayBuffer();
 
+    let content: string;
+
     // Process based on file type
     if (fileType === "application/pdf") {
       // Process PDF
       const pdfLoader = new PDFLoader();
-      const content = await pdfLoader.loadFromBuffer(buffer);
-      //   const sentences = split(content)
-      //     .filter((node) => node.type === "Sentence")
-      //     .map((node) => node.raw);
-
-      const chunks = await generateChunksFromText(content);
-      console.log("Chunks length", chunks.chunks.length);
-      const embeddings = await generateEmbeddingsFromChunks(
-        chunks.chunks.map((chunk) => chunk.pageContent)
-      );
-
-      console.log("Embeddings length", embeddings.length);
-
-      console.log("creating a resource");
-      const [resource] = await db
-        .insert(resources)
-        .values({ content })
-        .returning();
-
-      console.log("Resource created", resource);
-
-      console.log("Embeddings generated");
-      await db.insert(embeddingsTable).values(
-        embeddings.map((embedding) => ({
-          resourceId: resource.id,
-          ...embedding,
-        }))
-      );
-
-      return NextResponse.json({ content, chunks }, { status: 200 });
+      content = await pdfLoader.loadFromBuffer(buffer);
     } else if (
       fileType === "application/msword" ||
       fileType ===
@@ -65,12 +38,59 @@ export async function POST(request: NextRequest) {
     ) {
       // Process DOC/DOCX
       const docxLoader = new DocxLoader();
-      const content = await docxLoader.loadFromBuffer(buffer);
-
-      return NextResponse.json({ content }, { status: 200 });
+      content = await docxLoader.loadFromBuffer(buffer);
+    } else if (fileType === "image/png" || fileType === "image/jpeg") {
+      console.log("*****************");
+      console.log("processing image");
+      const base64Image = Buffer.from(buffer).toString("base64");
+      const response = await openaiClient.responses.create({
+        model: "gpt-4o-mini",
+        input: [
+          {
+            role: "user",
+            content: [
+              {
+                type: "input_text",
+                text: "Can you properly analyse this image for please. Extract any relevant text from the image which you may find relevant to the topic of the image. If you find any text, please extract it and return it as a string. If you don't find any text, please return an empty string. Apart from the text, give your detailed analysis of the image",
+              },
+              {
+                type: "input_image",
+                image_url: `data:${fileType};base64,${base64Image}`,
+                detail: "auto", // or "low" or "high"
+              },
+            ],
+          },
+        ],
+      });
+      content = response.output_text;
+      console.log("*****************");
+    } else if (fileType === "text/plain") {
+      content = await file.text();
     } else {
       throw new Error("Unsupported file type");
     }
+
+    const chunks = await generateChunksFromText(content);
+    console.log("Chunks length", chunks.chunks.length);
+    const embeddings = await generateEmbeddingsFromChunks(
+      chunks.chunks.map((chunk) => chunk.pageContent)
+    );
+
+    const [resource] = await db
+      .insert(resources)
+      .values({ content })
+      .returning();
+
+    await db.insert(embeddingsTable).values(
+      embeddings.map((embedding) => ({
+        resourceId: resource.id,
+        ...embedding,
+      }))
+    );
+
+    console.log("Resource and embeddings were created successfully!!!");
+
+    return NextResponse.json({ content, chunks }, { status: 200 });
   } catch (error) {
     console.error("Error processing file:", error);
     return NextResponse.json(

@@ -22,18 +22,22 @@ const NewResourceForm = () => {
       const selectedFile = e.target.files[0];
       const fileType = selectedFile.type;
 
-      // Check if file is PDF or DOC
+      // Check if file is PDF, DOC, or image
       if (
         fileType === "application/pdf" ||
         fileType === "application/msword" ||
         fileType ===
-          "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+          "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
+        fileType === "image/jpeg" ||
+        fileType === "image/png" ||
+        fileType === "image/gif" ||
+        fileType === "image/webp"
       ) {
         setFile(selectedFile);
         setError(null);
       } else {
         setFile(null);
-        setError("Please upload a PDF or DOC file");
+        setError("Please upload a PDF, DOC, or image file");
       }
     }
   };
@@ -79,7 +83,7 @@ const NewResourceForm = () => {
               <Input
                 id="file"
                 type="file"
-                accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.gif,.webp,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,image/jpeg,image/png,image/gif,image/webp"
                 onChange={handleFileChange}
                 className="flex-1"
               />
