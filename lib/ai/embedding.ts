@@ -118,13 +118,16 @@ export const findRelevantContent = async (userQuery: string) => {
     embeddings.embedding,
     userQueryEmbedded
   )})`;
+
   const similarGuides = await db
     .select({ name: embeddingsTable.content, similarity })
     .from(embeddingsTable)
     .where(gt(similarity, 0.5))
     .orderBy((t) => desc(t.similarity))
     .limit(4);
+
   console.log("Similar guides found:", similarGuides);
+
   return similarGuides;
 };
 
