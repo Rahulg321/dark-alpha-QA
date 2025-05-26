@@ -71,14 +71,16 @@ export async function getTicket(ticketId: string) {
 
 export async function editTicket(title: string, description: string, newTags: string[], content: string, ticketId: string) {
   try {
-    console.log(tags);
+    const result = await db.select({oldTags: ticket.tags}).from(ticket).where(eq(ticket.id, ticketId));
+    const { oldTags } = result[0];
     const newTicket: Ticket = await db.transaction(async (t) => {
-      const oldTags = await t.getTicket(ticketId).tags;
-      for (let i = 0; i < newTags.length; ++i) {
-        if (oldTags.indexOf(newTags[i]) == -1) {
+      for (let i = 0; i < Math.max(newTags.length, oldTags.length); ++i) {
+        //console.log(oldTags[i])
+        //console.log(newTags[i])
+        if (oldTags.indexOf(newTags[i]) == -1 && newTags[i] != null) {
           await t.insert(tags).values({name: newTags[i], count: 1}).onConflictDoUpdate({target: tags.name, set: { count: sql`${tags.count} + 1` } });
-        } else if (newTags.indexOf(oldTags[i]) == -1) {
-          await t.update(tags).where({name: newTags[i]}).set({ count: sql`${tags.count} + 1` } );
+        } else if (newTags.indexOf(oldTags[i]) == -1 && oldTags[i] != null) {
+          await t.update(tags).set({ count: sql`${tags.count} - 1` } ).where(eq(tags.name, oldTags[i]));
         }
       }
       return await t.update(ticket).set({title, description, tags: newTags, content}).where(eq(ticket.id, ticketId)).returning();

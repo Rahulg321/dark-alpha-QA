@@ -1,6 +1,6 @@
 "use server";
 
-import { Ticket, ticket } from "@/lib/db/schema";
+import { Ticket, ticket, tags } from "@/lib/db/schema";
 import {
   and,
   asc,
@@ -11,6 +11,7 @@ import {
   gte,
   inArray,
   lt,
+  sql,
   type SQL,
 } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/postgres-js';
@@ -21,10 +22,11 @@ const db = drizzle(client);
 
 const DeleteTicketFromDB = async (ticketId: string) => {
   try {
-    const oldTicket = await db.select().from(ticket).where(eq(ticket.id, ticketId));
+    const result = await db.select({oldTags: ticket.tags}).from(ticket).where(eq(ticket.id, ticketId));
+    const { oldTags } = result[0];
     await db.transaction(async (t) => {
-      for (let i = 0; i < oldTicket.tags.length; ++i) {
-          await t.update(tags).where({name: oldTicket.tags[i]}).set({ count: sql`${tags.count} - 1` } );
+      for (let i = 0; i < oldTags.length; ++i) {
+          await t.update(tags).set({ count: sql`${tags.count} - 1` } ).where(eq(tags.name, oldTags[i]));
       }
       await db.delete(ticket).where(eq(ticket.id, ticketId));
     });

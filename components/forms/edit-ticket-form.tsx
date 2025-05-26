@@ -46,10 +46,10 @@ const EditTicketForm = ({ ticket }: EditTicketFormProps) => {
   const { theme } = useTheme();
   const [setContent] = useState("");
   const [error, setError] = useState<Record<string, string>>({});
-  const [tags, setTags] = useState<string[]>(ticket.tags);
+  const [tags, setTags] = useState<string[]>(ticket.tags ? ticket.tags : []);
 
   const handleTagsChange = (newTags: string[]) => {
-    setTags([...tags, newTags]);
+    setTags(newTags);
     console.log("Tags updated:", newTags);
   };
 
