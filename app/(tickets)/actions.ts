@@ -1,55 +1,57 @@
 "use server";
 
 import { ticket, Ticket } from "@/lib/db/schema";
-import { newTicketFormSchema, NewTicketFormSchemaType } from "@/components/forms/new-ticket-form";
+import {
+  newTicketFormSchema,
+  NewTicketFormSchemaType,
+} from "@/components/forms/new-ticket-form";
 import { auth } from "../(auth)/auth";
 import { createTicket } from "@/lib/db/queries";
 import { revalidatePath } from "next/cache";
 
-export async function createTicketServerAction(
-  ticketFormValues: NewTicketFormSchemaType,
-  content: string
-) {
-
-    try {
-        const authSession = await auth();
+export async function createTicketServerAction(formData: FormData) {
+  try {
+    const authSession = await auth();
 
     if (!authSession?.user) {
-        return {
-            error: "Unauthorized"
-        }
-    }
-    
-    const userId = authSession.user.id;
-
-    const {success, data, error} = newTicketFormSchema.safeParse({
-        title: ticketFormValues.title,
-        description: ticketFormValues.description,
-        content: content,
-    });
-
-    if (!success) {
-        return {
-            error: "Invalid ticket data"
-        }
+      return {
+        error: "Unauthorized",
+      };
     }
 
-    const [insertedTicket] = await createTicket(data.title, data.description, content, userId);
-    console.log(insertedTicket);
+    const title = formData.get("title") as string;
+    const description = formData.get("description") as string;
+    const content = formData.get("content") as string;
+    const tags = (formData.get("tags") as string)?.split(",") ?? [];
+
+    if (tags.length === 0) {
+      return {
+        error: "Tags are required",
+      };
+    }
+
+    console.log("inside server action");
+    console.log(title, description, content, tags);
+
+    const [ticket] = await createTicket(
+      title,
+      description,
+      content,
+      authSession.user.id,
+      tags
+    );
+
+    console.log("ticket created", ticket);
 
     revalidatePath("/tickets");
 
     return {
-        success: true,
-        data: insertedTicket
-    }
-    } catch (error) {
-        console.error(error);
-        return {
-            error: "Failed to create ticket"
-        }
-
-    }
+      success: true,
+    };
+  } catch (error) {
+    console.error(error);
+    return {
+      error: "Failed to create ticket",
+    };
+  }
 }
-
-
