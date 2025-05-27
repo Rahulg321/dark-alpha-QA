@@ -2,6 +2,7 @@ import { TicketCard } from "@/components/ticket-card";
 import { Button } from "@/components/ui/button";
 import { Ticket } from "@/lib/db/schema";
 import React from "react";
+import SearchTickets from "@/components/SearchTickets";
 import Link from "next/link";
 import GetTickets, { GetAllTickets } from "@/app/actions/get-tickets";
 import Pagination from "@/components/pagination";
@@ -33,6 +34,7 @@ const TicketsPage = async (props: { searchParams: SearchParams }) => {
 
   return (
     <section className="block-space big-container">
+      <SearchTickets />
       <Button asChild>
         <Link href="/tickets/new">New Ticket</Link>
       </Button>

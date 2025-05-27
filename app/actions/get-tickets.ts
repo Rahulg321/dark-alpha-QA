@@ -12,6 +12,9 @@ import {
   gte,
   inArray,
   lt,
+  ilike,
+  arrayOverlaps,
+  or,
   type SQL,
 } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/postgres-js';
@@ -46,11 +49,12 @@ export const GetAllTickets = async({
   limit?: number;
   ticketStatus?: TicketStatus[];
 }): Promise<GetTicketsResult> => {
-
+  console.log("this")
   const [data, totalCount] = await Promise.all([
-    db.select().from(ticket).where().offset(offset).limit(limit),
-    db.select({value: count() }).from(ticket).where().offset(offset).limit(limit),
+    db.select().from(ticket).where(or(ilike(ticket.title, '%'+search+'%'), or(ilike(ticket.description, '%'+search+'%'), or(ilike(ticket.content, '%'+search+'%'))))).offset(offset).limit(limit),
+    db.select({value: count() }).from(ticket).where(or(ilike(ticket.title, '%'+search+'%'), or(ilike(ticket.description, '%'+search+'%'), or(ilike(ticket.content, '%'+search+'%'))))).offset(offset).limit(limit),
   ]);
+  console.log("finished")
 
   console.log(data);
   console.log(totalCount);
