@@ -200,16 +200,38 @@ export const ticket = pgTable(
 
 export type Ticket = InferSelectModel<typeof ticket>;
 
+export const sources = pgTable(
+  "sources",
+  {
+    id: uuid("id").notNull().defaultRandom(),
+    name: text("name").notNull(),
+    type: varchar("type", { length: 32 }),
+    description: text("description"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (table) => ({
+    pk: primaryKey({ columns: [table.id] }),
+  })
+);
+
 export const resources = pgTable(
   "resources",
   {
     id: uuid("id").notNull().defaultRandom(),
+    sourceId: uuid("source_id")
+      .notNull()
+      .references(() => sources.id, { onDelete: "cascade" }),
     content: text("content"),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },
   (pgTable) => ({
     pk: primaryKey({ columns: [pgTable.id] }),
+    sourceRef: foreignKey({
+      columns: [pgTable.sourceId],
+      foreignColumns: [sources.id],
+    }),
   })
 );
 

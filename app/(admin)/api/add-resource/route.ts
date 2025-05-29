@@ -2,12 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { PDFLoader } from "@/lib/pdf-loader";
 import { DocxLoader } from "@/lib/docx-loader";
 import {
+  rowsToTextChunks,
   generateChunksFromText,
   generateEmbeddingsFromChunks,
 } from "@/lib/ai/embedding";
 import { db } from "@/lib/db/queries";
 import { embeddings as embeddingsTable, resources } from "@/lib/db/schema";
 import { openaiClient } from "@/lib/ai/providers";
+import { ExcelLoader } from "@/lib/excel-loader";
 
 export async function POST(request: NextRequest) {
   try {
@@ -24,13 +26,24 @@ export async function POST(request: NextRequest) {
     const fileType = file.type;
     const buffer = await file.arrayBuffer();
 
-    let content: string;
+    let content: string = "";
+    let sheets: Record<string, any[][]> | undefined;
+    let chunks: any;
+    let embeddingInput: string[];
 
     // Process based on file type
     if (fileType === "application/pdf") {
       // Process PDF
       const pdfLoader = new PDFLoader();
       content = await pdfLoader.loadFromBuffer(buffer);
+    } else if (
+      fileType === "application/vnd.ms-excel" ||
+      fileType ===
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    ) {
+      // Process Excel
+      const excelLoader = new ExcelLoader();
+      sheets = await excelLoader.loadExcelFromBuffer(buffer);
     } else if (
       fileType === "application/msword" ||
       fileType ===
@@ -70,12 +83,25 @@ export async function POST(request: NextRequest) {
       throw new Error("Unsupported file type");
     }
 
-    const chunks = await generateChunksFromText(content);
-    console.log("Chunks length", chunks.chunks.length);
-    const embeddings = await generateEmbeddingsFromChunks(
-      chunks.chunks.map((chunk) => chunk.pageContent)
-    );
+    if (
+      fileType === "application/vnd.ms-excel" ||
+      fileType ===
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    ) {
+      chunks = rowsToTextChunks(sheets!);
+      embeddingInput = chunks.map(
+        (chunk: { sheet: string; text: string }) => chunk.text
+      );
+      // For response, join all chunk texts
+      content = embeddingInput.join("\n\n");
+      console.log("chunks", chunks);
+    } else {
+      chunks = await generateChunksFromText(content!);
+      embeddingInput = chunks.chunks.map((chunk: any) => chunk.pageContent);
+      console.log("Chunks length", chunks.chunks.length);
+    }
 
+    const embeddings = await generateEmbeddingsFromChunks(embeddingInput);
     const [resource] = await db
       .insert(resources)
       .values({ content })
@@ -84,13 +110,14 @@ export async function POST(request: NextRequest) {
     await db.insert(embeddingsTable).values(
       embeddings.map((embedding) => ({
         resourceId: resource.id,
+
         ...embedding,
       }))
     );
 
     console.log("Resource and embeddings were created successfully!!!");
 
-    return NextResponse.json({ content, chunks }, { status: 200 });
+    return NextResponse.json({ content }, { status: 200 });
   } catch (error) {
     console.error("Error processing file:", error);
     return NextResponse.json(

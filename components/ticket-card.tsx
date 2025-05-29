@@ -8,6 +8,7 @@ import {
   CardHeader,
 } from "@/components/ui/card";
 import { Ticket } from "@/lib/db/schema";
+import Link from "next/link";
 
 interface TicketCardProps {
   ticket: Ticket;
@@ -47,40 +48,36 @@ export function TicketCard({ ticket }: TicketCardProps) {
   };
 
   return (
-    <Card className="overflow-hidden transition-all hover:shadow-md">
-      <CardHeader className="p-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-          <div className="flex items-center gap-2">
-            <span className="font-mono text-sm text-muted-foreground">
-              {ticket.id}
-            </span>
-            <h3 className="font-semibold">{ticket.title}</h3>
+    <Link href={`/tickets/${ticket.id}`}>
+      <Card className="overflow-hidden transition-all hover:shadow-md">
+        <CardHeader className="p-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <h4 className="font-semibold">{ticket.title}</h4>
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <Badge variant="outline" className={getStatusColor()}>
+                <span className="flex items-center gap-1">
+                  {getStatusIcon()}
+                  {ticket.status.charAt(0).toUpperCase() +
+                    ticket.status.slice(1).replace("-", " ")}
+                </span>
+              </Badge>
+            </div>
           </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <Badge variant="outline" className={getStatusColor()}>
-              <span className="flex items-center gap-1">
-                {getStatusIcon()}
-                {ticket.status.charAt(0).toUpperCase() +
-                  ticket.status.slice(1).replace("-", " ")}
-              </span>
-            </Badge>
+        </CardHeader>
+        <CardContent className="p-4">
+          <p className="text-gray-700">{ticket.description}</p>
+        </CardContent>
+        <CardFooter className="border-t bg-gray-50 px-4 py-2 text-sm text-muted-foreground">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between w-full">
+            <div>Submitted: {formatDate(ticket.createdAt)}</div>
+            <div>
+              {formatDistanceToNow(ticket.createdAt, { addSuffix: true })}
+            </div>
           </div>
-        </div>
-      </CardHeader>
-      <CardContent className="p-4">
-        <div className="mb-2">
-          <span className="font-semibold">From:</span> {ticket.userId}
-        </div>
-        <p className="text-gray-700">{ticket.description}</p>
-      </CardContent>
-      <CardFooter className="border-t bg-gray-50 px-4 py-2 text-sm text-muted-foreground">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between w-full">
-          <div>Submitted: {formatDate(ticket.createdAt)}</div>
-          <div>
-            {formatDistanceToNow(ticket.createdAt, { addSuffix: true })}
-          </div>
-        </div>
-      </CardFooter>
-    </Card>
+        </CardFooter>
+      </Card>
+    </Link>
   );
 }

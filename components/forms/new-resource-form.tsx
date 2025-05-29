@@ -31,13 +31,16 @@ const NewResourceForm = () => {
         fileType === "image/jpeg" ||
         fileType === "image/png" ||
         fileType === "image/gif" ||
-        fileType === "image/webp"
+        fileType === "image/webp" ||
+        fileType === "application/vnd.ms-excel" ||
+        fileType ===
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
       ) {
         setFile(selectedFile);
         setError(null);
       } else {
         setFile(null);
-        setError("Please upload a PDF, DOC, or image file");
+        setError("Please upload a PDF, DOC, Excel Sheet or image file");
       }
     }
   };
@@ -83,7 +86,7 @@ const NewResourceForm = () => {
               <Input
                 id="file"
                 type="file"
-                accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.gif,.webp,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,image/jpeg,image/png,image/gif,image/webp"
+                accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png,.gif,.webp,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,image/jpeg,image/png,image/gif,image/webp"
                 onChange={handleFileChange}
                 className="flex-1"
               />

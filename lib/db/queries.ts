@@ -54,6 +54,31 @@ export async function getUser(email: string): Promise<Array<User>> {
   }
 }
 
+/**
+ * Get a ticket by id
+ * @param id - The id of the ticket
+ * @returns The ticket
+ */
+export async function getTicketById({ id }: { id: string }) {
+  try {
+    const [selectedTicket] = await db
+      .select()
+      .from(ticket)
+      .where(eq(ticket.id, id));
+    return selectedTicket;
+  } catch (error) {
+    throw new ChatSDKError(
+      "bad_request:database",
+      "Failed to get ticket by id"
+    );
+  }
+}
+
+/**
+ * Get tickets by user id
+ * @param userId - The id of the user
+ * @returns The tickets
+ */
 export async function getTicketsByUserId({ userId }: { userId: string }) {
   try {
     return await db.select().from(ticket).where(eq(ticket.userId, userId));

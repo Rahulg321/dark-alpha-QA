@@ -9,6 +9,25 @@ import { encoding_for_model } from "tiktoken";
 
 const embeddingModel = openai.embedding("text-embedding-ada-002");
 
+export function rowsToTextChunks(
+  sheets: Record<string, any[][]>,
+  maxRowsPerChunk = 20
+) {
+  const chunks: { sheet: string; text: string }[] = [];
+
+  for (const [sheetName, rows] of Object.entries(sheets)) {
+    for (let i = 0; i < rows.length; i += maxRowsPerChunk) {
+      const slice = rows.slice(i, i + maxRowsPerChunk);
+      const text = slice
+        .map((row, idx) => `Row ${i + idx + 1}: ${row.map(String).join(" | ")}`)
+        .join("\n");
+      chunks.push({ sheet: sheetName, text });
+    }
+  }
+
+  return chunks;
+}
+
 export async function generateChunksFromText(text: string) {
   const encoder = encoding_for_model("text-embedding-3-small");
 
