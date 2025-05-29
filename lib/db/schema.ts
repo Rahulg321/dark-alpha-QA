@@ -1,4 +1,5 @@
 import type { InferSelectModel } from 'drizzle-orm';
+import { relations } from 'drizzle-orm';
 import {
   pgTable,
   varchar,
@@ -174,8 +175,6 @@ export const stream = pgTable(
 
 export type Stream = InferSelectModel<typeof stream>;
 
-
-
 export const ticket = pgTable("ticket", {
   id:uuid("id").notNull().defaultRandom(), 
   createdAt:timestamp("createdAt").notNull().defaultNow(), 
@@ -184,14 +183,41 @@ export const ticket = pgTable("ticket", {
   description:text("description"), 
   content:text("content"), 
   status:varchar("status", {enum:["open", "closed"]}).notNull().default("open"), 
-  userId:uuid("userId").notNull().references(() => user.id), 
+  userId:uuid("userId").notNull().references(() => user.id),
 }, (pgTable)=>({
   pk:primaryKey({columns:[pgTable.id]}), 
   userIdRef:foreignKey({
     columns:[pgTable.userId], 
     foreignColumns:[user.id]
   })
-}))
+}));
+
+export const ticketRelations = relations(ticket, ({ many }) => ({
+  replies: many(replies),
+}));
+
+export const replies = pgTable("replies", {
+  id: uuid('id').notNull().defaultRandom(),
+  content: text('content'),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+  userId: uuid("userId").notNull().references(() => user.id),
+}, (pgTable)=>({
+  pk:primaryKey({columns:[pgTable.id]}),
+  userIdRef:foreignKey({
+    columns:[pgTable.userId],
+    foreignColumns:[user.id]
+  })
+}));
+
+export type Replies = InferSelectModel<typeof replies>;
+
+export const repliesRelations = relations(replies, ({ one }) => ({
+  user: one(user, {
+    fields: [replies.userId],
+    references: [user.id],
+  }),
+}));
 
 export type Ticket = InferSelectModel<typeof ticket>;
 
