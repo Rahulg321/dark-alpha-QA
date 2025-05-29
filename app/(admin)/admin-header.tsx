@@ -1,6 +1,5 @@
 import React from "react";
-import { ModeToggle } from "@/components/mode-toggle";
-import { Bell, ChevronDown, Menu, Search } from "lucide-react";
+import { ChevronDown, Menu } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -29,38 +28,49 @@ const AdminHeader = ({ session }: { session: Session | null }) => {
               </SheetTrigger>
               <SheetContent side="left" className="w-[300px] sm:w-[400px]">
                 <nav className="flex flex-col gap-4">
-                  <Link href="/tickets" className="text-sm font-medium">
+                  <Link href="/admin/tickets" className="text-sm font-medium">
                     Tickets
                   </Link>
-                  <Link href="/investments" className="text-sm font-medium">
+                  <Link href="/admin/sources" className="text-sm font-medium">
+                    Sources
+                  </Link>
+                  <Link
+                    href="/admin/investments"
+                    className="text-sm font-medium"
+                  >
                     Investments
                   </Link>
                 </nav>
               </SheetContent>
             </Sheet>
-            <h1 className="text-xl font-semibold">Admin Dashboard</h1>
+            <Link href="/admin">
+              <h1 className="text-xl font-semibold">Dashboard</h1>
+            </Link>
             <div className="hidden md:flex items-center gap-2 text-muted-foreground">
-              <Link href="/tickets" className="text-sm hover:text-primary">
+              <Link
+                href="/admin/tickets"
+                className="text-sm hover:text-primary"
+              >
                 Tickets
               </Link>
               <span className="text-sm">•</span>
-              <Link href="/investments" className="text-sm hover:text-primary">
+              <Link
+                href="/admin/sources"
+                className="text-sm hover:text-primary"
+              >
+                Sources
+              </Link>
+              <span className="text-sm">•</span>
+              <Link
+                href="/admin/investments"
+                className="text-sm hover:text-primary"
+              >
                 Investments
               </Link>
             </div>
           </div>
 
           <div className="flex items-center gap-4">
-            <div className="relative hidden md:block">
-              <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-              <input
-                type="search"
-                placeholder="Search..."
-                className="pl-8 h-9 w-[200px] rounded-md border bg-background px-3 py-1 text-sm"
-              />
-            </div>
-
-            <ModeToggle />
             <ProfileMenu session={session} />
           </div>
         </div>
