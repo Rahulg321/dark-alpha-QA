@@ -1,5 +1,4 @@
 import type { InferSelectModel } from 'drizzle-orm';
-import { relations } from 'drizzle-orm';
 import {
   pgTable,
   varchar,
@@ -176,7 +175,7 @@ export const stream = pgTable(
 export type Stream = InferSelectModel<typeof stream>;
 
 export const ticket = pgTable("ticket", {
-  id:uuid("id").notNull().defaultRandom(), 
+  id:uuid("id").notNull().primaryKey().defaultRandom(),
   createdAt:timestamp("createdAt").notNull().defaultNow(), 
   title:text("title").notNull(),
   tags:text("tags").array(),
@@ -185,66 +184,33 @@ export const ticket = pgTable("ticket", {
   status:varchar("status", {enum:["open", "closed"]}).notNull().default("open"), 
   userId:uuid("userId").notNull().references(() => user.id),
 }, (pgTable)=>({
-  pk:primaryKey({columns:[pgTable.id]}), 
   userIdRef:foreignKey({
     columns:[pgTable.userId], 
     foreignColumns:[user.id]
   })
 }));
 
-export const ticketRelations = relations(ticket, ({ many }) => ({
-  replies: many(replies),
-}));
+export type Ticket = InferSelectModel<typeof ticket>;
 
 export const replies = pgTable("replies", {
-  id: uuid('id').notNull().defaultRandom(),
-  content: text('content'),
+  id: uuid('id').notNull().primaryKey().defaultRandom(),
+  content: text('content').notNull(),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
   userId: uuid("userId").notNull().references(() => user.id),
+  ticketId: uuid("ticketId").notNull().references(() => ticket.id),
 }, (pgTable)=>({
-  pk:primaryKey({columns:[pgTable.id]}),
   userIdRef:foreignKey({
     columns:[pgTable.userId],
     foreignColumns:[user.id]
+  }),
+  ticketIdRef:foreignKey({
+    columns:[pgTable.ticketId],
+    foreignColumns:[ticket.id]
   })
 }));
 
 export type Replies = InferSelectModel<typeof replies>;
-
-export const repliesRelations = relations(replies, ({ one }) => ({
-  user: one(user, {
-    fields: [replies.userId],
-    references: [user.id],
-  }),
-}));
-
-export type Ticket = InferSelectModel<typeof ticket>;
-
-
-
-export const resources = pgTable(
-  'resources',
-  {
-    id: uuid("id").notNull().defaultRandom(),
-    content: text('content'),
-    createdAt: timestamp('created_at').notNull().defaultNow(),
-    updatedAt: timestamp('updated_at').notNull().defaultNow(),
-  }, (pgTable)=>({
-    pk:primaryKey({columns:[pgTable.id]}), 
-  })
-);
-
-// Schema for resources - used to validate API requests
-export const insertResourceSchema = createSelectSchema(resources)
-  .extend({})
-  .omit({
-    id: true,
-    createdAt: true,
-    updatedAt: true,
-  });
-
-export type Resource = InferSelectModel<typeof resources>;
 
 export const tags = pgTable(
   'tags',
@@ -255,3 +221,67 @@ export const tags = pgTable(
 );
 
 export type Tags = InferSelectModel<typeof tags>;
+
+export const company = pgTable(
+  "company",
+  {
+    id: uuid("id").notNull().defaultRandom().primaryKey(),
+    name: text("name").notNull(),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+    updatedAt: timestamp('updated_at').notNull().defaultNow(),
+  }
+);
+
+export const resources = pgTable(
+  "resources",
+  {
+    id: uuid("id").notNull().defaultRandom(),
+    companyId: uuid("companyId").notNull().references(() => company.id, { onDelete: "cascade" }),
+    content: text("content"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (pgTable) => ({
+    companyIdRef:foreignKey({
+      columns:[pgTable.companyId],
+      foreignColumns:[company.id]
+    }),
+    pk: primaryKey({ columns: [pgTable.id] }),
+  })
+);
+
+// Schema for resources - used to validate API requests
+export const insertResourceSchema = createSelectSchema(resources)
+.extend({})
+.omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type Resource = InferSelectModel<typeof resources>;
+
+export const embeddings = pgTable(
+  "embeddings",
+  {
+    id: uuid("id").notNull().defaultRandom(),
+    resourceId: uuid("resource_id")
+      .notNull()
+      .references(() => resources.id, { onDelete: "cascade" }),
+    content: text("content").notNull(),
+    embedding: vector("embedding", { dimensions: 1536 }).notNull(),
+  },
+  (table) => ({
+    pk: primaryKey({ columns: [table.id] }),
+    resourceIdRef:foreignKey({
+      columns:[table.resourceId],
+      foreignColumns:[resources.id]
+    }),
+    embeddingIndex: index("embeddingIndex").using(
+      "hnsw",
+      table.embedding.op("vector_cosine_ops")
+    ),
+  })
+);
+
+export type Embedding = InferSelectModel<typeof embeddings>;

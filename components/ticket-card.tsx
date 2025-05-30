@@ -38,6 +38,7 @@ export function TicketCard({ ticket }: TicketCardProps) {
 
   const handleDelete = async () => {
     try {
+      console.log("HERE")
       const response = await DeleteTicketFromDB(ticket.id);
     } catch (error) {
       console.log("FAILED TO DELETE");
@@ -65,16 +66,6 @@ export function TicketCard({ ticket }: TicketCardProps) {
             <span className="font-mono text-sm text-muted-foreground">{ticket.id}</span>
             <h3 className="font-semibold">{ticket.title}</h3>
           </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <Button className="w-full bg-primary/90 hover:bg-primary" onClick={handleDelete}>
-              <p>Delete Ticket</p>
-            </Button>
-          </div>
-            <div className="flex flex-wrap items-center gap-2">
-              <Button className="w-full bg-primary/90 hover:bg-primary">
-                <Link href={editLink}>Edit Ticket</Link>
-              </Button>
-            </div>
           <div className="flex flex-wrap items-center gap-2">
             <Badge variant="outline" className={getStatusColor()}>
               <span className="flex items-center gap-1">
