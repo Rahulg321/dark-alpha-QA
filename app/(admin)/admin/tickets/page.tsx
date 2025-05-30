@@ -22,7 +22,7 @@ import {
 export default function AdminTickets() {
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto py-8 px-4 md:px-6 max-w-7xl">
+      <div className="big-container block-space-mini">
         <header className="mb-8">
           <h1 className="text-3xl font-semibold tracking-tight mb-2">
             Support Tickets

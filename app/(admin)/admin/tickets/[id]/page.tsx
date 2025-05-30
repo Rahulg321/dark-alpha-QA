@@ -115,7 +115,7 @@ export default function TicketDetail({ params }: { params: { id: string } }) {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto py-8 px-4 md:px-6 max-w-5xl">
+      <div className="big-container block-space-mini">
         <Link
           href="/admin/tickets"
           className="inline-flex items-center text-muted-foreground hover:text-foreground mb-6 transition-colors"

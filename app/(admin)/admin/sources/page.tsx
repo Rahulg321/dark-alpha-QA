@@ -47,7 +47,7 @@ const SourcesPage = () => {
               Consultancy
             </Button>
           </div>
-          <Link href="/sources/new">
+          <Link href="/admin/sources/new">
             <Button>
               <PlusCircle className="mr-2 h-4 w-4" />
               New Source

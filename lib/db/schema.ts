@@ -181,7 +181,6 @@ export const ticket = pgTable(
     title: text("title").notNull(),
     tags: text("tags").array().notNull(),
     description: text("description"),
-    content: text("content"),
     status: varchar("status", { enum: ["open", "closed"] })
       .notNull()
       .default("open"),
@@ -200,38 +199,30 @@ export const ticket = pgTable(
 
 export type Ticket = InferSelectModel<typeof ticket>;
 
-export const sources = pgTable(
-  "sources",
-  {
-    id: uuid("id").notNull().defaultRandom(),
-    name: text("name").notNull(),
-    type: varchar("type", { length: 32 }),
-    description: text("description"),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
-    updatedAt: timestamp("updated_at").notNull().defaultNow(),
-  },
-  (table) => ({
-    pk: primaryKey({ columns: [table.id] }),
-  })
-);
+export const company = pgTable("company", {
+  id: uuid("id").notNull().defaultRandom().primaryKey(),
+  name: text("name").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
 
 export const resources = pgTable(
   "resources",
   {
     id: uuid("id").notNull().defaultRandom(),
-    sourceId: uuid("source_id")
+    companyId: uuid("companyId")
       .notNull()
-      .references(() => sources.id, { onDelete: "cascade" }),
+      .references(() => company.id, { onDelete: "cascade" }),
     content: text("content"),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },
   (pgTable) => ({
-    pk: primaryKey({ columns: [pgTable.id] }),
-    sourceRef: foreignKey({
-      columns: [pgTable.sourceId],
-      foreignColumns: [sources.id],
+    companyIdRef: foreignKey({
+      columns: [pgTable.companyId],
+      foreignColumns: [company.id],
     }),
+    pk: primaryKey({ columns: [pgTable.id] }),
   })
 );
 
@@ -258,10 +249,15 @@ export const embeddings = pgTable(
   },
   (table) => ({
     pk: primaryKey({ columns: [table.id] }),
-
+    resourceIdRef: foreignKey({
+      columns: [table.resourceId],
+      foreignColumns: [resources.id],
+    }),
     embeddingIndex: index("embeddingIndex").using(
       "hnsw",
       table.embedding.op("vector_cosine_ops")
     ),
   })
 );
+
+export type Embedding = InferSelectModel<typeof embeddings>;
