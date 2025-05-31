@@ -1,6 +1,10 @@
-import { formatDistanceToNow } from "date-fns";
-import { AlertCircle, CheckCircle, Clock } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+"use client"
+
+import { formatDistanceToNow } from "date-fns"
+import { AlertCircle, CheckCircle, Clock } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button";
+import DeleteTicketFromDB from "@/app/actions/delete-ticket";
 import {
   Card,
   CardContent,
@@ -35,7 +39,16 @@ export function TicketCard({ ticket }: TicketCardProps) {
       default:
         return "";
     }
-  };
+  }
+
+  const handleDelete = async () => {
+    try {
+      console.log("HERE")
+      const response = await DeleteTicketFromDB(ticket.id);
+    } catch (error) {
+      console.log("FAILED TO DELETE");
+    }
+  }
 
   const formatDate = (date: Date) => {
     return date.toLocaleString("en-US", {
@@ -46,6 +59,9 @@ export function TicketCard({ ticket }: TicketCardProps) {
       minute: "numeric",
     });
   };
+
+  const detailLink = `/tickets/${ticket.id}`;
+  const editLink = `/tickets/${ticket.id}/edit`;
 
   return (
     <Link href={`/tickets/${ticket.id}`}>
@@ -76,8 +92,23 @@ export function TicketCard({ ticket }: TicketCardProps) {
               {formatDistanceToNow(ticket.createdAt, { addSuffix: true })}
             </div>
           </div>
-        </CardFooter>
-      </Card>
+      </CardFooter>
+      <CardContent className="p-4">
+        <div className="mb-2">
+          <span className="font-semibold">From:</span> {ticket.userId}
+        </div>
+        <p className="text-gray-700">{ticket.description}</p>
+      </CardContent>
+      <CardFooter className="border-t bg-gray-50 px-4 py-2 text-sm text-muted-foreground">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between w-full">
+          <div>Submitted: {formatDate(ticket.createdAt)}</div>
+          <div>{formatDistanceToNow(ticket.createdAt, { addSuffix: true })}</div>
+        </div>
+        <Button className="w-full bg-primary/90 hover:bg-primary" asChild>
+          <Link href={detailLink}>View Details</Link>
+        </Button>
+      </CardFooter>
+    </Card>
     </Link>
-  );
+  ) 
 }

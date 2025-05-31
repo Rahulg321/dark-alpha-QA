@@ -6,23 +6,52 @@ import {
   NewTicketFormSchemaType,
 } from "@/components/forms/new-ticket-form";
 import { auth } from "../(auth)/auth";
-import { createTicket } from "@/lib/db/queries";
+import { createTicket, editTicket, getTicket, createReply } from "@/lib/db/queries";
+import * as z from "zod";
 import { revalidatePath } from "next/cache";
 
-export async function createTicketServerAction(formData: FormData) {
-  try {
-    const authSession = await auth();
+export async function getTicketById(
+    ticketId: string
+) {
+    return await getTicket(ticketId);
+}
 
+export async function createReplyServerAction(ticketId: string, content: string) {
+    try {
+        const authSession = await auth();
+        if (!authSession?.user) {
+            return {
+                error: "Unauthorized"
+            }
+        }
+
+        const userId = authSession.user.id;
+        return await createReply(ticketId,userId,content);
+    } catch (error) {
+        return {
+            error: "Failed to create reply"
+        }
+    }
+}
+
+export async function createTicketServerAction(
+  ticketFormValues: NewTicketFormSchemaType,
+  content: string,
+  tags: string[],
+) {
+
+    try {
+        const authSession = await auth();
     if (!authSession?.user) {
       return {
         error: "Unauthorized",
       };
     }
 
-    const title = formData.get("title") as string;
-    const description = formData.get("description") as string;
-    const content = formData.get("content") as string;
-    const tags = (formData.get("tags") as string)?.split(",") ?? [];
+    const title = ticketFormValues.get("title") as string;
+    const description = ticketFormValues.get("description") as string;
+    const content = ticketFormValues.get("content") as string;
+    const tags = (ticketFormValues.get("tags") as string)?.split(",") ?? [];
 
     if (tags.length === 0) {
       return {
@@ -33,7 +62,7 @@ export async function createTicketServerAction(formData: FormData) {
     console.log("inside server action");
     console.log(title, description, content, tags);
 
-    const [ticket] = await createTicket(
+    const ticket = await createTicket(
       title,
       description,
       content,
@@ -54,4 +83,38 @@ export async function createTicketServerAction(formData: FormData) {
       error: "Failed to create ticket",
     };
   }
+}
+
+export async function editTicketServerAction(
+    ticketFormValues: EditTicketFormSchemaType,
+    content: string,
+    tags: string[],
+    ticketId: string,
+) {
+    try {
+        const authSession = await auth();
+
+        if (!authSession?.user) {
+            return {
+                error: "Unauthorized"
+            }
+        }
+
+        const userId = authSession.user.id;
+
+        const [editedTicket] = await editTicket(ticketFormValues.title, ticketFormValues.description, tags, content, ticketId);
+
+        revalidatePath("/tickets");
+
+        return {
+            success: true,
+            data: editedTicket
+        }
+    } catch (error) {
+        console.error(error);
+        return {
+            error: "Failed to edit ticket"
+        }
+
+    }
 }

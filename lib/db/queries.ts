@@ -10,6 +10,7 @@ import {
   gte,
   inArray,
   lt,
+  sql,
   type SQL,
 } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/postgres-js";
@@ -28,14 +29,18 @@ import {
   type Chat,
   stream,
   ticket,
+  tags,
+  type Tags,
+  replies,
+  type Replies,
   company,
-  resources,
-} from "./schema";
-import type { ArtifactKind } from "@/components/artifact";
-import { generateUUID } from "../utils";
-import { generateHashedPassword } from "./utils";
-import type { VisibilityType } from "@/components/visibility-selector";
-import { ChatSDKError } from "../errors";
+  resources
+} from './schema';
+import type { ArtifactKind } from '@/components/artifact';
+import { generateUUID } from '../utils';
+import { generateHashedPassword } from './utils';
+import type { VisibilityType } from '@/components/visibility-selector';
+import { ChatSDKError } from '../errors';
 
 // Optionally, if not using email/pass login, you can
 // use the Drizzle adapter for Auth.js / NextAuth
@@ -53,6 +58,114 @@ export async function getUser(email: string): Promise<Array<User>> {
       "bad_request:database",
       "Failed to get user by email"
     );
+  }
+}
+
+export async function getTicket(ticketId: string) {
+  try {
+    return await db.select().from(ticket).where(eq(ticket.id, ticketId));
+  } catch (error) {
+    console.log(error)
+    throw new ChatSDKError(
+      'bad_request:database',
+      'Failed to get ticket by ID',
+    );
+  }
+}
+
+/**
+ * export const replies = pgTable("replies", {
+ *  id: uuid('id').notNull().primaryKey().defaultRandom(),
+ *  content: text('content').notNull(),
+ *  createdAt: timestamp('created_at').notNull().defaultNow(),
+ *  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+ *  userId: uuid("userId").notNull().references(() => user.id),
+ *  ticketId: uuid("ticketId").notNull().references(() => ticket.id),
+ * }, (pgTable)=>({
+ *  userIdRef:foreignKey({
+ *   columns:[pgTable.userId],
+ *   foreignColumns:[user.id]
+ *  }),
+ *  ticketIdRef:foreignKey({
+ *   columns:[pgTable.ticketId],
+ *   foreignColumns:[ticket.id]
+ *  })
+ * }));
+*/
+
+export async function createReply(ticketId: string, userId: string, content: string) {
+  try {
+    return await db.insert(replies).values({ticketId, userId, content}).returning();
+  } catch (error) {
+    console.log(error)
+    throw new ChatSDKError(
+      'bad_request:database',
+      'Failed to create reply',
+    );
+  }
+}
+
+export async function editReply(replyId: string, content: string) {
+  try {
+    return await db.update(replies).set({ content, updatedAt: sql`NOW()`}).where(eq(replies.id, replyId));
+  } catch (error) {
+    throw new ChatSDKError(
+      'bad_request:database',
+      'Failed to edit reply',
+    );
+  }
+}
+
+export async function editTicket(title: string, description: string, newTags: string[], content: string, ticketId: string) {
+  try {
+    const result = await db.select({oldTags: ticket.tags}).from(ticket).where(eq(ticket.id, ticketId));
+    const { oldTags } = result[0];
+    const newTicket: Ticket = await db.transaction(async (t) => {
+      for (let i = 0; i < Math.max(newTags.length, oldTags.length); ++i) {
+        //console.log(oldTags[i])
+        //console.log(newTags[i])
+        if (oldTags.indexOf(newTags[i]) == -1 && newTags[i] != null) {
+          await t.insert(tags).values({name: newTags[i], count: 1}).onConflictDoUpdate({target: tags.name, set: { count: sql`${tags.count} + 1` } });
+        } else if (newTags.indexOf(oldTags[i]) == -1 && oldTags[i] != null) {
+          await t.update(tags).set({ count: sql`${tags.count} - 1` } ).where(eq(tags.name, oldTags[i]));
+        }
+      }
+      return await t.update(ticket).set({title, description, tags: newTags, content}).where(eq(ticket.id, ticketId)).returning();
+    })
+    return newTicket;
+  } catch (error) {
+    console.log(error)
+    throw new ChatSDKError(
+      'bad_request:database',
+      'Failed to edit ticket',
+    );
+  }
+}
+
+export async function getTickets() {
+  try {
+    return await db.select().from(ticket).where();
+  } catch (error) {
+    throw new ChatSDKError(
+      'bad_request:database',
+      'Failed to get tickets',
+    );
+  }
+}
+
+export async function createTicket(title:string, description:string, content:string, userId:string, newTags: string[]){
+  try {
+    console.log("Created a ticket");
+    const newTicket: Ticket = await db.transaction(async (t) => {
+      const ticketMade = await t.insert(ticket).values({title, description, tags: newTags, content, userId, status: "open"}).returning();
+      for (let i = 0; i < newTags.length; ++i) {
+        await t.insert(tags).values({name: newTags[i], count: 1}).onConflictDoUpdate({target: tags.name, set: { count: sql`${tags.count} + 1` } });
+      }
+      return ticketMade;
+    });
+    return newTicket;
+  } catch (error) {
+    console.log(error);
   }
 }
 
@@ -164,33 +277,6 @@ export async function getCompanyNameById(companyId: string) {
       "bad_request:database",
       "Failed to get company name by id"
     );
-  }
-}
-
-/**
- * Create a new ticket
- * @param title - The title of the ticket
- * @param description - The description of the ticket
- * @param content - The content of the ticket
- * @param userId - The user id of the ticket
- * @param tags - The tags of the ticket
- * @returns The created ticket
- */
-export async function createTicket(
-  title: string,
-  description: string,
-  content: string,
-  userId: string,
-  tags: string[]
-) {
-  try {
-    return await db
-      .insert(ticket)
-      .values({ title, description, userId, status: "open", tags })
-      .returning();
-  } catch (error) {
-    console.error(error);
-    throw new ChatSDKError("bad_request:database", "Failed to create ticket");
   }
 }
 

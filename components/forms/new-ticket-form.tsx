@@ -19,10 +19,10 @@ import { useState, useTransition } from "react";
 import rehypeSanitize from "rehype-sanitize";
 import { useTheme } from "next-themes";
 import ReactMarkdown from "react-markdown";
+import { createTicketServerAction } from "@/app/(tickets)/actions";
 import { TagInput } from "../tag-input";
 import { Label } from "../ui/label";
 import MarkdownEditor from "../MDXEditors/MarkdownEditor";
-import { createTicketServerAction } from "@/app/(tickets)/actions";
 import { toast } from "sonner";
 
 export const newTicketFormSchema = z.object({
@@ -33,8 +33,8 @@ export const newTicketFormSchema = z.object({
 export type NewTicketFormSchemaType = z.infer<typeof newTicketFormSchema>;
 
 const NewTicketForm = () => {
-  const { theme } = useTheme();
   const [isPending, startTransition] = useTransition();
+  const { theme } = useTheme();
 
   const [content, setContent] = useState("");
   const [error, setError] = useState<Record<string, string>>({});
@@ -54,6 +54,7 @@ const NewTicketForm = () => {
     defaultValues: {
       title: "",
       description: "",
+      tags: [],
     },
   });
 
@@ -105,7 +106,7 @@ const NewTicketForm = () => {
               <FormItem>
                 <FormLabel>Title</FormLabel>
                 <FormControl>
-                  <Input placeholder="shadcn" {...field} />
+                  <Input placeholder="Title" {...field} />
                 </FormControl>
 
                 <FormMessage />
@@ -135,7 +136,7 @@ const NewTicketForm = () => {
               <FormItem>
                 <FormLabel>Description</FormLabel>
                 <FormControl>
-                  <Input placeholder="shadcn" {...field} />
+                  <Input placeholder="Lorem ipsum, dolor sit amet" {...field} />
                 </FormControl>
 
                 <FormMessage />
