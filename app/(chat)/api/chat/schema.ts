@@ -11,7 +11,7 @@ export const postRequestBodySchema = z.object({
     id: z.string().uuid(),
     createdAt: z.coerce.date(),
     role: z.enum(['user']),
-    content: z.string().min(1).max(2000),
+    content: z.string().min(1).max(5000),
     parts: z.array(textPartSchema),
     experimental_attachments: z
       .array(

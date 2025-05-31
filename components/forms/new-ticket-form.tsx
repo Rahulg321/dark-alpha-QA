@@ -22,6 +22,9 @@ import ReactMarkdown from "react-markdown";
 import { createTicketServerAction } from "@/app/(tickets)/actions";
 import { TagInput } from "../tag-input";
 import { Label } from "../ui/label";
+import MarkdownEditor from "../MDXEditors/MarkdownEditor";
+import { createTicketServerAction } from "@/app/(tickets)/actions";
+import { toast } from "sonner";
 
 export const newTicketFormSchema = z.object({
   title: z.string().min(2).max(50),
@@ -33,6 +36,8 @@ export type NewTicketFormSchemaType = z.infer<typeof newTicketFormSchema>;
 const NewTicketForm = () => {
   const [isPending, startTransition] = useTransition();
   const { theme } = useTheme();
+  const [isPending, startTransition] = useTransition();
+
   const [content, setContent] = useState("");
   const [error, setError] = useState<Record<string, string>>({});
   const [tags, setTags] = useState<string[]>([]);
@@ -43,9 +48,7 @@ const NewTicketForm = () => {
   };
 
   const handleContentChange = (value: string | undefined) => {
-    if (value) {
-      setContent(value);
-    }
+    setContent(value ?? "");
   };
 
   const form = useForm<z.infer<typeof newTicketFormSchema>>({
@@ -58,27 +61,39 @@ const NewTicketForm = () => {
 
   // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof newTicketFormSchema>) {
-    if (content.length < 10) {
-      setError({ content: "Content must be at least 10 characters" });
-      return;
-    } else {
-      startTransition(async() => {
-        try {
-          const response = await createTicketServerAction(values, content);
+    startTransition(async () => {
+      if (tags.length < 1) {
+        setError({ tags: "At least one tag is required" });
+        toast.error("At least one tag is required");
+        return;
+      }
 
-          if ("error" in response) {
-            console.log(response.error);
-            return;
-          } else {
-            console.log(response.message || "Ticket created");
-            onSuccess?.();
-          }
-        } catch (error) {
-          console.log(error);
-        }
-      });
-    }
-    console.log(values);
+      if (content.length < 10) {
+        setError({ content: "Content must be at least 10 characters" });
+        toast.error("Content must be at least 10 characters");
+        return;
+      }
+
+      const formdata = new FormData();
+      formdata.append("title", values.title);
+      formdata.append("description", values.description);
+      formdata.append("content", content);
+      formdata.append("tags", tags.join(","));
+
+      console.log(formdata);
+
+      const response = await createTicketServerAction(formdata);
+
+      if (response.error) {
+        setError({ content: response.error });
+        toast.error(response.error);
+      } else {
+        toast.success("Ticket created successfully");
+        form.reset();
+        setContent("");
+        setTags([]);
+      }
+    });
   }
 
   return (
@@ -110,6 +125,9 @@ const NewTicketForm = () => {
               onTagAdd={(tag) => console.log(`Added: ${tag}`)}
               onTagRemove={(tag) => console.log(`Removed: ${tag}`)}
             />
+            {error.tags && (
+              <span className="text-red-500 text-sm">{error.tags}</span>
+            )}
           </div>
 
           <FormField
@@ -129,28 +147,16 @@ const NewTicketForm = () => {
 
           <div>
             <Label>Content</Label>
-            <MDEditor
-              value={content}
-              onChange={handleContentChange}
-              style={{
-                backgroundColor: theme === "dark" ? "#1a1a1a" : "#ffffff",
-                color: theme === "dark" ? "#ffffff" : "#000000",
-              }}
-              previewOptions={{
-                rehypePlugins: [[rehypeSanitize]],
-                style: {
-                  backgroundColor: theme === "dark" ? "#1a1a1a" : "#ffffff",
-                  color: theme === "dark" ? "#ffffff" : "#000000",
-                },
-              }}
-            />
+            <MarkdownEditor value={content} onChange={handleContentChange} />
 
             {error.content && (
               <span className="text-red-500 text-sm">{error.content}</span>
             )}
           </div>
 
-          <Button type="submit" disabled={isPending}>Submit</Button>
+          <Button type="submit" disabled={isPending}>
+            {isPending ? "Submitting..." : "Submit"}
+          </Button>
         </form>
       </Form>
     </div>

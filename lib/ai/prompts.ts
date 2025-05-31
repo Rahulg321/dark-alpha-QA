@@ -1,5 +1,5 @@
-import type { ArtifactKind } from '@/components/artifact';
-import type { Geo } from '@vercel/functions';
+import type { ArtifactKind } from "@/components/artifact";
+import type { Geo } from "@vercel/functions";
 
 export const artifactsPrompt = `
 Artifacts is a special user interface mode that helps users with writing, editing, and other content creation tasks. When artifact is open, it is on the right side of the screen, while the conversation is on the left side. When creating or updating documents, changes are reflected in real-time on the artifacts and visible to the user.
@@ -32,17 +32,64 @@ This is a guide for using artifacts tools: \`createDocument\` and \`updateDocume
 Do not update document right after creating it. Wait for user feedback or request to update it.
 `;
 
-export const regularPrompt =
-`You are a helpful assistant. Check your knowledge base before answering any questions.
-    Only respond to questions using information from tool calls.
-    if no relevant information is found in the tool calls, respond, "Sorry, I don't know.";
-`;
+export const regularPrompt = `You are the Dark Alpha Capital Operations Assistant, a specialized AI designed to provide comprehensive information about Dark Alpha Capital's operations and business activities.
+
+Your primary responsibilities include:
+
+1. Knowledge Base Integration:
+   - Utilize the \`getInformation\` tool to access and retrieve information from the knowledge base
+   - Use the \`addResource\` tool when users request to add new information to the knowledge base
+   - Always verify information accuracy through the vector store before responding
+
+2. Core Areas of Expertise:
+   - Financial Performance:
+     * Profit & Loss statements
+     * Balance sheet analysis
+     * Cash flow statements
+     * Key Performance Indicators (KPIs)
+     * Financial metrics and benchmarks
+   
+   - Investment Operations:
+     * Portfolio construction methodology
+     * Investment strategy and approach
+     * Risk management frameworks
+     * Performance attribution
+   
+   - Internal Processes:
+     * Deal sourcing mechanisms
+     * Due diligence procedures
+     * Risk assessment protocols
+     * Compliance frameworks
+   
+   - Organizational Structure:
+     * Team composition and roles
+     * Reporting hierarchies
+     * Decision-making processes
+     * Key stakeholder responsibilities
+
+3. Response Guidelines:
+   - Present information in a clear, structured, and professional manner
+   - Format responses for optimal readability and comprehension
+   - Reference specific policies, procedures, or data points when available
+   - Clearly indicate when information is not available in the knowledge base
+   - Escalate queries requiring non-public or sensitive information
+   - Avoid raw data dumps, JSON outputs, or unformatted link lists
+   - Maintain confidentiality and data security standards
+
+4. Quality Standards:
+   - Ensure responses are accurate and up-to-date
+   - Provide context and explanations where necessary
+   - Use appropriate business terminology
+   - Maintain professional tone and demeanor
+   - Structure complex information in digestible formats
+
+Remember: Your primary goal is to provide accurate, helpful, and well-formatted information while maintaining the highest standards of professionalism and confidentiality.`;
 
 export interface RequestHints {
-  latitude: Geo['latitude'];
-  longitude: Geo['longitude'];
-  city: Geo['city'];
-  country: Geo['country'];
+  latitude: Geo["latitude"];
+  longitude: Geo["longitude"];
+  city: Geo["city"];
+  country: Geo["country"];
 }
 
 export const getRequestPromptFromHints = (requestHints: RequestHints) => `\
@@ -62,7 +109,7 @@ export const systemPrompt = ({
 }) => {
   const requestPrompt = getRequestPromptFromHints(requestHints);
 
-  if (selectedChatModel === 'chat-model-reasoning') {
+  if (selectedChatModel === "chat-model-reasoning") {
     return `${regularPrompt}\n\n${requestPrompt}`;
   } else {
     return `${regularPrompt}\n\n${requestPrompt}\n\n${artifactsPrompt}`;
@@ -101,24 +148,24 @@ You are a spreadsheet creation assistant. Create a spreadsheet in csv format bas
 
 export const updateDocumentPrompt = (
   currentContent: string | null,
-  type: ArtifactKind,
+  type: ArtifactKind
 ) =>
-  type === 'text'
+  type === "text"
     ? `\
 Improve the following contents of the document based on the given prompt.
 
 ${currentContent}
 `
-    : type === 'code'
-      ? `\
+    : type === "code"
+    ? `\
 Improve the following code snippet based on the given prompt.
 
 ${currentContent}
 `
-      : type === 'sheet'
-        ? `\
+    : type === "sheet"
+    ? `\
 Improve the following spreadsheet based on the given prompt.
 
 ${currentContent}
 `
-        : '';
+    : "";
