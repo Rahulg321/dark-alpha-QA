@@ -6,7 +6,7 @@ import {
   NewTicketFormSchemaType,
 } from "@/components/forms/new-ticket-form";
 import { auth } from "../(auth)/auth";
-import { createTicket, editTicket, getTicket } from "@/lib/db/queries";
+import { createTicket, editTicket, getTicket, createReply } from "@/lib/db/queries";
 import * as z from "zod";
 import { revalidatePath } from "next/cache";
 
@@ -14,6 +14,24 @@ export async function getTicketById(
     ticketId: string
 ) {
     return await getTicket(ticketId);
+}
+
+export async function createReplyServerAction(ticketId: string, content: string) {
+    try {
+        const authSession = await auth();
+        if (!authSession?.user) {
+            return {
+                error: "Unauthorized"
+            }
+        }
+
+        const userId = authSession.user.id;
+        return await createReply(ticketId,userId,content);
+    } catch (error) {
+        return {
+            error: "Failed to create reply"
+        }
+    }
 }
 
 export async function createTicketServerAction(
