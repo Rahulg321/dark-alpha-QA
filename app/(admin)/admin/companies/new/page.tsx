@@ -1,4 +1,4 @@
-import NewSourceForm from "./new-source-form";
+import NewCompanyForm from "./new-company-form";
 
 export const metadata = {
   title: "New Source",
@@ -6,5 +6,5 @@ export const metadata = {
 };
 
 export default function NewSourcePage() {
-  return <NewSourceForm />;
+  return <NewCompanyForm />;
 }

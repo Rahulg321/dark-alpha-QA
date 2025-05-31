@@ -28,6 +28,7 @@ import {
   type Chat,
   stream,
   ticket,
+  company,
 } from "./schema";
 import type { ArtifactKind } from "@/components/artifact";
 import { generateUUID } from "../utils";
@@ -51,6 +52,26 @@ export async function getUser(email: string): Promise<Array<User>> {
       "bad_request:database",
       "Failed to get user by email"
     );
+  }
+}
+
+export async function getCompanies() {
+  try {
+    return await db.select().from(company);
+  } catch (error) {
+    throw new ChatSDKError("bad_request:database", "Failed to get companies");
+  }
+}
+
+export async function getCompanyById(companyId: string) {
+  try {
+    const [selectedCompany] = await db
+      .select()
+      .from(company)
+      .where(eq(company.id, companyId));
+    return selectedCompany;
+  } catch (error) {
+    throw new ChatSDKError("bad_request:database", "Failed to get company");
   }
 }
 
@@ -122,7 +143,7 @@ export async function createTicket(
   try {
     return await db
       .insert(ticket)
-      .values({ title, description, content, userId, status: "open", tags })
+      .values({ title, description, userId, status: "open", tags })
       .returning();
   } catch (error) {
     console.error(error);

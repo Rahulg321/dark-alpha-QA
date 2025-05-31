@@ -78,16 +78,16 @@ const page = () => {
             </CardHeader>
             <CardContent className="space-y-3">
               <Link
-                href="/admin/sources"
+                href="/admin/companies"
                 className="block p-3 rounded-lg border hover:bg-muted/50 transition-colors"
               >
                 <div className="flex items-center gap-3">
                   <Building2 className="h-5 w-5 text-muted-foreground" />
                   <div>
-                    <h3 className="font-medium">Manage Sources</h3>
-                    <p className="text-sm text-muted-foreground">
-                      Add, edit, or remove sources and resources
-                    </p>
+                    <h3 className="font-medium">Manage Companies</h3>
+                    <span className="text-sm text-muted-foreground">
+                      Add, edit, or remove companies
+                    </span>
                   </div>
                 </div>
               </Link>
@@ -99,9 +99,9 @@ const page = () => {
                   <Ticket className="h-5 w-5 text-muted-foreground" />
                   <div>
                     <h3 className="font-medium">Support Tickets</h3>
-                    <p className="text-sm text-muted-foreground">
+                    <span className="text-sm text-muted-foreground">
                       Review and respond to user support requests
-                    </p>
+                    </span>
                   </div>
                 </div>
               </Link>

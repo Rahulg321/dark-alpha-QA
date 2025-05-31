@@ -199,18 +199,35 @@ export const ticket = pgTable(
 
 export type Ticket = InferSelectModel<typeof ticket>;
 
-export const company = pgTable("company", {
-  id: uuid("id").notNull().defaultRandom().primaryKey(),
-  name: text("name").notNull(),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-  updatedAt: timestamp("updated_at").notNull().defaultNow(),
-});
+export const company = pgTable(
+  "company",
+  {
+    id: uuid("id").notNull().defaultRandom(),
+    name: text("name").notNull(),
+    type: varchar("type", {
+      enum: ["enterprise", "consultancy", "agency", "research", "other"],
+    })
+      .notNull()
+      .default("other"),
+    website: text("website"),
+    email: text("email"),
+    address: text("address"),
+    description: text("description"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (table) => ({
+    pk: primaryKey({ columns: [table.id] }),
+  })
+);
+
+export type Company = InferSelectModel<typeof company>;
 
 export const resources = pgTable(
   "resources",
   {
     id: uuid("id").notNull().defaultRandom(),
-    companyId: uuid("companyId")
+    companyId: uuid("company_id")
       .notNull()
       .references(() => company.id, { onDelete: "cascade" }),
     content: text("content"),
@@ -241,9 +258,11 @@ export const embeddings = pgTable(
   "embeddings",
   {
     id: uuid("id").notNull().defaultRandom(),
+
     resourceId: uuid("resource_id")
       .notNull()
       .references(() => resources.id, { onDelete: "cascade" }),
+
     content: text("content").notNull(),
     embedding: vector("embedding", { dimensions: 1536 }).notNull(),
   },
@@ -261,3 +280,14 @@ export const embeddings = pgTable(
 );
 
 export type Embedding = InferSelectModel<typeof embeddings>;
+
+export const employee = pgTable(
+  "employees",
+  {
+    id: uuid("id").notNull().defaultRandom(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (table) => ({
+    pk: primaryKey({ columns: [table.id] }),
+  })
+);

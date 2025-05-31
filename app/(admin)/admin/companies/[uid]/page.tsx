@@ -20,30 +20,17 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { getCompanyById } from "@/lib/db/queries";
+import DeleteCompanyButton from "./delete-company-button";
 
-export default async function SourceDetail({
+export default async function CompanyDetail({
   params,
 }: {
   params: Promise<{ uid: string }>;
 }) {
   const { uid } = await params;
 
-  const source = {
-    id: Number.parseInt(uid),
-    name:
-      uid === "1"
-        ? "Acme Corporation"
-        : uid === "2"
-        ? "TechStart Inc."
-        : "Global Solutions",
-    type: uid === "1" ? "Enterprise" : uid === "2" ? "Startup" : "Consultancy",
-    description:
-      "Acme Corporation is a global leader in innovative solutions for various industries. With cutting-edge technology and a commitment to excellence, Acme has established itself as a trusted partner for businesses worldwide. Their comprehensive suite of products and services addresses complex challenges and drives sustainable growth.",
-    website: "https://example.com",
-    contactEmail: "contact@example.com",
-    createdAt: "May 15, 2023",
-    updatedAt: "December 3, 2023",
-  };
+  const company = await getCompanyById(uid);
 
   const resources = [
     {
@@ -128,21 +115,21 @@ export default async function SourceDetail({
               <div>
                 <div className="flex items-center gap-3 mb-1">
                   <h1 className="text-2xl font-semibold tracking-tight">
-                    {source.name}
+                    {company.name}
                   </h1>
-                  <Badge variant="secondary">{source.type}</Badge>
+                  <Badge variant="secondary">{company.type}</Badge>
                 </div>
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Calendar className="h-3.5 w-3.5" />
-                  <span>Created {source.createdAt}</span>
+                  <span>Created {company.createdAt.toLocaleDateString()}</span>
                 </div>
               </div>
             </div>
             <div className="flex gap-2">
-              <Link href={`/admin/sources/${source.id}/edit`}>
-                <Button variant="outline">Edit Source</Button>
+              <Link href={`/admin/companies/${company.id}/edit`}>
+                <Button variant="outline">Edit Company</Button>
               </Link>
-              <Button variant="destructive">Delete Source</Button>
+              <DeleteCompanyButton companyId={company.id} />
             </div>
           </header>
 
@@ -161,7 +148,7 @@ export default async function SourceDetail({
                   </CardHeader>
                   <CardContent>
                     <p className="text-muted-foreground leading-relaxed">
-                      {source.description}
+                      {company.description}
                     </p>
                   </CardContent>
                 </Card>
@@ -177,12 +164,12 @@ export default async function SourceDetail({
                         </dt>
                         <dd>
                           <a
-                            href={source.website}
+                            href={company.website ?? ""}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="text-foreground hover:underline inline-flex items-center gap-1"
                           >
-                            {source.website}
+                            {company.website}
                             <ExternalLink className="h-3 w-3" />
                           </a>
                         </dd>
@@ -193,10 +180,10 @@ export default async function SourceDetail({
                         </dt>
                         <dd>
                           <a
-                            href={`mailto:${source.contactEmail}`}
+                            href={`mailto:${company.email}`}
                             className="text-foreground hover:underline"
                           >
-                            {source.contactEmail}
+                            {company.email}
                           </a>
                         </dd>
                       </div>
@@ -204,13 +191,17 @@ export default async function SourceDetail({
                         <dt className="text-muted-foreground font-medium">
                           Created
                         </dt>
-                        <dd className="text-foreground">{source.createdAt}</dd>
+                        <dd className="text-foreground">
+                          {company.createdAt.toLocaleDateString()}
+                        </dd>
                       </div>
                       <div className="flex justify-between">
                         <dt className="text-muted-foreground font-medium">
                           Updated
                         </dt>
-                        <dd className="text-foreground">{source.updatedAt}</dd>
+                        <dd className="text-foreground">
+                          {company.updatedAt.toLocaleDateString()}
+                        </dd>
                       </div>
                     </dl>
                   </CardContent>
@@ -223,7 +214,7 @@ export default async function SourceDetail({
                 <h2 className="text-xl font-semibold tracking-tight">
                   Resources
                 </h2>
-                <Link href={`/admin/sources/${source.id}/resources/new`}>
+                <Link href={`/admin/companies/${company.id}/resources/new`}>
                   <Button>
                     <PlusCircle className="mr-2 h-4 w-4" />
                     Add Resource

@@ -31,8 +31,8 @@ const AdminHeader = ({ session }: { session: Session | null }) => {
                   <Link href="/admin/tickets" className="text-sm font-medium">
                     Tickets
                   </Link>
-                  <Link href="/admin/sources" className="text-sm font-medium">
-                    Sources
+                  <Link href="/admin/companies" className="text-sm font-medium">
+                    Companies
                   </Link>
                   <Link
                     href="/admin/investments"
@@ -55,10 +55,10 @@ const AdminHeader = ({ session }: { session: Session | null }) => {
               </Link>
               <span className="text-sm">•</span>
               <Link
-                href="/admin/sources"
+                href="/admin/companies"
                 className="text-sm hover:text-primary"
               >
-                Sources
+                Companies
               </Link>
               <span className="text-sm">•</span>
               <Link
@@ -85,7 +85,10 @@ function ProfileMenu({ session }: { session: Session | null }) {
       <DropdownMenuTrigger className="flex items-center gap-2">
         <Avatar className="h-8 w-8">
           <AvatarImage src={"https://github.com/shadcn.png"} alt={"User"} />
-          <AvatarFallback>HN</AvatarFallback>
+          <AvatarFallback>
+            {session?.user?.name?.charAt(0)}
+            {session?.user?.name?.charAt(1)}
+          </AvatarFallback>
         </Avatar>
         <span className="hidden md:flex items-center font-medium text-primary">
           Account <ChevronDown className="ml-1 h-4 w-4" />
