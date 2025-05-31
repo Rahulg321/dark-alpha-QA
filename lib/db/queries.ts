@@ -29,6 +29,7 @@ import {
   stream,
   ticket,
   company,
+  resources,
 } from "./schema";
 import type { ArtifactKind } from "@/components/artifact";
 import { generateUUID } from "../utils";
@@ -60,6 +61,26 @@ export async function getCompanies() {
     return await db.select().from(company);
   } catch (error) {
     throw new ChatSDKError("bad_request:database", "Failed to get companies");
+  }
+}
+
+export async function getResourcesByCompanyId(companyId: string) {
+  try {
+    return await db
+      .select({
+        id: resources.id,
+        name: resources.name,
+        description: resources.description,
+        kind: resources.kind,
+        createdAt: resources.createdAt,
+      })
+      .from(resources)
+      .where(eq(resources.companyId, companyId));
+  } catch (error) {
+    throw new ChatSDKError(
+      "bad_request:database",
+      "Failed to get resources by company id"
+    );
   }
 }
 
