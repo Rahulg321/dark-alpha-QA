@@ -1,6 +1,6 @@
 import { Toaster } from "sonner";
 import type { Metadata } from "next";
-import { Playfair_Display, Roboto, Montserrat } from "next/font/google";
+import { Montserrat } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 
 import "./globals.css";
@@ -15,12 +15,6 @@ export const metadata: Metadata = {
 export const viewport = {
   maximumScale: 1, // Disable auto-zoom on mobile Safari
 };
-
-const roboto = Roboto({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-roboto",
-});
 
 const montserrat = Montserrat({
   subsets: ["latin"],

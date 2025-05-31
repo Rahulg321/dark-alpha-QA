@@ -31,6 +31,8 @@ const TicketsPage = async (props: { searchParams: SearchParams }) => {
    * <SearchTickets />
    * </div>
    */
+const TicketsPage = async () => {
+  const tickets = await getAllTickets();
 
   return (
     <section className="block-space big-container">
@@ -44,7 +46,7 @@ const TicketsPage = async (props: { searchParams: SearchParams }) => {
         {data.length === 0 ? (
           <div className="mt-12 text-center">
           <p className="text-xl text-muted-foreground">
-          No deals found matching your criteria.
+          No tickets found matching your criteria.
           </p>
           </div>
         ) : (
