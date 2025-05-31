@@ -153,7 +153,7 @@ export async function getTickets() {
   }
 }
 
-export async function createTicket(title:string, description:string, newTags: string[], content:string, userId:string){
+export async function createTicket(title:string, description:string, content:string, userId:string, newTags: string[]){
   try {
     console.log("Created a ticket");
     const newTicket: Ticket = await db.transaction(async (t) => {
@@ -164,6 +164,10 @@ export async function createTicket(title:string, description:string, newTags: st
       return ticketMade;
     });
     return newTicket;
+  } catch (error) {
+    console.log(error);
+  }
+}
 
 export async function getCompanies() {
   try {
@@ -273,33 +277,6 @@ export async function getCompanyNameById(companyId: string) {
       "bad_request:database",
       "Failed to get company name by id"
     );
-  }
-}
-
-/**
- * Create a new ticket
- * @param title - The title of the ticket
- * @param description - The description of the ticket
- * @param content - The content of the ticket
- * @param userId - The user id of the ticket
- * @param tags - The tags of the ticket
- * @returns The created ticket
- */
-export async function createTicket(
-  title: string,
-  description: string,
-  content: string,
-  userId: string,
-  tags: string[]
-) {
-  try {
-    return await db
-      .insert(ticket)
-      .values({ title, description, userId, status: "open", tags })
-      .returning();
-  } catch (error) {
-    console.error(error);
-    throw new ChatSDKError("bad_request:database", "Failed to create ticket");
   }
 }
 

@@ -23,7 +23,6 @@ import { createTicketServerAction } from "@/app/(tickets)/actions";
 import { TagInput } from "../tag-input";
 import { Label } from "../ui/label";
 import MarkdownEditor from "../MDXEditors/MarkdownEditor";
-import { createTicketServerAction } from "@/app/(tickets)/actions";
 import { toast } from "sonner";
 
 export const newTicketFormSchema = z.object({
@@ -36,7 +35,6 @@ export type NewTicketFormSchemaType = z.infer<typeof newTicketFormSchema>;
 const NewTicketForm = () => {
   const [isPending, startTransition] = useTransition();
   const { theme } = useTheme();
-  const [isPending, startTransition] = useTransition();
 
   const [content, setContent] = useState("");
   const [error, setError] = useState<Record<string, string>>({});

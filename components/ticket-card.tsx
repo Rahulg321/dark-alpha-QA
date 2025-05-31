@@ -5,8 +5,6 @@ import { AlertCircle, CheckCircle, Clock } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button";
 import DeleteTicketFromDB from "@/app/actions/delete-ticket";
-import { formatDistanceToNow } from "date-fns";
-import { Badge } from "@/components/ui/badge";
 import {
   Card,
   CardContent,
@@ -94,8 +92,7 @@ export function TicketCard({ ticket }: TicketCardProps) {
               {formatDistanceToNow(ticket.createdAt, { addSuffix: true })}
             </div>
           </div>
-        </div>
-      </CardHeader>
+      </CardFooter>
       <CardContent className="p-4">
         <div className="mb-2">
           <span className="font-semibold">From:</span> {ticket.userId}
@@ -112,5 +109,6 @@ export function TicketCard({ ticket }: TicketCardProps) {
         </Button>
       </CardFooter>
     </Card>
+    </Link>
   ) 
 }

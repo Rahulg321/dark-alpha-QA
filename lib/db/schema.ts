@@ -174,7 +174,6 @@ export const stream = pgTable(
 
 export type Stream = InferSelectModel<typeof stream>;
 
-<<<<<<< HEAD
 export const ticket = pgTable("ticket", {
   id:uuid("id").notNull().primaryKey().defaultRandom(),
   createdAt:timestamp("createdAt").notNull().defaultNow(), 
@@ -222,43 +221,6 @@ export const tags = pgTable(
 );
 
 export type Tags = InferSelectModel<typeof tags>;
-
-export const company = pgTable(
-  "company",
-  {
-    id: uuid("id").notNull().defaultRandom().primaryKey(),
-    name: text("name").notNull(),
-    createdAt: timestamp('created_at').notNull().defaultNow(),
-    updatedAt: timestamp('updated_at').notNull().defaultNow(),
-  }
-);
-
-=======
-export const ticket = pgTable(
-  "Ticket",
-  {
-    id: uuid("id").notNull().defaultRandom(),
-    createdAt: timestamp("createdAt").notNull().defaultNow(),
-    title: text("title").notNull(),
-    tags: text("tags").array().notNull(),
-    description: text("description"),
-    status: varchar("status", { enum: ["open", "closed"] })
-      .notNull()
-      .default("open"),
-    userId: uuid("userId")
-      .notNull()
-      .references(() => user.id),
-  },
-  (pgTable) => ({
-    pk: primaryKey({ columns: [pgTable.id] }),
-    userIdRef: foreignKey({
-      columns: [pgTable.userId],
-      foreignColumns: [user.id],
-    }),
-  })
-);
-
-export type Ticket = InferSelectModel<typeof ticket>;
 
 export const company = pgTable(
   "company",

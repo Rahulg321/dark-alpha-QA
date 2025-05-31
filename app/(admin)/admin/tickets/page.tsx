@@ -1,7 +1,10 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { Ticket } from "@/lib/db/schema";
+import { TicketCard } from "@/components/ticket-card";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import GetTickets, { GetAllTickets } from "@/app/actions/get-tickets";
 import {
   MoreHorizontal,
   Calendar,
@@ -19,7 +22,23 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-export default function AdminTickets() {
+const AdminTickets = async (props: { searchParams: SearchParams }) => {
+  const searchParams = await props.searchParams;
+  const search = searchParams?.query || "";
+  const currentPage = Number(searchParams?.page) || 1;
+  const limit = Number(searchParams?.limit) || 20000;
+  const offset = (currentPage - 1) * limit;
+  const ticketStatus =
+  typeof searchParams?.ticketStatus === "string"
+  ? [searchParams.ticketStatus]
+  : searchParams.ticketStatus || [];
+  const { data, totalPages, totalCount } = await GetAllTickets({
+    search,
+    offset,
+    limit,
+    ticketStatus: ticketStatus as TicketStatus[],
+  });
+
   return (
     <div className="min-h-screen bg-background">
       <div className="big-container block-space-mini">
@@ -58,99 +77,25 @@ export default function AdminTickets() {
             </Button>
           </div>
         </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
-          <TicketCards />
-        </div>
+        {data.length === 0 ? (
+          <div className="mt-12 text-center">
+          <p className="text-xl text-muted-foreground">
+          No tickets found matching your criteria.
+          </p>
+          </div>
+        ) : (
+          data.map((ticket) => (
+            <TicketCard key={ticket.id} ticket={ticket} />
+          ))
+        )}
       </div>
     </div>
   );
 }
 
-function TicketCards() {
-  const tickets = [
-    {
-      id: 1,
-      title: "Unable to upload files larger than 10MB",
-      description:
-        "I'm trying to upload a PDF file that's 15MB but the system keeps showing an error message. This is blocking my workflow.",
-      user: "john.doe@example.com",
-      status: "open",
-      priority: "high",
-      category: "Technical",
-      source: "website",
-      createdAt: "Dec 8, 2023",
-      updatedAt: "Dec 8, 2023",
-    },
-    {
-      id: 2,
-      title: "Re: Account access issues",
-      description:
-        "I reset my password yesterday but I'm still unable to log into my account. The system says my credentials are invalid.",
-      user: "sarah.wilson@company.com",
-      status: "open",
-      priority: "medium",
-      category: "Account",
-      source: "email",
-      emailSubject: "Re: Account access issues",
-      createdAt: "Dec 7, 2023",
-      updatedAt: "Dec 7, 2023",
-    },
-    {
-      id: 3,
-      title: "Feature request: Dark mode support",
-      description:
-        "Would it be possible to add dark mode support to the application? It would greatly improve the user experience.",
-      user: "mike.chen@startup.io",
-      status: "closed",
-      priority: "low",
-      category: "Feature Request",
-      source: "website",
-      createdAt: "Dec 5, 2023",
-      updatedAt: "Dec 6, 2023",
-    },
-    {
-      id: 4,
-      title: "API documentation inquiry",
-      description:
-        "The API documentation shows endpoints that no longer exist and missing information about new authentication methods.",
-      user: "dev@techcorp.com",
-      status: "open",
-      priority: "medium",
-      category: "Documentation",
-      source: "email",
-      emailSubject: "API documentation inquiry",
-      createdAt: "Dec 4, 2023",
-      updatedAt: "Dec 4, 2023",
-    },
-    {
-      id: 5,
-      title: "Billing discrepancy in monthly invoice",
-      description:
-        "My invoice shows charges for features I haven't used. Could you please review and correct the billing?",
-      user: "finance@business.com",
-      status: "open",
-      priority: "high",
-      category: "Billing",
-      source: "website",
-      createdAt: "Dec 3, 2023",
-      updatedAt: "Dec 3, 2023",
-    },
-    {
-      id: 6,
-      title: "Integration setup help needed",
-      description:
-        "The integration with our CRM system stopped working after the recent update. Getting 401 authentication errors.",
-      user: "admin@enterprise.org",
-      status: "closed",
-      priority: "high",
-      category: "Integration",
-      source: "email",
-      emailSubject: "Integration setup help needed",
-      createdAt: "Dec 1, 2023",
-      updatedAt: "Dec 2, 2023",
-    },
-  ];
+export default AdminTickets;
+
+function TicketCards(tickets: Ticket[]) {
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {

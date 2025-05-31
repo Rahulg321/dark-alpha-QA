@@ -31,9 +31,6 @@ const TicketsPage = async (props: { searchParams: SearchParams }) => {
    * <SearchTickets />
    * </div>
    */
-const TicketsPage = async () => {
-  const tickets = await getAllTickets();
-
   return (
     <section className="block-space big-container">
       <SearchTickets />

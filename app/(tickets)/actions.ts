@@ -48,10 +48,10 @@ export async function createTicketServerAction(
       };
     }
 
-    const title = formData.get("title") as string;
-    const description = formData.get("description") as string;
-    const content = formData.get("content") as string;
-    const tags = (formData.get("tags") as string)?.split(",") ?? [];
+    const title = ticketFormValues.get("title") as string;
+    const description = ticketFormValues.get("description") as string;
+    const content = ticketFormValues.get("content") as string;
+    const tags = (ticketFormValues.get("tags") as string)?.split(",") ?? [];
 
     if (tags.length === 0) {
       return {
@@ -62,7 +62,7 @@ export async function createTicketServerAction(
     console.log("inside server action");
     console.log(title, description, content, tags);
 
-    const [ticket] = await createTicket(
+    const ticket = await createTicket(
       title,
       description,
       content,
