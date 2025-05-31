@@ -10,6 +10,7 @@ import { db } from "@/lib/db/queries";
 import { embeddings as embeddingsTable, resources } from "@/lib/db/schema";
 import { openaiClient } from "@/lib/ai/providers";
 import { ExcelLoader } from "@/lib/excel-loader";
+import { revalidatePath } from "next/cache";
 
 export async function POST(request: NextRequest) {
   try {
@@ -134,6 +135,8 @@ export async function POST(request: NextRequest) {
         ...embedding,
       }))
     );
+
+    revalidatePath(`/admin/companies/${companyId}`);
 
     console.log("Resource and embeddings were created successfully!!!");
 

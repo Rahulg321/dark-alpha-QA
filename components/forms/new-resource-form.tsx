@@ -22,6 +22,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Textarea } from "../ui/textarea";
+import { useRouter } from "next/navigation";
 
 const newResourceFormSchema = z.object({
   name: z.string().min(1),
@@ -29,6 +30,7 @@ const newResourceFormSchema = z.object({
 });
 
 const NewResourceForm = ({ companyId }: { companyId: string }) => {
+  const router = useRouter();
   const [file, setFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -91,7 +93,15 @@ const NewResourceForm = ({ companyId }: { companyId: string }) => {
       if (response.status !== 200) {
         throw new Error("Failed to process file");
       }
-      toast.success("Resource created successfully");
+      toast.success("Resource created successfully", {
+        description: `Resource ${values.name} created successfully`,
+        action: {
+          label: "View Resource",
+          onClick: () => {
+            router.push(`/admin/companies/${companyId}`);
+          },
+        },
+      });
       form.reset();
       setFile(null);
       setError(null);

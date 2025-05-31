@@ -146,6 +146,28 @@ export async function getAllTickets() {
 }
 
 /**
+ * Get the name of a company by id
+ * @param companyId - The id of the company
+ * @returns The name of the company
+ */
+export async function getCompanyNameById(companyId: string) {
+  try {
+    const [selectedCompany] = await db
+      .select({
+        name: company.name,
+      })
+      .from(company)
+      .where(eq(company.id, companyId));
+    return selectedCompany;
+  } catch (error) {
+    throw new ChatSDKError(
+      "bad_request:database",
+      "Failed to get company name by id"
+    );
+  }
+}
+
+/**
  * Create a new ticket
  * @param title - The title of the ticket
  * @param description - The description of the ticket
