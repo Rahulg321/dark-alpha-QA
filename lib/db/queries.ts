@@ -60,7 +60,8 @@ export async function getCompanies() {
   try {
     return await db.select().from(company);
   } catch (error) {
-    throw new ChatSDKError("bad_request:database", "Failed to get companies");
+    console.log("An error occured trying to get companies", error);
+    return [];
   }
 }
 
@@ -75,7 +76,8 @@ export async function getResourcesByCompanyId(companyId: string) {
         createdAt: resources.createdAt,
       })
       .from(resources)
-      .where(eq(resources.companyId, companyId));
+      .where(eq(resources.companyId, companyId))
+      .orderBy(desc(resources.createdAt));
   } catch (error) {
     throw new ChatSDKError(
       "bad_request:database",

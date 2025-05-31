@@ -38,11 +38,11 @@ export default async function CompanyDetail({
     <div className="min-h-screen bg-background">
       <div className="container mx-auto py-8 px-4 md:px-6 max-w-7xl">
         <Link
-          href="/admin/sources"
+          href="/admin/companies"
           className="inline-flex items-center text-muted-foreground hover:text-foreground mb-6 transition-colors"
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to Sources
+          Back to Companies
         </Link>
 
         <div className="space-y-6">

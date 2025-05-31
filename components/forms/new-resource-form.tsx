@@ -47,11 +47,21 @@ const NewResourceForm = ({ companyId }: { companyId: string }) => {
     if (e.target.files && e.target.files.length > 0) {
       const selectedFile = e.target.files[0];
       const fileType = selectedFile.type;
+      const fileName = selectedFile.name.toLowerCase();
 
-      // Check if file is PDF, DOC, or image
+      if (
+        fileType === "application/msword" ||
+        (fileName.endsWith(".doc") && !fileName.endsWith(".docx"))
+      ) {
+        setFile(null);
+        setError(
+          "We do not support .doc files. Please upload a .docx file instead."
+        );
+        return;
+      }
+
       if (
         fileType === "application/pdf" ||
-        fileType === "application/msword" ||
         fileType ===
           "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
         fileType === "image/jpeg" ||
@@ -66,7 +76,7 @@ const NewResourceForm = ({ companyId }: { companyId: string }) => {
         setError(null);
       } else {
         setFile(null);
-        setError("Please upload a PDF, DOC, Excel Sheet or image file");
+        setError("Please upload a PDF, DOCX, Excel Sheet or image file");
       }
     }
   };
@@ -93,10 +103,10 @@ const NewResourceForm = ({ companyId }: { companyId: string }) => {
       if (response.status !== 200) {
         throw new Error("Failed to process file");
       }
-      toast.success("Resource created successfully", {
-        description: `Resource ${values.name} created successfully`,
+      toast.success("Successful!!", {
+        description: `${values.name} created successfully`,
         action: {
-          label: "View Resource",
+          label: "View",
           onClick: () => {
             router.push(`/admin/companies/${companyId}`);
           },
@@ -151,7 +161,7 @@ const NewResourceForm = ({ companyId }: { companyId: string }) => {
                 <Input
                   id="file"
                   type="file"
-                  accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png,.gif,.webp,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,image/jpeg,image/png,image/gif,image/webp"
+                  accept=".pdf,.docx,.xls,.xlsx,.jpg,.jpeg,.png,.gif,.webp,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,image/jpeg,image/png,image/gif,image/webp"
                   onChange={handleFileChange}
                   className="flex-1"
                 />

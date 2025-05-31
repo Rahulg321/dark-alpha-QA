@@ -8,9 +8,11 @@ import {
 } from "@/lib/ai/embedding";
 import { db } from "@/lib/db/queries";
 import { embeddings as embeddingsTable, resources } from "@/lib/db/schema";
-import { openaiClient } from "@/lib/ai/providers";
+import { openaiProvider, openaiClient } from "@/lib/ai/providers";
 import { ExcelLoader } from "@/lib/excel-loader";
 import { revalidatePath } from "next/cache";
+import { generateText } from "ai";
+import officeParser from "officeparser";
 
 export async function POST(request: NextRequest) {
   try {
@@ -48,27 +50,78 @@ export async function POST(request: NextRequest) {
     let embeddingInput: string[];
     let kind: string = "";
 
-    // Process based on file type
     if (fileType === "application/pdf") {
-      // Process PDF
       const pdfLoader = new PDFLoader();
-      content = await pdfLoader.loadFromBuffer(buffer);
+      const rawContent = await pdfLoader.loadFromBuffer(buffer);
+
+      console.log("analysing pdf using AI");
+      const result = await generateText({
+        model: openaiProvider.responses("gpt-4o"),
+        messages: [
+          {
+            role: "user",
+            content: [
+              {
+                type: "text",
+                text: `Please analyze this PDF document and provide a comprehensive summary that includes:
+
+      1. Main Topic and Purpose
+    - Identify the primary subject matter
+    - Determine the document's intended purpose and audience
+
+    2. Key Points and Arguments
+    - Extract and list the main arguments or findings
+    - Highlight any significant data points or statistics
+    - Note any conclusions or recommendations
+
+    3. Structure and Organization
+    - Describe how the document is organized
+    - Identify major sections and their purposes
+
+    4. Important Details
+    - List any critical dates, names, or figures
+    - Note any specific methodologies or approaches discussed
+    - Highlight any unique or noteworthy elements
+
+    5. Context and Implications
+    - Discuss the broader context or background
+    - Note any potential implications or applications
+
+    Please format your response in a clear, structured manner that makes it easy to understand the document's key elements.`,
+              },
+              {
+                type: "file",
+                data: buffer,
+                mimeType: "application/pdf",
+                filename: file.name,
+              },
+            ],
+          },
+        ],
+      });
+
+      console.log("Result from analysing pdf using AI", result.text);
+
+      // Combine raw content with AI summary
+      content = `Original Content:\n\n${rawContent}\n\nAI Analysis:\n\n${result}`;
       kind = "pdf";
     } else if (
       fileType === "application/vnd.ms-excel" ||
       fileType ===
         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     ) {
-      // Process Excel
       const excelLoader = new ExcelLoader();
       sheets = await excelLoader.loadExcelFromBuffer(buffer);
       kind = "excel";
+    } else if (fileType === "application/msword") {
+      throw new Error(
+        "We do not support .doc files. Please upload a .docx file instead."
+      );
     } else if (
-      fileType === "application/msword" ||
       fileType ===
-        "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
     ) {
-      // Process DOC/DOCX
+      console.log("reading from a .docx document");
       const docxLoader = new DocxLoader();
       content = await docxLoader.loadFromBuffer(buffer);
       kind = "docx";
@@ -96,6 +149,7 @@ export async function POST(request: NextRequest) {
         ],
       });
       content = response.output_text;
+      console.log("Result of analysing image using AI", response.output_text);
       kind = "image";
       console.log("*****************");
     } else if (fileType === "text/plain") {
