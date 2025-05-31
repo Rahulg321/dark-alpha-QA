@@ -1,6 +1,6 @@
 "use server";
 
-import { replies, Ticket, ticket, tags } from "@/lib/db/schema";
+import { Ticket, ticket, tags } from "@/lib/db/schema";
 import {
   and,
   asc,
@@ -25,11 +25,10 @@ const DeleteTicketFromDB = async (ticketId: string) => {
     const result = await db.select({oldTags: ticket.tags}).from(ticket).where(eq(ticket.id, ticketId));
     const { oldTags } = result[0];
     await db.transaction(async (t) => {
-      await t.delete(replies).where(eq(replies.ticketId, ticketId));
       for (let i = 0; i < oldTags.length; ++i) {
           await t.update(tags).set({ count: sql`${tags.count} - 1` } ).where(eq(tags.name, oldTags[i]));
       }
-      await t.delete(ticket).where(eq(ticket.id, ticketId));
+      await db.delete(ticket).where(eq(ticket.id, ticketId));
     });
   } catch (error) {
     console.log("FAILED TO DELETE TICKET");

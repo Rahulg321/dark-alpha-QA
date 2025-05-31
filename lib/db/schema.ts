@@ -1,4 +1,5 @@
-import type { InferSelectModel } from "drizzle-orm";
+import type { InferSelectModel } from 'drizzle-orm';
+import { relations } from 'drizzle-orm';
 import {
   pgTable,
   varchar,
@@ -174,9 +175,8 @@ export const stream = pgTable(
 
 export type Stream = InferSelectModel<typeof stream>;
 
-<<<<<<< HEAD
 export const ticket = pgTable("ticket", {
-  id:uuid("id").notNull().primaryKey().defaultRandom(),
+  id:uuid("id").notNull().defaultRandom(), 
   createdAt:timestamp("createdAt").notNull().defaultNow(), 
   title:text("title").notNull(),
   tags:text("tags").array(),
@@ -185,33 +185,52 @@ export const ticket = pgTable("ticket", {
   status:varchar("status", {enum:["open", "closed"]}).notNull().default("open"), 
   userId:uuid("userId").notNull().references(() => user.id),
 }, (pgTable)=>({
+  pk:primaryKey({columns:[pgTable.id]}), 
   userIdRef:foreignKey({
     columns:[pgTable.userId], 
     foreignColumns:[user.id]
   })
 }));
 
-export type Ticket = InferSelectModel<typeof ticket>;
+export const ticketRelations = relations(ticket, ({ many }) => ({
+  replies: many(replies),
+}));
 
 export const replies = pgTable("replies", {
-  id: uuid('id').notNull().primaryKey().defaultRandom(),
-  content: text('content').notNull(),
+  id: uuid('id').notNull().defaultRandom(),
+  content: text('content'),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
   userId: uuid("userId").notNull().references(() => user.id),
-  ticketId: uuid("ticketId").notNull().references(() => ticket.id),
 }, (pgTable)=>({
+  pk:primaryKey({columns:[pgTable.id]}),
   userIdRef:foreignKey({
     columns:[pgTable.userId],
     foreignColumns:[user.id]
-  }),
-  ticketIdRef:foreignKey({
-    columns:[pgTable.ticketId],
-    foreignColumns:[ticket.id]
   })
 }));
 
 export type Replies = InferSelectModel<typeof replies>;
+
+export const repliesRelations = relations(replies, ({ one }) => ({
+  user: one(user, {
+    fields: [replies.userId],
+    references: [user.id],
+  }),
+}));
+
+export type Ticket = InferSelectModel<typeof ticket>;
+
+// Schema for resources - used to validate API requests
+export const insertResourceSchema = createSelectSchema(resources)
+  .extend({})
+  .omit({
+    id: true,
+    createdAt: true,
+    updatedAt: true,
+  });
+
+export type Resource = InferSelectModel<typeof resources>;
 
 export const tags = pgTable(
   'tags',
@@ -223,66 +242,6 @@ export const tags = pgTable(
 
 export type Tags = InferSelectModel<typeof tags>;
 
-export const company = pgTable(
-  "company",
-  {
-    id: uuid("id").notNull().defaultRandom().primaryKey(),
-    name: text("name").notNull(),
-    createdAt: timestamp('created_at').notNull().defaultNow(),
-    updatedAt: timestamp('updated_at').notNull().defaultNow(),
-  }
-);
-
-=======
-export const ticket = pgTable(
-  "Ticket",
-  {
-    id: uuid("id").notNull().defaultRandom(),
-    createdAt: timestamp("createdAt").notNull().defaultNow(),
-    title: text("title").notNull(),
-    tags: text("tags").array().notNull(),
-    description: text("description"),
-    status: varchar("status", { enum: ["open", "closed"] })
-      .notNull()
-      .default("open"),
-    userId: uuid("userId")
-      .notNull()
-      .references(() => user.id),
-  },
-  (pgTable) => ({
-    pk: primaryKey({ columns: [pgTable.id] }),
-    userIdRef: foreignKey({
-      columns: [pgTable.userId],
-      foreignColumns: [user.id],
-    }),
-  })
-);
-
-export type Ticket = InferSelectModel<typeof ticket>;
-
-export const company = pgTable(
-  "company",
-  {
-    id: uuid("id").notNull().defaultRandom(),
-    name: text("name").notNull(),
-    type: varchar("type", {
-      enum: ["enterprise", "consultancy", "agency", "research", "other"],
-    })
-      .notNull()
-      .default("other"),
-    website: text("website"),
-    email: text("email"),
-    address: text("address"),
-    description: text("description"),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
-    updatedAt: timestamp("updated_at").notNull().defaultNow(),
-  },
-  (table) => ({
-    pk: primaryKey({ columns: [table.id] }),
-  })
-);
-
-export type Company = InferSelectModel<typeof company>;
 
 export const resources = pgTable(
   "resources",

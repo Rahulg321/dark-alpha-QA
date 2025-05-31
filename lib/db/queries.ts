@@ -30,11 +30,7 @@ import {
   stream,
   ticket,
   tags,
-  type Tags,
-  replies,
-  type Replies,
-  company,
-  resources
+  type Tags
 } from './schema';
 import type { ArtifactKind } from '@/components/artifact';
 import { generateUUID } from '../utils';
@@ -69,49 +65,6 @@ export async function getTicket(ticketId: string) {
     throw new ChatSDKError(
       'bad_request:database',
       'Failed to get ticket by ID',
-    );
-  }
-}
-
-/**
- * export const replies = pgTable("replies", {
- *  id: uuid('id').notNull().primaryKey().defaultRandom(),
- *  content: text('content').notNull(),
- *  createdAt: timestamp('created_at').notNull().defaultNow(),
- *  updatedAt: timestamp('updated_at').notNull().defaultNow(),
- *  userId: uuid("userId").notNull().references(() => user.id),
- *  ticketId: uuid("ticketId").notNull().references(() => ticket.id),
- * }, (pgTable)=>({
- *  userIdRef:foreignKey({
- *   columns:[pgTable.userId],
- *   foreignColumns:[user.id]
- *  }),
- *  ticketIdRef:foreignKey({
- *   columns:[pgTable.ticketId],
- *   foreignColumns:[ticket.id]
- *  })
- * }));
-*/
-
-export async function createReply(ticketId: string, userId: string, content: string) {
-  try {
-    return await db.insert(replies).values({ticketId, userId, content}).returning();
-  } catch (error) {
-    console.log(error)
-    throw new ChatSDKError(
-      'bad_request:database',
-      'Failed to create reply',
-    );
-  }
-}
-
-export async function editReply(replyId: string, content: string) {
-  try {
-    return await db.update(replies).set({ content, updatedAt: sql`NOW()`}).where(eq(replies.id, replyId));
-  } catch (error) {
-    throw new ChatSDKError(
-      'bad_request:database',
-      'Failed to edit reply',
     );
   }
 }

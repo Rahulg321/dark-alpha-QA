@@ -45,7 +45,6 @@ export function TicketCard({ ticket }: TicketCardProps) {
 
   const handleDelete = async () => {
     try {
-      console.log("HERE")
       const response = await DeleteTicketFromDB(ticket.id);
     } catch (error) {
       console.log("FAILED TO DELETE");
@@ -83,16 +82,23 @@ export function TicketCard({ ticket }: TicketCardProps) {
               </Badge>
             </div>
           </div>
-        </CardHeader>
-        <CardContent className="p-4">
-          <p className="text-gray-700">{ticket.description}</p>
-        </CardContent>
-        <CardFooter className="border-t bg-gray-50 px-4 py-2 text-sm text-muted-foreground">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between w-full">
-            <div>Submitted: {formatDate(ticket.createdAt)}</div>
-            <div>
-              {formatDistanceToNow(ticket.createdAt, { addSuffix: true })}
+          <div className="flex flex-wrap items-center gap-2">
+            <Button className="w-full bg-primary/90 hover:bg-primary" onClick={handleDelete}>
+              <p>Delete Ticket</p>
+            </Button>
+          </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <Button className="w-full bg-primary/90 hover:bg-primary">
+                <Link href={editLink}>Edit Ticket</Link>
+              </Button>
             </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <Badge variant="outline" className={getStatusColor()}>
+              <span className="flex items-center gap-1">
+                {getStatusIcon()}
+                {ticket.status.charAt(0).toUpperCase() + ticket.status.slice(1).replace("-", " ")}
+              </span>
+            </Badge>
           </div>
         </div>
       </CardHeader>
