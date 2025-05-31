@@ -230,7 +230,28 @@ export const resources = pgTable(
     companyId: uuid("company_id")
       .notNull()
       .references(() => company.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+    description: text("description"),
     content: text("content"),
+    kind: varchar("kind", {
+      enum: [
+        "pdf",
+        "doc",
+        "docx",
+        "txt",
+        "jpg",
+        "jpeg",
+        "png",
+        "gif",
+        "webp",
+        "xls",
+        "xlsx",
+        "image",
+        "excel",
+      ],
+    })
+      .notNull()
+      .default("pdf"),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },
