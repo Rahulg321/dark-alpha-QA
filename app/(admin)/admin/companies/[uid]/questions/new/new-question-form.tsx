@@ -21,31 +21,47 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-
-const formSchema = z.object({
-  title: z.string().min(1, "Question is required"),
-});
+import { createCompanyQuestion } from "@/lib/actions/create-company-question";
+import { toast } from "sonner";
+import { createCompanyQuestionSchema } from "@/lib/schemas/create-company-question";
+import { useRouter } from "next/navigation";
 
 export default function NewQuestionForm({ companyId }: { companyId: string }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const router = useRouter();
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<z.infer<typeof createCompanyQuestionSchema>>({
+    resolver: zodResolver(createCompanyQuestionSchema),
     defaultValues: {
       title: "",
     },
   });
 
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+  const onSubmit = async (
+    values: z.infer<typeof createCompanyQuestionSchema>
+  ) => {
     setIsSubmitting(true);
     try {
-      // Simulate submission
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      // Here you would implement the actual submission logic
-      console.log("Creating new question:", values);
+      const response = await createCompanyQuestion(companyId, values);
 
-      // Reset form
-      form.reset();
+      if (response.success) {
+        toast.success("Success🎉", {
+          description: "Question created successfully",
+          action: {
+            label: "View Question",
+            onClick: () => {
+              router.push(
+                `/admin/companies/${companyId}/questions/${response.questionId}`
+              );
+            },
+          },
+        });
+        form.reset();
+      } else {
+        toast.error("Error❌", {
+          description: response.message,
+        });
+      }
     } catch (error) {
       console.error("Failed to create question:", error);
     } finally {

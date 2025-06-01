@@ -20,7 +20,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Progress } from "@/components/ui/progress";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 import axios from "axios";
@@ -33,7 +32,6 @@ export default function BulkUploadForm({ companyId }: { companyId: string }) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [error, setError] = useState<string>("");
   const [isUploading, setIsUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
   const [isComplete, setIsComplete] = useState(false);
   const [questions, setQuestions] = useState<{ title: string }[]>([]);
 
@@ -58,22 +56,12 @@ export default function BulkUploadForm({ companyId }: { companyId: string }) {
     if (!selectedFile) return;
 
     setIsUploading(true);
-    setUploadProgress(0);
 
     try {
       const formData = new FormData();
       formData.append("file", selectedFile);
 
-      const response = await axios.post("/api/extract-questions", formData, {
-        onUploadProgress: (progressEvent) => {
-          if (progressEvent.total) {
-            const percentCompleted = Math.round(
-              (progressEvent.loaded * 100) / progressEvent.total
-            );
-            setUploadProgress(percentCompleted);
-          }
-        },
-      });
+      const response = await axios.post("/api/extract-questions", formData);
 
       setQuestions(response.data.questions);
       setIsComplete(true);
@@ -88,14 +76,12 @@ export default function BulkUploadForm({ companyId }: { companyId: string }) {
     setSelectedFile(null);
     setError("");
     setIsComplete(false);
-    setUploadProgress(0);
   };
 
   const resetForm = () => {
     setSelectedFile(null);
     setError("");
     setIsComplete(false);
-    setUploadProgress(0);
     setIsUploading(false);
   };
 
@@ -188,9 +174,7 @@ export default function BulkUploadForm({ companyId }: { companyId: string }) {
                       <div className="mt-4 space-y-2">
                         <div className="flex justify-between text-sm">
                           <span>Processing...</span>
-                          <span>{uploadProgress}%</span>
                         </div>
-                        <Progress value={uploadProgress} className="h-2" />
                       </div>
                     )}
                   </CardContent>

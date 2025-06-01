@@ -30,6 +30,7 @@ import {
   ticket,
   company,
   resources,
+  companyQuestions,
 } from "./schema";
 import type { ArtifactKind } from "@/components/artifact";
 import { generateUUID } from "../utils";
@@ -56,6 +57,46 @@ export async function getUser(email: string): Promise<Array<User>> {
   }
 }
 
+/**
+ * Get company question by id
+ * @param id - The id of the company question
+ * @returns The company question
+ */
+export async function getCompanyQuestionById(id: string) {
+  try {
+    const [question] = await db
+      .select()
+      .from(companyQuestions)
+      .where(eq(companyQuestions.id, id));
+
+    return question;
+  } catch (error) {
+    console.log("An error occured trying to get company question by id", error);
+    return null;
+  }
+}
+
+/**
+ * Get company questions by company id
+ * @param companyId - The id of the company
+ * @returns The company questions
+ */
+export async function getCompanyQuestionsByCompanyId(companyId: string) {
+  try {
+    return await db
+      .select()
+      .from(companyQuestions)
+      .where(eq(companyQuestions.companyId, companyId))
+      .orderBy(desc(companyQuestions.createdAt));
+  } catch (error) {
+    console.log(
+      "An error occured trying to get company questions by company id",
+      error
+    );
+    return [];
+  }
+}
+
 export async function getCompanies() {
   try {
     return await db.select().from(company);
@@ -65,6 +106,11 @@ export async function getCompanies() {
   }
 }
 
+/**
+ * Get resources by company id
+ * @param companyId - The id of the company
+ * @returns The resources
+ */
 export async function getResourcesByCompanyId(companyId: string) {
   try {
     return await db

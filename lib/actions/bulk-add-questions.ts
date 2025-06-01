@@ -3,6 +3,7 @@
 import { companyQuestions as companyQuestionsTable } from "@/lib/db/schema";
 import { db } from "../db/queries";
 import { auth } from "@/app/(auth)/auth";
+import { revalidatePath } from "next/cache";
 
 export async function bulkAddQuestions(
   companyId: string,
@@ -31,6 +32,8 @@ export async function bulkAddQuestions(
         title: question.title,
       }))
     );
+
+    revalidatePath(`/admin/companies/${companyId}/questions`);
 
     console.log("all company questions were inserted successfully");
 
