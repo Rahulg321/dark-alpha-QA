@@ -13,6 +13,7 @@ import {
   File,
   MoreHorizontal,
   Building2,
+  MessageCircle,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -64,6 +65,13 @@ export default async function CompanyDetail({
                 </div>
               </div>
             </div>
+            <Link href={`/admin/companies/${company.id}/questions`}>
+              <Button variant="outline">
+                <MessageCircle className="h-4 w-4" />
+                Questions
+              </Button>
+            </Link>
+
             <div className="flex gap-2">
               <Link href={`/admin/companies/${company.id}/edit`}>
                 <Button variant="outline">Edit Company</Button>

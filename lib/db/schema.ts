@@ -221,7 +221,56 @@ export const company = pgTable(
   })
 );
 
+export const companyQuestions = pgTable(
+  "company_questions",
+  {
+    id: uuid("id").notNull().defaultRandom(),
+    companyId: uuid("company_id")
+      .notNull()
+      .references(() => company.id, { onDelete: "cascade" }),
+    title: text("title").notNull(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (table) => ({
+    pk: primaryKey({ columns: [table.id] }),
+    companyIdRef: foreignKey({
+      columns: [table.companyId],
+      foreignColumns: [company.id],
+    }),
+  })
+);
+
+export type CompanyQuestions = InferSelectModel<typeof companyQuestions>;
+
 export type Company = InferSelectModel<typeof company>;
+
+export const answers = pgTable(
+  "answers",
+  {
+    id: uuid("id").notNull().defaultRandom(),
+    companyQuestionId: uuid("company_question_id")
+      .notNull()
+      .references(() => companyQuestions.id, { onDelete: "cascade" }),
+    answer: text("answer").notNull(),
+    type: varchar("type", {
+      enum: ["AI_GENERATED", "MANUAL"],
+    })
+      .notNull()
+      .default("AI_GENERATED"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (table) => ({
+    pk: primaryKey({ columns: [table.id] }),
+    companyQuestionIdRef: foreignKey({
+      columns: [table.companyQuestionId],
+      foreignColumns: [companyQuestions.id],
+    }),
+  })
+);
+
+export type Answers = InferSelectModel<typeof answers>;
 
 export const resources = pgTable(
   "resources",
