@@ -10,7 +10,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import Link from "next/link";
 import { ArrowLeft, Upload, FileText, X, CheckCircle } from "lucide-react";
 import { z } from "zod";
@@ -25,6 +25,9 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 
 import axios from "axios";
 import { extractQuestionsSchema } from "@/lib/schemas/extract-questions-schema";
+import { bulkAddQuestions } from "@/lib/actions/bulk-add-questions";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 export default function BulkUploadForm({ companyId }: { companyId: string }) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -244,7 +247,10 @@ export default function BulkUploadForm({ companyId }: { companyId: string }) {
                 </span>
               </div>
               <div className="flex flex-col sm:flex-row gap-3">
-                <ViewQuestionsDialog questionList={questions} />
+                <ViewQuestionsDialog
+                  questionList={questions}
+                  companyId={companyId}
+                />
                 <Button
                   variant="outline"
                   onClick={resetForm}
@@ -263,11 +269,39 @@ export default function BulkUploadForm({ companyId }: { companyId: string }) {
 
 function ViewQuestionsDialog({
   questionList,
+  companyId,
 }: {
   questionList: { title: string }[];
+  companyId: string;
 }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [isPending, startTransition] = useTransition();
+  const router = useRouter();
+
+  const handleSave = () => {
+    startTransition(async () => {
+      const response = await bulkAddQuestions(companyId, questionList);
+      if (response.success) {
+        setIsOpen(false);
+        toast.success("Uploaded🎉", {
+          description: "Questions added successfully",
+          action: {
+            label: "View Questions",
+            onClick: () => {
+              router.push(`/admin/companies/${companyId}/questions`);
+            },
+          },
+        });
+      } else {
+        toast.error(response.message, {
+          description: "Failed to add questions",
+        });
+      }
+    });
+  };
+
   return (
-    <Dialog>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button variant="outline" className="flex-1">
           View Questions
@@ -297,8 +331,14 @@ function ViewQuestionsDialog({
           </ol>
         </ScrollArea>
         <DialogFooter className="flex flex-row gap-3 mt-4">
-          <Button className="flex-1">Save</Button>
-          <Button className="flex-1" variant="outline">
+          <Button className="flex-1" onClick={handleSave}>
+            {isPending ? "Saving..." : "Save"}
+          </Button>
+          <Button
+            className="flex-1"
+            variant="outline"
+            onClick={() => setIsOpen(false)}
+          >
             Discard
           </Button>
         </DialogFooter>
