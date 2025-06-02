@@ -103,7 +103,7 @@ export async function POST(request: NextRequest) {
       console.log("Result from analysing pdf using AI", result.text);
 
       // Combine raw content with AI summary
-      content = `Original Content:\n\n${rawContent}\n\nAI Analysis:\n\n${result}`;
+      content = `Name: ${name}\nDescription: ${description}\n\n Original Content:\n\n${rawContent}\n\nAI Analysis:\n\n${result.text}`;
       kind = "pdf";
     } else if (
       fileType === "application/vnd.ms-excel" ||
@@ -123,7 +123,10 @@ export async function POST(request: NextRequest) {
     ) {
       console.log("reading from a .docx document");
       const docxLoader = new DocxLoader();
-      content = await docxLoader.loadFromBuffer(buffer);
+      const rawContent = await docxLoader.loadFromBuffer(buffer);
+
+      console.log("analysing docx using AI");
+      content = `Name: ${name}\nDescription: ${description}\n\n Original Content:\n\n${rawContent}\n\nAI `;
       kind = "docx";
     } else if (fileType === "image/png" || fileType === "image/jpeg") {
       console.log("*****************");
@@ -148,12 +151,12 @@ export async function POST(request: NextRequest) {
           },
         ],
       });
-      content = response.output_text;
+      content = `Name: ${name}\nDescription: ${description}\n\n Original Content:\n\n${response.output_text}\n\nAI Analysis:\n\n${response.output_text}`;
       console.log("Result of analysing image using AI", response.output_text);
       kind = "image";
       console.log("*****************");
     } else if (fileType === "text/plain") {
-      content = await file.text();
+      content = `Name: ${name}\nDescription: ${description}\n\n Original Content:\n\n${await file.text()}\n\n`;
       kind = "txt";
     } else {
       throw new Error("Unsupported file type");
@@ -169,7 +172,9 @@ export async function POST(request: NextRequest) {
         (chunk: { sheet: string; text: string }) => chunk.text
       );
       // For response, join all chunk texts
-      content = embeddingInput.join("\n\n");
+      content = `Name: ${name}\nDescription: ${description}\n\n Original Content:\n\n${embeddingInput.join(
+        "\n\n"
+      )}\n\n`;
       console.log("chunks", chunks);
     } else {
       chunks = await generateChunksFromText(content!);

@@ -1,6 +1,6 @@
 import { embed, embedMany } from "ai";
 import { openai } from "@ai-sdk/openai";
-import { embeddings } from "../db/schema";
+import { embeddings, resources } from "../db/schema";
 import { cosineDistance, desc, gt, sql } from "drizzle-orm";
 import { db } from "@/lib/db/queries";
 import { embeddings as embeddingsTable } from "@/lib/db/schema";
@@ -209,3 +209,31 @@ export function chunkSentencesByWords(
   }
   return chunks;
 }
+
+export const findRelevantForASpecificCompany = async (
+  userQuery: string,
+  companyId: string
+) => {
+  console.log("Finding relevant content for user query:", userQuery);
+  const userQueryEmbedded = await generateEmbedding(userQuery);
+  const similarity = sql<number>`1 - (${cosineDistance(
+    embeddings.embedding,
+    userQueryEmbedded
+  )})`;
+
+  const similarGuides = await db
+    .select({
+      embeddingId: embeddingsTable.id,
+      embeddingContent: embeddingsTable.content,
+      similarity,
+    })
+    .from(embeddingsTable)
+    .innerJoin(resources, sql`${embeddingsTable.resourceId} = ${resources.id}`)
+    .where(sql`${resources.companyId} = ${companyId} AND ${similarity} > 0.5`)
+    .orderBy((t) => desc(t.similarity))
+    .limit(4);
+
+  console.log("Similar guides found:", similarGuides);
+
+  return similarGuides;
+};

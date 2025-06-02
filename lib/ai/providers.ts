@@ -13,6 +13,11 @@ import {
 } from "./models.test";
 import { createOpenAI } from "@ai-sdk/openai";
 import OpenAI from "openai";
+import { createGoogleGenerativeAI } from "@ai-sdk/google";
+
+export const google = createGoogleGenerativeAI({
+  apiKey: process.env.GOOGLE_GEMINI_AI_KEY,
+});
 
 const openai = createOpenAI({
   apiKey: process.env.AI_API_KEY,
