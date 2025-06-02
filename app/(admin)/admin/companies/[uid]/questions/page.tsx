@@ -60,12 +60,12 @@ const CompanyQuestionsPage = async ({
       </div>
 
       {/* Search */}
-      <div className="mb-6">
+      {/* <div className="mb-6">
         <div className="relative max-w-md">
           <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
           <Input placeholder="Search questions..." className="pl-10 h-10" />
         </div>
-      </div>
+      </div> */}
 
       {/* Questions List */}
       <Card className="border-border/50 shadow-sm">

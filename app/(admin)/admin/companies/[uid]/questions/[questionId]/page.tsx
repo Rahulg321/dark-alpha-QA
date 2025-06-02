@@ -12,7 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { formatDistanceToNow } from "date-fns";
 import ReactMarkdown from "react-markdown";
-import { Pencil, Trash2 } from "lucide-react";
+import { ArrowLeft, Pencil, Trash2 } from "lucide-react";
 import AnswerItem from "./answer-item";
 import { Metadata } from "next";
 
@@ -38,6 +38,14 @@ const QuestionPage = async ({
   return (
     <div className="block-space-mini big-container space-y-8">
       <div className="space-y-4">
+        <Link
+          href={`/admin/companies/${uid}/questions`}
+          className="text-sm text-muted-foreground flex items-center gap-2"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Back to questions list
+        </Link>
+
         <h1 className="text-3xl font-bold tracking-tight">Question Details</h1>
         <Card>
           <CardHeader>

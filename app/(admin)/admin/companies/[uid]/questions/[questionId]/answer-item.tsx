@@ -76,7 +76,7 @@ const AnswerItem = ({
       </CardHeader>
       <CardContent className="p-6">
         <div
-          className={cn("prose prose-sm max-w-none", {
+          className={cn("prose prose-sm dark:prose-invert max-w-none", {
             "animate-pulse": isPending,
           })}
         >

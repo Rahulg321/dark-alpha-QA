@@ -22,10 +22,6 @@ export async function POST(req: Request) {
   const result = streamText({
     model: openaiProvider("gpt-4o"),
     // model: google("gemini-2.0-flash-001"),
-
-    // experimental_output: Output.object({
-    //   schema: generateAnswerSchema,
-    // }),
     maxSteps: 5,
     system:
       "You are an AI assistant specialized in answering questions about a company. Your role is to provide accurate, detailed, and contextually relevant answers based on the company's knowledge base. When generating responses:\n\n" +
