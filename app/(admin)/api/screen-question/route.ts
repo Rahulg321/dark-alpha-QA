@@ -20,8 +20,8 @@ export async function POST(req: Request) {
   console.log("prompt", prompt);
 
   const result = streamText({
-    // model: openaiProvider("gpt-4o-mini"),
-    model: google("gemini-2.0-flash-001"),
+    model: openaiProvider("gpt-4o"),
+    // model: google("gemini-2.0-flash-001"),
 
     // experimental_output: Output.object({
     //   schema: generateAnswerSchema,
