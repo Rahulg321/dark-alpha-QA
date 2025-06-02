@@ -12,7 +12,6 @@ import { openaiProvider, openaiClient } from "@/lib/ai/providers";
 import { ExcelLoader } from "@/lib/excel-loader";
 import { revalidatePath } from "next/cache";
 import { generateText } from "ai";
-import officeParser from "officeparser";
 
 export async function POST(request: NextRequest) {
   try {

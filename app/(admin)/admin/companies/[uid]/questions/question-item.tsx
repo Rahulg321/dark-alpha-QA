@@ -9,6 +9,7 @@ import Link from "next/link";
 import React, { useTransition } from "react";
 import { deleteQuestion } from "@/lib/actions/delete-question";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 const QuestionItem = ({
   question,
@@ -20,7 +21,12 @@ const QuestionItem = ({
   const [isPending, startTransition] = useTransition();
   return (
     <div
-      className={`flex items-center justify-between px-4 sm:px-6 py-3 hover:bg-muted/30 group transition-colors `}
+      className={cn(
+        "flex items-center justify-between px-4 sm:px-6 py-3 hover:bg-muted/30 group transition-colors border-b",
+        {
+          "animate-pulse": isPending,
+        }
+      )}
     >
       <div className="flex-1 min-w-0 pr-3">
         <Link

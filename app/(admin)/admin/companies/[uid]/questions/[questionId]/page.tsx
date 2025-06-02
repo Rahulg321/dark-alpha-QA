@@ -1,7 +1,25 @@
-import { getCompanyQuestionById } from "@/lib/db/queries";
+import {
+  getAllAnswersByQuestionId,
+  getCompanyQuestionById,
+} from "@/lib/db/queries";
 import React from "react";
 import AddAnswerDialog from "./add-answer-dialog";
 import GenerateAnswerSection from "./generate-answer-section";
+import QuestionItem from "../question-item";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { formatDistanceToNow } from "date-fns";
+import ReactMarkdown from "react-markdown";
+import { Pencil, Trash2 } from "lucide-react";
+import AnswerItem from "./answer-item";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Question Details",
+  description: "Question details",
+};
 
 const QuestionPage = async ({
   params,
@@ -11,34 +29,76 @@ const QuestionPage = async ({
   const { uid, questionId } = await params;
 
   const question = await getCompanyQuestionById(questionId);
+  const answers = await getAllAnswersByQuestionId(questionId);
 
   if (!question) {
     return <div>Question not found</div>;
   }
 
   return (
-    <div className="block-space-mini big-container">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
-        <div className="flex flex-col gap-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold">Answers</h2>
-            <p>{question.title}</p>
-          </div>
-          <div className="border rounded-lg p-4">
-            {/* Answers list will go here */}
-          </div>
-        </div>
+    <div className="block-space-mini big-container space-y-8">
+      <div className="space-y-4">
+        <h1 className="text-3xl font-bold tracking-tight">Question Details</h1>
+        <Card>
+          <CardHeader>
+            <CardTitle>{question.title}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-col gap-4">
+              <div className="flex items-center gap-2">
+                {question.createdAt && (
+                  <span className="text-sm text-muted-foreground">
+                    Created {formatDistanceToNow(new Date(question.createdAt))}{" "}
+                    ago
+                  </span>
+                )}
+              </div>
+              <div className="flex gap-2">
+                <Button asChild variant="default">
+                  <Link
+                    href={`/admin/companies/${uid}/questions/${questionId}/add-answer`}
+                  >
+                    Add Answer
+                  </Link>
+                </Button>
+                <Button asChild variant="outline">
+                  <Link
+                    href={`/admin/companies/${uid}/questions/${questionId}/generate-answer`}
+                  >
+                    Generate Answer
+                  </Link>
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
 
-        {/* AI Analysis Section */}
-        <div className="flex flex-col gap-4">
-          <h2 className="text-xl font-bold">AI Analysis</h2>
-          <div className="border rounded-lg p-4">
-            <GenerateAnswerSection
-              questionText={question.title}
-              companyId={question.companyId}
-            />
+      <div className="space-y-4">
+        <h2 className="text-2xl font-bold tracking-tight">
+          Answers ({answers.length})
+        </h2>
+        {answers.length > 0 ? (
+          <div className="grid gap-4">
+            {answers.map((answer) => (
+              <AnswerItem
+                key={answer.id}
+                answer={answer}
+                companyId={uid}
+                questionId={questionId}
+              />
+            ))}
           </div>
-        </div>
+        ) : (
+          <Card>
+            <CardContent className="flex flex-col items-center justify-center py-8 text-center">
+              <h3 className="text-lg font-semibold">No answers yet</h3>
+              <p className="text-sm text-muted-foreground">
+                Be the first to add an answer to this question
+              </p>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   );

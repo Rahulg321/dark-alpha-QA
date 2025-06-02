@@ -31,6 +31,7 @@ import {
   company,
   resources,
   companyQuestions,
+  answers,
 } from "./schema";
 import type { ArtifactKind } from "@/components/artifact";
 import { generateUUID } from "../utils";
@@ -73,6 +74,24 @@ export async function getCompanyQuestionById(id: string) {
   } catch (error) {
     console.log("An error occured trying to get company question by id", error);
     return null;
+  }
+}
+
+export async function getAllAnswersByQuestionId(questionId: string) {
+  try {
+    const companyQuestionAnswers = await db
+      .select()
+      .from(answers)
+      .where(eq(answers.companyQuestionId, questionId))
+      .orderBy(desc(answers.createdAt));
+
+    return companyQuestionAnswers;
+  } catch (error) {
+    console.log(
+      "An error occured trying to get all answers by question id",
+      error
+    );
+    return [];
   }
 }
 
