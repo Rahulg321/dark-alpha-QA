@@ -4,7 +4,7 @@ import {
 } from "@/lib/db/queries";
 import React from "react";
 import AddAnswerDialog from "./add-answer-dialog";
-import GenerateAnswerSection from "./generate-answer-section";
+import GenerateAnswerSection from "./generate-answer/generate-answer-section";
 import QuestionItem from "../question-item";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";

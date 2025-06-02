@@ -231,7 +231,7 @@ export const findRelevantForASpecificCompany = async (
     .innerJoin(resources, sql`${embeddingsTable.resourceId} = ${resources.id}`)
     .where(sql`${resources.companyId} = ${companyId} AND ${similarity} > 0.5`)
     .orderBy((t) => desc(t.similarity))
-    .limit(4);
+    .limit(2);
 
   console.log("Similar guides found:", similarGuides);
 
