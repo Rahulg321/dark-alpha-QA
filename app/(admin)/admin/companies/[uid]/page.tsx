@@ -21,9 +21,10 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { getCompanyById, getResourcesByCompanyId } from "@/lib/db/queries";
+import { getCompanyById, getUnfolderedResourcesByCompanyId, getFoldersByCompanyId } from "@/lib/db/queries";
 import DeleteCompanyButton from "./delete-company-button";
 import ResourceCard from "./resource-card";
+import FolderList from "./folder-list";
 
 export default async function CompanyDetail({
   params,
@@ -33,7 +34,8 @@ export default async function CompanyDetail({
   const { uid } = await params;
 
   const company = await getCompanyById(uid);
-  const resources = await getResourcesByCompanyId(uid);
+  const resources = await getUnfolderedResourcesByCompanyId(uid);
+  const folders = await getFoldersByCompanyId(uid);
 
   return (
     <div className="min-h-screen bg-background">
@@ -167,6 +169,15 @@ export default async function CompanyDetail({
                     Add Resource
                   </Button>
                 </Link>
+              </div>
+
+              <div>
+                {folders.map((folder) => (
+                  <FolderList
+                    key={folder.id}
+                    folderId={folder.id}
+                  />
+                ))}
               </div>
 
               <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">

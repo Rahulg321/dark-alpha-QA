@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
       const rawContent = await pdfLoader.loadFromBuffer(buffer);
 
       console.log("analysing pdf using AI");
-      const result = await generateText({
+      /*const result = await generateText({
         model: openaiProvider.responses("gpt-4o"),
         messages: [
           {
@@ -97,7 +97,8 @@ export async function POST(request: NextRequest) {
             ],
           },
         ],
-      });
+      });*/
+      const result = "Placeholder";
 
       console.log("Result from analysing pdf using AI", result.text);
 
@@ -131,7 +132,7 @@ export async function POST(request: NextRequest) {
       console.log("*****************");
       console.log("processing image");
       const base64Image = Buffer.from(buffer).toString("base64");
-      const response = await openaiClient.responses.create({
+      /*const response = await openaiClient.responses.create({
         model: "gpt-4o-mini",
         input: [
           {
@@ -149,7 +150,8 @@ export async function POST(request: NextRequest) {
             ],
           },
         ],
-      });
+      });*/
+      const response = "Placeholder";
       content = `Name: ${name}\nDescription: ${description}\n\n Original Content:\n\n${response.output_text}\n\nAI Analysis:\n\n${response.output_text}`;
       console.log("Result of analysing image using AI", response.output_text);
       kind = "image";
@@ -181,7 +183,11 @@ export async function POST(request: NextRequest) {
       console.log("Chunks length", chunks.chunks.length);
     }
 
-    const embeddings = await generateEmbeddingsFromChunks(embeddingInput);
+   // const embeddings = await generateEmbeddingsFromChunks(embeddingInput);
+    const embeddings : Array<{ embedding: number[]; content: string }> = [{embedding: [], content: "example"}];
+    for (let i = 0; i < 1536; ++i) {
+      embeddings[0].embedding[i] = i;
+    }
     const [resource] = await db
       .insert(resources)
       .values({ content, name, description, companyId, kind: kind as any })

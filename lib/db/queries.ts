@@ -10,6 +10,7 @@ import {
   gte,
   inArray,
   lt,
+  isNull,
   sql,
   type SQL,
 } from "drizzle-orm";
@@ -61,6 +62,48 @@ export async function createFolder(name: string, companyId: string) {
       "bad_request:database",
       "Failed to create folder"
     );
+  }
+}
+
+export async function getFolderNameById(folderId: string) {
+  try {
+    const folder = await db.select().from(folders).where(eq(folders.id, folderId));
+    return folder[0].name;
+  } catch (error) {
+    console.log("Database error:", error)
+  }
+}
+
+export async function getCompanyForFolder(folderId: string) {
+  try {
+    const folder = await db.select().from(folders).where(eq(folders.id, folderId));
+    const companyId = folder[0].companyId;
+    console.log(companyId)
+    return await db.select().from(company).where(eq(company.id, companyId));
+  } catch (error) {
+    console.log("Database error:", error)
+  }
+}
+
+export async function getResourcesByFolder(folderId: string) {
+  try {
+    return await db.select().from(resources).where(eq(resources.folderId, folderId));
+  } catch (error) {
+    console.log("Database error:", error)
+  }
+}
+
+export async function getFoldersByCompanyId(companyId: string) {
+  try {
+    const folder = await db
+    .select()
+    .from(folders)
+    .where(eq(folders.companyId, companyId));
+
+    return folder;
+  } catch (error) {
+    console.log("An error occured trying to get folders by id", error);
+    return null;
   }
 }
 
@@ -277,7 +320,7 @@ export async function getCompanies() {
  * @param companyId - The id of the company
  * @returns The resources
  */
-export async function getResourcesByCompanyId(companyId: string) {
+export async function getUnfolderedResourcesByCompanyId(companyId: string) {
   try {
     return await db
       .select({
@@ -288,7 +331,7 @@ export async function getResourcesByCompanyId(companyId: string) {
         createdAt: resources.createdAt,
       })
       .from(resources)
-      .where(eq(resources.companyId, companyId))
+      .where(and(eq(resources.companyId, companyId), isNull(resources.folderId)))
       .orderBy(desc(resources.createdAt));
   } catch (error) {
     throw new ChatSDKError(
