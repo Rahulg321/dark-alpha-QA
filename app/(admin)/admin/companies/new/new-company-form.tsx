@@ -53,7 +53,15 @@ const NewCompanyForm = () => {
     startTransition(async () => {
       const result = await addCompany(values);
       if (result.success) {
-        toast.success(result.message);
+        toast.success(result.message, {
+          description: `Company ${values.name} created successfully`,
+          action: {
+            label: "View Company",
+            onClick: () => {
+              router.push(`/admin/companies/${result.company?.id}`);
+            },
+          },
+        });
         form.reset();
       } else {
         toast.error(result.message);

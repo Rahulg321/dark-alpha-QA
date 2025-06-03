@@ -99,7 +99,7 @@ const ResourceCard = ({
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-        <h3 className="font-semibold mb-2">{resourceName}</h3>
+        <h4 className="font-semibold mb-2">{resourceName}</h4>
         {resourceDescription && (
           <p className="text-muted-foreground text-sm leading-relaxed mb-4 line-clamp-2">
             {resourceDescription}

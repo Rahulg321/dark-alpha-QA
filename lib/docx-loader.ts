@@ -6,7 +6,6 @@ export class DocxLoader {
       console.log("inside mammoth");
       let result;
       if (typeof Buffer !== "undefined" && buffer instanceof ArrayBuffer) {
-        // Node.js: convert ArrayBuffer to Buffer
         const nodeBuffer = Buffer.from(buffer);
         result = await mammoth.extractRawText({ buffer: nodeBuffer });
       } else {

@@ -34,12 +34,6 @@ const AdminHeader = ({ session }: { session: Session | null }) => {
                   <Link href="/admin/companies" className="text-sm font-medium">
                     Companies
                   </Link>
-                  <Link
-                    href="/admin/investments"
-                    className="text-sm font-medium"
-                  >
-                    Investments
-                  </Link>
                 </nav>
               </SheetContent>
             </Sheet>
@@ -61,12 +55,6 @@ const AdminHeader = ({ session }: { session: Session | null }) => {
                 Companies
               </Link>
               <span className="text-sm">•</span>
-              <Link
-                href="/admin/investments"
-                className="text-sm hover:text-primary"
-              >
-                Investments
-              </Link>
             </div>
           </div>
 

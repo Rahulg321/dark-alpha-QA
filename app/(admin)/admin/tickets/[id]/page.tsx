@@ -27,13 +27,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-export default function TicketDetail({ params }: { params: { id: string } }) {
-  // Mock data - in real app this would be fetched based on ID
-  const isEmailTicket =
-    params.id === "2" || params.id === "4" || params.id === "6";
+export default async function TicketDetail({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+
+  const isEmailTicket = id === "2" || id === "4" || id === "6";
 
   const ticket = {
-    id: Number.parseInt(params.id),
+    id: Number.parseInt(id),
     title: isEmailTicket
       ? "Re: Account access issues"
       : "Unable to upload files larger than 10MB",

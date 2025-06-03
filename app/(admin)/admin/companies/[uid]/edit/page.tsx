@@ -38,16 +38,16 @@ export default async function EditSource({
     <div className="min-h-screen bg-background">
       <div className="container mx-auto py-8 px-4 md:px-6 max-w-2xl">
         <Link
-          href={`/admin/sources/${uid}`}
+          href={`/admin/companies/${uid}`}
           className="inline-flex items-center text-muted-foreground hover:text-foreground mb-6 transition-colors"
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to Source Details
+          Back to Company Details
         </Link>
 
         <Card>
           <CardHeader className="space-y-1">
-            <CardTitle className="text-xl">Edit Source</CardTitle>
+            <CardTitle className="text-xl">Edit Company</CardTitle>
             <p className="text-sm text-muted-foreground">
               Update the details for {source.name}
             </p>
@@ -106,10 +106,10 @@ export default async function EditSource({
               </div>
 
               <div className="flex justify-end gap-2">
-                <Link href={`/admin/sources/${uid}`}>
+                <Link href={`/admin/companies/${uid}`}>
                   <Button variant="outline">Cancel</Button>
                 </Link>
-                <Button type="submit">Update Source</Button>
+                <Button type="submit">Update Company</Button>
               </div>
             </form>
           </CardContent>
