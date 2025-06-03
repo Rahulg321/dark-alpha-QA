@@ -34,13 +34,15 @@ import {
   replies,
   type Replies,
   company,
-  resources
-} from './schema';
-import type { ArtifactKind } from '@/components/artifact';
-import { generateUUID } from '../utils';
-import { generateHashedPassword } from './utils';
-import type { VisibilityType } from '@/components/visibility-selector';
-import { ChatSDKError } from '../errors';
+  resources,
+  companyQuestions,
+  answers,
+} from "./schema";
+import type { ArtifactKind } from "@/components/artifact";
+import { generateUUID } from "../utils";
+import { generateHashedPassword } from "./utils";
+import type { VisibilityType } from "@/components/visibility-selector";
+import { ChatSDKError } from "../errors";
 
 // Optionally, if not using email/pass login, you can
 // use the Drizzle adapter for Auth.js / NextAuth
@@ -70,6 +72,43 @@ export async function getTicket(ticketId: string) {
       'bad_request:database',
       'Failed to get ticket by ID',
     );
+  }
+}
+
+/**
+ * Get company question by id
+ * @param id - The id of the company question
+ * @returns The company question
+ */
+export async function getCompanyQuestionById(id: string) {
+  try {
+    const [question] = await db
+      .select()
+      .from(companyQuestions)
+      .where(eq(companyQuestions.id, id));
+
+    return question;
+  } catch (error) {
+    console.log("An error occured trying to get company question by id", error);
+    return null;
+  }
+}
+
+export async function getAllAnswersByQuestionId(questionId: string) {
+  try {
+    const companyQuestionAnswers = await db
+      .select()
+      .from(answers)
+      .where(eq(answers.companyQuestionId, questionId))
+      .orderBy(desc(answers.createdAt));
+
+    return companyQuestionAnswers;
+  } catch (error) {
+    console.log(
+      "An error occured trying to get all answers by question id",
+      error
+    );
+    return [];
   }
 }
 
@@ -169,14 +208,41 @@ export async function createTicket(title:string, description:string, content:str
   }
 }
 
+/*
+ * Get company questions by company id
+ * @param companyId - The id of the company
+ * @returns The company questions
+ */
+export async function getCompanyQuestionsByCompanyId(companyId: string) {
+  try {
+    return await db
+      .select()
+      .from(companyQuestions)
+      .where(eq(companyQuestions.companyId, companyId))
+      .orderBy(desc(companyQuestions.createdAt));
+  } catch (error) {
+    console.log(
+      "An error occured trying to get company questions by company id",
+      error
+    );
+    return [];
+  }
+}
+
 export async function getCompanies() {
   try {
     return await db.select().from(company);
   } catch (error) {
-    throw new ChatSDKError("bad_request:database", "Failed to get companies");
+    console.log("An error occured trying to get companies", error);
+    return [];
   }
 }
 
+/**
+ * Get resources by company id
+ * @param companyId - The id of the company
+ * @returns The resources
+ */
 export async function getResourcesByCompanyId(companyId: string) {
   try {
     return await db
@@ -188,7 +254,8 @@ export async function getResourcesByCompanyId(companyId: string) {
         createdAt: resources.createdAt,
       })
       .from(resources)
-      .where(eq(resources.companyId, companyId));
+      .where(eq(resources.companyId, companyId))
+      .orderBy(desc(resources.createdAt));
   } catch (error) {
     throw new ChatSDKError(
       "bad_request:database",

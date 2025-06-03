@@ -70,6 +70,28 @@ const CompaniesPage = async () => {
 export default CompaniesPage;
 
 function CompanyCards({ companies }: { companies: Company[] }) {
+  if (companies.length === 0) {
+    return (
+      <Card className="col-span-full">
+        <CardContent className="p-6 text-center">
+          <div className="flex flex-col items-center justify-center gap-2">
+            <Building2 className="h-12 w-12 text-muted-foreground" />
+            <h3 className="text-lg font-semibold">No companies found</h3>
+            <p className="text-sm text-muted-foreground">
+              Get started by creating your first company
+            </p>
+            <Link href="/admin/companies/new">
+              <Button className="mt-2">
+                <PlusCircle className="mr-2 h-4 w-4" />
+                New Company
+              </Button>
+            </Link>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <>
       {companies.map((company) => (
