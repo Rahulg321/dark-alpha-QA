@@ -37,6 +37,7 @@ import {
   resources,
   companyQuestions,
   answers,
+  folders,
 } from "./schema";
 import type { ArtifactKind } from "@/components/artifact";
 import { generateUUID } from "../utils";
@@ -51,6 +52,39 @@ import { ChatSDKError } from "../errors";
 // biome-ignore lint: Forbidden non-null assertion.
 const client = postgres(process.env.POSTGRES_URL!);
 export const db = drizzle(client);
+
+export async function createFolder(name: string, companyId: string) {
+  try {
+    return await db.insert(folders).values(name, companyId).returning();
+  } catch (error) {
+    throw new ChatSDKError(
+      "bad_request:database",
+      "Failed to create folder"
+    );
+  }
+}
+
+export async function moveDocumentToFolder(documentId: string, folderId: string) {
+  try {
+    return await db.update(documents).set({folderId}).where(eq(documents.id, documentId));
+  } catch (error) {
+    throw new ChatSDKError(
+      "bad_request:database",
+      "Failed to move document to folder"
+    );
+  }
+}
+
+export async function deleteFolder(folderId: string) {
+  try {
+    return await db.delete(folders).where(eq(folders.id, folderId));
+  } catch (error) {
+    throw new ChatSDKError(
+      "bad_request:database",
+      "Failed to delete folder"
+    );
+  }
+}
 
 export async function getUser(email: string): Promise<Array<User>> {
   try {

@@ -326,7 +326,7 @@ export const resources = pgTable(
       .default("pdf"),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
-    folderId: uuid("folderId").optional().references(() => folder.id, { onDelete: "cascade" }),
+    folderId: uuid("folderId").references(() => folder.id, { onDelete: "cascade" }),
   },
   (pgTable) => ({
     companyIdRef:foreignKey({
