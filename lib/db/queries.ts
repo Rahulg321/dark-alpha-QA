@@ -10,6 +10,8 @@ import {
   gte,
   inArray,
   lt,
+  isNull,
+  sql,
   type SQL,
 } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/postgres-js";
@@ -28,10 +30,15 @@ import {
   type Chat,
   stream,
   ticket,
+  tags,
+  type Tags,
+  replies,
+  type Replies,
   company,
   resources,
   companyQuestions,
   answers,
+  folders,
 } from "./schema";
 import type { ArtifactKind } from "@/components/artifact";
 import { generateUUID } from "../utils";
@@ -47,6 +54,81 @@ import { ChatSDKError } from "../errors";
 const client = postgres(process.env.POSTGRES_URL!);
 export const db = drizzle(client);
 
+export async function createFolder(name: string, companyId: string) {
+  try {
+    return await db.insert(folders).values(name, companyId).returning();
+  } catch (error) {
+    throw new ChatSDKError(
+      "bad_request:database",
+      "Failed to create folder"
+    );
+  }
+}
+
+export async function getFolderNameById(folderId: string) {
+  try {
+    const folder = await db.select().from(folders).where(eq(folders.id, folderId));
+    return folder[0].name;
+  } catch (error) {
+    console.log("Database error:", error)
+  }
+}
+
+export async function getCompanyForFolder(folderId: string) {
+  try {
+    const folder = await db.select().from(folders).where(eq(folders.id, folderId));
+    const companyId = folder[0].companyId;
+    console.log(companyId)
+    return await db.select().from(company).where(eq(company.id, companyId));
+  } catch (error) {
+    console.log("Database error:", error)
+  }
+}
+
+export async function getResourcesByFolder(folderId: string) {
+  try {
+    return await db.select().from(resources).where(eq(resources.folderId, folderId));
+  } catch (error) {
+    console.log("Database error:", error)
+  }
+}
+
+export async function getFoldersByCompanyId(companyId: string) {
+  try {
+    const folder = await db
+    .select()
+    .from(folders)
+    .where(eq(folders.companyId, companyId));
+
+    return folder;
+  } catch (error) {
+    console.log("An error occured trying to get folders by id", error);
+    return null;
+  }
+}
+
+export async function moveDocumentToFolder(documentId: string, folderId: string) {
+  try {
+    return await db.update(documents).set({folderId}).where(eq(documents.id, documentId));
+  } catch (error) {
+    throw new ChatSDKError(
+      "bad_request:database",
+      "Failed to move document to folder"
+    );
+  }
+}
+
+export async function deleteFolder(folderId: string) {
+  try {
+    return await db.delete(folders).where(eq(folders.id, folderId));
+  } catch (error) {
+    throw new ChatSDKError(
+      "bad_request:database",
+      "Failed to delete folder"
+    );
+  }
+}
+
 export async function getUser(email: string): Promise<Array<User>> {
   try {
     return await db.select().from(user).where(eq(user.email, email));
@@ -54,6 +136,18 @@ export async function getUser(email: string): Promise<Array<User>> {
     throw new ChatSDKError(
       "bad_request:database",
       "Failed to get user by email"
+    );
+  }
+}
+
+export async function getTicket(ticketId: string) {
+  try {
+    return await db.select().from(ticket).where(eq(ticket.id, ticketId));
+  } catch (error) {
+    console.log(error)
+    throw new ChatSDKError(
+      'bad_request:database',
+      'Failed to get ticket by ID',
     );
   }
 }
@@ -96,6 +190,102 @@ export async function getAllAnswersByQuestionId(questionId: string) {
 }
 
 /**
+ * export const replies = pgTable("replies", {
+ *  id: uuid('id').notNull().primaryKey().defaultRandom(),
+ *  content: text('content').notNull(),
+ *  createdAt: timestamp('created_at').notNull().defaultNow(),
+ *  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+ *  userId: uuid("userId").notNull().references(() => user.id),
+ *  ticketId: uuid("ticketId").notNull().references(() => ticket.id),
+ * }, (pgTable)=>({
+ *  userIdRef:foreignKey({
+ *   columns:[pgTable.userId],
+ *   foreignColumns:[user.id]
+ *  }),
+ *  ticketIdRef:foreignKey({
+ *   columns:[pgTable.ticketId],
+ *   foreignColumns:[ticket.id]
+ *  })
+ * }));
+*/
+
+export async function createReply(ticketId: string, userId: string, content: string) {
+  try {
+    return await db.insert(replies).values({ticketId, userId, content}).returning();
+  } catch (error) {
+    console.log(error)
+    throw new ChatSDKError(
+      'bad_request:database',
+      'Failed to create reply',
+    );
+  }
+}
+
+export async function editReply(replyId: string, content: string) {
+  try {
+    return await db.update(replies).set({ content, updatedAt: sql`NOW()`}).where(eq(replies.id, replyId));
+  } catch (error) {
+    throw new ChatSDKError(
+      'bad_request:database',
+      'Failed to edit reply',
+    );
+  }
+}
+
+export async function editTicket(title: string, description: string, newTags: string[], content: string, ticketId: string) {
+  try {
+    const result = await db.select({oldTags: ticket.tags}).from(ticket).where(eq(ticket.id, ticketId));
+    const { oldTags } = result[0];
+    const newTicket: Ticket = await db.transaction(async (t) => {
+      for (let i = 0; i < Math.max(newTags.length, oldTags.length); ++i) {
+        //console.log(oldTags[i])
+        //console.log(newTags[i])
+        if (oldTags.indexOf(newTags[i]) == -1 && newTags[i] != null) {
+          await t.insert(tags).values({name: newTags[i], count: 1}).onConflictDoUpdate({target: tags.name, set: { count: sql`${tags.count} + 1` } });
+        } else if (newTags.indexOf(oldTags[i]) == -1 && oldTags[i] != null) {
+          await t.update(tags).set({ count: sql`${tags.count} - 1` } ).where(eq(tags.name, oldTags[i]));
+        }
+      }
+      return await t.update(ticket).set({title, description, tags: newTags, content}).where(eq(ticket.id, ticketId)).returning();
+    })
+    return newTicket;
+  } catch (error) {
+    console.log(error)
+    throw new ChatSDKError(
+      'bad_request:database',
+      'Failed to edit ticket',
+    );
+  }
+}
+
+export async function getTickets() {
+  try {
+    return await db.select().from(ticket).where();
+  } catch (error) {
+    throw new ChatSDKError(
+      'bad_request:database',
+      'Failed to get tickets',
+    );
+  }
+}
+
+export async function createTicket(title:string, description:string, content:string, userId:string, newTags: string[]){
+  try {
+    console.log("Created a ticket");
+    const newTicket: Ticket = await db.transaction(async (t) => {
+      const ticketMade = await t.insert(ticket).values({title, description, tags: newTags, content, userId, status: "open"}).returning();
+      for (let i = 0; i < newTags.length; ++i) {
+        await t.insert(tags).values({name: newTags[i], count: 1}).onConflictDoUpdate({target: tags.name, set: { count: sql`${tags.count} + 1` } });
+      }
+      return ticketMade;
+    });
+    return newTicket;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+/*
  * Get company questions by company id
  * @param companyId - The id of the company
  * @returns The company questions
@@ -130,7 +320,7 @@ export async function getCompanies() {
  * @param companyId - The id of the company
  * @returns The resources
  */
-export async function getResourcesByCompanyId(companyId: string) {
+export async function getUnfolderedResourcesByCompanyId(companyId: string) {
   try {
     return await db
       .select({
@@ -141,7 +331,7 @@ export async function getResourcesByCompanyId(companyId: string) {
         createdAt: resources.createdAt,
       })
       .from(resources)
-      .where(eq(resources.companyId, companyId))
+      .where(and(eq(resources.companyId, companyId), isNull(resources.folderId)))
       .orderBy(desc(resources.createdAt));
   } catch (error) {
     throw new ChatSDKError(
@@ -231,33 +421,6 @@ export async function getCompanyNameById(companyId: string) {
       "bad_request:database",
       "Failed to get company name by id"
     );
-  }
-}
-
-/**
- * Create a new ticket
- * @param title - The title of the ticket
- * @param description - The description of the ticket
- * @param content - The content of the ticket
- * @param userId - The user id of the ticket
- * @param tags - The tags of the ticket
- * @returns The created ticket
- */
-export async function createTicket(
-  title: string,
-  description: string,
-  content: string,
-  userId: string,
-  tags: string[]
-) {
-  try {
-    return await db
-      .insert(ticket)
-      .values({ title, description, userId, status: "open", tags })
-      .returning();
-  } catch (error) {
-    console.error(error);
-    throw new ChatSDKError("bad_request:database", "Failed to create ticket");
   }
 }
 

@@ -2,6 +2,7 @@
 
 import React from "react";
 
+import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Resource } from "@/lib/db/schema";
 import { FileText, MoreHorizontal } from "lucide-react";
@@ -16,6 +17,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { deleteResource } from "@/lib/actions/delete-resource";
 import { toast } from "sonner";
+import { getFolder } from "@/lib/actions/get-folder";
 
 const ResourceCard = ({
   resourceId,
@@ -30,6 +32,7 @@ const ResourceCard = ({
   resourceKind: string;
   companyId: string;
 }) => {
+  const folderEditLink = `/admin/companies/${companyId}/resources/${resourceId}/setFolder`;
   return (
     <Card
       key={resourceId}
@@ -82,6 +85,9 @@ const ResourceCard = ({
             <DropdownMenuContent align="end">
               <DropdownMenuItem>View</DropdownMenuItem>
               <DropdownMenuItem>Edit</DropdownMenuItem>
+              <Link href={folderEditLink}>
+                <DropdownMenuItem>Move To Folder</DropdownMenuItem>
+              </Link>
               <DropdownMenuItem
                 className="text-destructive"
                 onClick={() => {

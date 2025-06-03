@@ -9,10 +9,11 @@ import {
   primaryKey,
   foreignKey,
   boolean,
-  index,
+  index, 
   vector,
-} from "drizzle-orm/pg-core";
-import { z } from "zod";
+  integer
+} from 'drizzle-orm/pg-core';
+import { z } from 'zod';
 import { createSelectSchema } from "drizzle-zod";
 
 export const user = pgTable("User", {
@@ -173,31 +174,53 @@ export const stream = pgTable(
 
 export type Stream = InferSelectModel<typeof stream>;
 
-export const ticket = pgTable(
-  "Ticket",
-  {
-    id: uuid("id").notNull().defaultRandom(),
-    createdAt: timestamp("createdAt").notNull().defaultNow(),
-    title: text("title").notNull(),
-    tags: text("tags").array().notNull(),
-    description: text("description"),
-    status: varchar("status", { enum: ["open", "closed"] })
-      .notNull()
-      .default("open"),
-    userId: uuid("userId")
-      .notNull()
-      .references(() => user.id),
-  },
-  (pgTable) => ({
-    pk: primaryKey({ columns: [pgTable.id] }),
-    userIdRef: foreignKey({
-      columns: [pgTable.userId],
-      foreignColumns: [user.id],
-    }),
+export const ticket = pgTable("ticket", {
+  id:uuid("id").notNull().primaryKey().defaultRandom(),
+  createdAt:timestamp("createdAt").notNull().defaultNow(), 
+  title:text("title").notNull(),
+  tags:text("tags").array(),
+  description:text("description"), 
+  content:text("content"), 
+  status:varchar("status", {enum:["open", "closed"]}).notNull().default("open"), 
+  userId:uuid("userId").notNull().references(() => user.id),
+}, (pgTable)=>({
+  userIdRef:foreignKey({
+    columns:[pgTable.userId], 
+    foreignColumns:[user.id]
   })
-);
+}));
 
 export type Ticket = InferSelectModel<typeof ticket>;
+
+export const replies = pgTable("replies", {
+  id: uuid('id').notNull().primaryKey().defaultRandom(),
+  content: text('content').notNull(),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+  userId: uuid("userId").notNull().references(() => user.id),
+  ticketId: uuid("ticketId").notNull().references(() => ticket.id),
+}, (pgTable)=>({
+  userIdRef:foreignKey({
+    columns:[pgTable.userId],
+    foreignColumns:[user.id]
+  }),
+  ticketIdRef:foreignKey({
+    columns:[pgTable.ticketId],
+    foreignColumns:[ticket.id]
+  })
+}));
+
+export type Replies = InferSelectModel<typeof replies>;
+
+export const tags = pgTable(
+  'tags',
+  {
+    name: text("name").notNull().unique(),
+    count: integer("count").notNull().default(0),
+  }
+);
+
+export type Tags = InferSelectModel<typeof tags>;
 
 export const company = pgTable(
   "company",
@@ -303,24 +326,49 @@ export const resources = pgTable(
       .default("pdf"),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
+    folderId: uuid("folderId").references(() => folders.id, { onDelete: "cascade" }),
   },
   (pgTable) => ({
-    companyIdRef: foreignKey({
-      columns: [pgTable.companyId],
-      foreignColumns: [company.id],
+    companyIdRef:foreignKey({
+      columns:[pgTable.companyId],
+      foreignColumns:[company.id]
+    }),
+    folderIdRef:foreignKey({
+      columns:[pgTable.folderId],
+      foreignColumns:[folders.id]
     }),
     pk: primaryKey({ columns: [pgTable.id] }),
   })
 );
 
+export const folders = pgTable(
+  "folders",
+  {
+    id: uuid("id").notNull().defaultRandom(),
+    name: text("name").notNull(),
+    companyId: uuid("company_id")
+      .notNull()
+      .references(() => company.id, { onDelete: "cascade" }),
+  },
+  (pgTable) => ({
+    pk: primaryKey({ columns: [pgTable.id] }),
+    companyIdRef:foreignKey({
+      columns:[pgTable.companyId],
+      foreignColumns:[company.id]
+    }),
+  })
+);
+
+export type Folder = InferSelectModel<typeof folders>;
+
 // Schema for resources - used to validate API requests
 export const insertResourceSchema = createSelectSchema(resources)
-  .extend({})
-  .omit({
-    id: true,
-    createdAt: true,
-    updatedAt: true,
-  });
+.extend({})
+.omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
 
 export type Resource = InferSelectModel<typeof resources>;
 
@@ -328,19 +376,17 @@ export const embeddings = pgTable(
   "embeddings",
   {
     id: uuid("id").notNull().defaultRandom(),
-
     resourceId: uuid("resource_id")
       .notNull()
       .references(() => resources.id, { onDelete: "cascade" }),
-
     content: text("content").notNull(),
     embedding: vector("embedding", { dimensions: 1536 }).notNull(),
   },
   (table) => ({
     pk: primaryKey({ columns: [table.id] }),
-    resourceIdRef: foreignKey({
-      columns: [table.resourceId],
-      foreignColumns: [resources.id],
+    resourceIdRef:foreignKey({
+      columns:[table.resourceId],
+      foreignColumns:[resources.id]
     }),
     embeddingIndex: index("embeddingIndex").using(
       "hnsw",
