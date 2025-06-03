@@ -326,15 +326,33 @@ export const resources = pgTable(
       .default("pdf"),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
+    folderId: uuid("folderId").optional().references(() => folder.id, { onDelete: "cascade" }),
   },
   (pgTable) => ({
     companyIdRef:foreignKey({
       columns:[pgTable.companyId],
       foreignColumns:[company.id]
     }),
+    folderIdRef:foreignKey({
+      columns:[pgTable.folderId],
+      foreignColumns:[folders.id]
+    }),
     pk: primaryKey({ columns: [pgTable.id] }),
   })
 );
+
+export const folders = pgTable(
+  "folders",
+  {
+    id: uuid("id").notNull().defaultRandom(),
+    name: text("name").notNull(),
+  },
+  (pgTable) => ({
+    pk: primaryKey({ columns: [pgTable.id] }),
+  })
+);
+
+export type Folder = InferSelectModel<typeof folders>;
 
 // Schema for resources - used to validate API requests
 export const insertResourceSchema = createSelectSchema(resources)
