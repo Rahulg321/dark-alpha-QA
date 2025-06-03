@@ -346,9 +346,16 @@ export const folders = pgTable(
   {
     id: uuid("id").notNull().defaultRandom(),
     name: text("name").notNull(),
+    companyId: uuid("company_id")
+      .notNull()
+      .references(() => company.id, { onDelete: "cascade" }),
   },
   (pgTable) => ({
     pk: primaryKey({ columns: [pgTable.id] }),
+    companyIdRef:foreignKey({
+      columns:[pgTable.companyId],
+      foreignColumns:[company.id]
+    }),
   })
 );
 
