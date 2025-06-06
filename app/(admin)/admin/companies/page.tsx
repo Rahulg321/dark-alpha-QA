@@ -45,7 +45,10 @@ const CompaniesPage = async () => {
               Enterprise
             </Button>
             <Button variant="ghost" size="sm">
-              Startup
+              Agency
+            </Button>
+            <Button variant="ghost" size="sm">
+              Research
             </Button>
             <Button variant="ghost" size="sm">
               Consultancy
@@ -59,7 +62,7 @@ const CompaniesPage = async () => {
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+        <div className="">
           <CompanyCards companies={companies} />
         </div>
       </div>
@@ -95,63 +98,37 @@ function CompanyCards({ companies }: { companies: Company[] }) {
   return (
     <>
       {companies.map((company) => (
-        <Card
+        <div
           key={company.id}
-          className="group hover:shadow-md transition-all duration-200 border-border"
+          className="flex items-center justify-between px-4 sm:px-6 py-3 hover:bg-muted/30 group transition-colors border-b rounded-md"
         >
-          <CardContent className="p-6">
-            <div className="flex items-start justify-between mb-4">
-              <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center">
-                  <Building2 className="h-5 w-5 text-muted-foreground" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <Badge variant="secondary" className="mb-2 text-xs">
-                    {company.type}
-                  </Badge>
-                </div>
-              </div>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
-                  >
-                    <MoreHorizontal className="h-4 w-4" />
-                    <span className="sr-only">Open menu</span>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <Link href={`/companies/${company.id}/edit`}>
-                    <DropdownMenuItem>Edit</DropdownMenuItem>
-                  </Link>
-                  <DropdownMenuItem className="text-destructive">
-                    Delete
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-
-            <Link
-              href={`/admin/companies/${company.id}`}
-              className="block group"
-            >
-              <h3 className="font-semibold text-lg mb-2 group-hover:text-foreground/80 transition-colors">
+          <Link
+            href={`/admin/companies/${company.id}`}
+            className="flex-1 min-w-0 pr-3 block"
+          >
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium text-foreground hover:text-primary transition-colors truncate">
                 {company.name}
-              </h3>
-              <p className="text-muted-foreground text-sm leading-relaxed mb-4 line-clamp-2">
-                {company.description}
-              </p>
-              <div className="flex items-center justify-between text-xs text-muted-foreground">
-                <div className="flex items-center gap-1">
-                  <Calendar className="h-3 w-3" />
-                  <span>{company.createdAt.toLocaleDateString()}</span>
-                </div>
-              </div>
-            </Link>
-          </CardContent>
-        </Card>
+              </span>
+              <Badge variant="secondary" className="text-xs ml-2">
+                {company.type}
+              </Badge>
+            </div>
+            <div className="text-xs text-muted-foreground mt-0.5">
+              {company.createdAt.toLocaleDateString()}
+            </div>
+          </Link>
+          <Link href={`/companies/${company.id}/edit`}>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0"
+            >
+              <MoreHorizontal className="h-4 w-4 text-muted-foreground" />
+              <span className="sr-only">Edit company</span>
+            </Button>
+          </Link>
+        </div>
       ))}
     </>
   );

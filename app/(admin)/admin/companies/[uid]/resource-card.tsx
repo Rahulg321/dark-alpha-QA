@@ -2,11 +2,10 @@
 
 import React from "react";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Resource } from "@/lib/db/schema";
 import { FileText, MoreHorizontal } from "lucide-react";
-import { File } from "buffer";
-import { ImageIcon } from "lucide-react";
+import { BsFiletypePdf, BsFileImage, BsFiletypeExe } from "react-icons/bs";
+import { PiFileAudioBold } from "react-icons/pi";
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,6 +15,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { deleteResource } from "@/lib/actions/delete-resource";
 import { toast } from "sonner";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 const ResourceCard = ({
   resourceId,
@@ -30,83 +31,95 @@ const ResourceCard = ({
   resourceKind: string;
   companyId: string;
 }) => {
+  const router = useRouter();
   return (
-    <Card
-      key={resourceId}
-      className="group hover:shadow-md transition-all duration-200"
-    >
-      <CardContent className="p-6">
-        <div className="flex justify-between items-start mb-4">
-          <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center text-muted-foreground">
-            {resourceKind === "pdf" ? (
-              <FileText className="h-4 w-4" />
-            ) : resourceKind === "doc" ? (
-              <FileText className="h-4 w-4" />
-            ) : resourceKind === "docx" ? (
-              <FileText className="h-4 w-4" />
-            ) : resourceKind === "txt" ? (
-              <FileText className="h-4 w-4" />
-            ) : resourceKind === "jpg" ? (
-              <ImageIcon className="h-4 w-4" />
-            ) : resourceKind === "jpeg" ? (
-              <ImageIcon className="h-4 w-4" />
-            ) : resourceKind === "png" ? (
-              <ImageIcon className="h-4 w-4" />
-            ) : resourceKind === "gif" ? (
-              <ImageIcon className="h-4 w-4" />
-            ) : resourceKind === "webp" ? (
-              <ImageIcon className="h-4 w-4" />
-            ) : resourceKind === "xls" ? (
-              <FileText className="h-4 w-4" />
-            ) : resourceKind === "xlsx" ? (
-              <FileText className="h-4 w-4" />
-            ) : resourceKind === "image" ? (
-              <ImageIcon className="h-4 w-4" />
-            ) : resourceKind === "excel" ? (
-              <FileText className="h-4 w-4" />
-            ) : (
-              <FileText className="h-4 w-4" />
+    <div className="flex items-center justify-between px-4 sm:px-6 py-3 hover:bg-muted/30 group transition-colors border-b rounded-md">
+      <div className="flex items-center gap-3 min-w-0 flex-1 pr-3">
+        <span className="size-8 rounded bg-muted flex items-center justify-center text-muted-foreground">
+          {resourceKind === "pdf" ? (
+            <BsFiletypePdf className="size-4" />
+          ) : resourceKind === "doc" ||
+            resourceKind === "docx" ||
+            resourceKind === "txt" ? (
+            <FileText className="size-4" />
+          ) : resourceKind === "jpg" ||
+            resourceKind === "jpeg" ||
+            resourceKind === "png" ||
+            resourceKind === "gif" ||
+            resourceKind === "webp" ||
+            resourceKind === "image" ? (
+            <BsFileImage className="size-4" />
+          ) : resourceKind === "xls" ||
+            resourceKind === "xlsx" ||
+            resourceKind === "excel" ? (
+            <BsFiletypeExe className="size-4" />
+          ) : resourceKind === "mp3" || resourceKind === "audio" ? (
+            <PiFileAudioBold className="size-4" />
+          ) : (
+            <FileText className="size-4" />
+          )}
+        </span>
+        <div className="min-w-0">
+          <Link href={`/admin/companies/${companyId}/resources/${resourceId}`}>
+            <p className="text-sm font-medium text-foreground truncate">
+              {resourceName}
+            </p>
+            {resourceDescription && (
+              <span className="text-xs text-muted-foreground truncate">
+                {resourceDescription}
+              </span>
             )}
-          </div>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
-              >
-                <MoreHorizontal className="h-4 w-4" />
-                <span className="sr-only">Open menu</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem>View</DropdownMenuItem>
-              <DropdownMenuItem>Edit</DropdownMenuItem>
-              <DropdownMenuItem
-                className="text-destructive"
-                onClick={() => {
-                  deleteResource(resourceId, companyId).then((res) => {
-                    if (res.success) {
-                      toast.success(res.message);
-                    } else {
-                      toast.error(res.message);
-                    }
-                  });
-                }}
-              >
-                Delete
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          </Link>
         </div>
-        <h4 className="font-semibold mb-2">{resourceName}</h4>
-        {resourceDescription && (
-          <p className="text-muted-foreground text-sm leading-relaxed mb-4 line-clamp-2">
-            {resourceDescription}
-          </p>
-        )}
-      </CardContent>
-    </Card>
+      </div>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="size-7 opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
+          >
+            <MoreHorizontal className="size-4 text-muted-foreground" />
+            <span className="sr-only">Open menu</span>
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem
+            onClick={() => {
+              router.push(
+                `/admin/companies/${companyId}/resources/${resourceId}`
+              );
+            }}
+          >
+            View
+          </DropdownMenuItem>
+
+          <DropdownMenuItem
+            onClick={() => {
+              router.push(
+                `/admin/companies/${companyId}/resources/${resourceId}/edit`
+              );
+            }}
+          >
+            Edit
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            className="text-destructive"
+            onClick={() => {
+              deleteResource(resourceId, companyId).then((res) => {
+                if (res.success) {
+                  toast.success(res.message);
+                } else {
+                  toast.error(res.message);
+                }
+              });
+            }}
+          >
+            Delete
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
   );
 };
 

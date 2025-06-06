@@ -1,0 +1,1 @@
+ALTER TABLE "resources" ADD COLUMN "file_url" text;

@@ -240,15 +240,15 @@ const PurePreviewMessage = ({
                             {Array.isArray(result) && result.length > 0 ? (
                               result.map(
                                 (
-                                  item: { name: string; similarity: number },
+                                  item: { content: string; similarity: number },
                                   index: number
                                 ) => (
                                   <div
                                     key={index}
                                     className="flex items-center justify-between p-2 rounded-md bg-muted/50"
                                   >
-                                    <span className="text-sm font-medium">
-                                      {item.name}
+                                    <span className="whitespace-pre-wrap  prose text-sm font-medium">
+                                      {item.content}
                                     </span>
                                     <span className="text-xs px-2 py-1 rounded-full bg-primary/10 text-primary">
                                       {Math.round(item.similarity * 100)}% match

@@ -279,9 +279,13 @@ export const resources = pgTable(
     companyId: uuid("company_id")
       .notNull()
       .references(() => company.id, { onDelete: "cascade" }),
+    categoryId: uuid("category_id").references(() => resourceCategories.id, {
+      onDelete: "cascade",
+    }),
     name: text("name").notNull(),
     description: text("description"),
     content: text("content"),
+    fileUrl: text("file_url"),
     kind: varchar("kind", {
       enum: [
         "pdf",
@@ -297,10 +301,12 @@ export const resources = pgTable(
         "xlsx",
         "image",
         "excel",
+        "audio",
       ],
     })
       .notNull()
       .default("pdf"),
+    tags: text("tags").array(),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },
@@ -308,6 +314,10 @@ export const resources = pgTable(
     companyIdRef: foreignKey({
       columns: [pgTable.companyId],
       foreignColumns: [company.id],
+    }),
+    categoryIdRef: foreignKey({
+      columns: [pgTable.categoryId],
+      foreignColumns: [resourceCategories.id],
     }),
     pk: primaryKey({ columns: [pgTable.id] }),
   })
@@ -320,6 +330,7 @@ export const insertResourceSchema = createSelectSchema(resources)
     id: true,
     createdAt: true,
     updatedAt: true,
+    tags: true,
   });
 
 export type Resource = InferSelectModel<typeof resources>;
@@ -351,13 +362,19 @@ export const embeddings = pgTable(
 
 export type Embedding = InferSelectModel<typeof embeddings>;
 
-export const employee = pgTable(
-  "employees",
+// Resource Categories Table
+export const resourceCategories = pgTable(
+  "resource_categories",
   {
     id: uuid("id").notNull().defaultRandom(),
+    name: text("name").notNull().unique(),
+    description: text("description"),
     createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },
   (table) => ({
     pk: primaryKey({ columns: [table.id] }),
   })
 );
+
+export type ResourceCategory = InferSelectModel<typeof resourceCategories>;

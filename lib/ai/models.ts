@@ -1,4 +1,4 @@
-export const DEFAULT_CHAT_MODEL: string = 'chat-model';
+export const DEFAULT_CHAT_MODEL: string = "chat-model";
 
 export interface ChatModel {
   id: string;
@@ -8,13 +8,23 @@ export interface ChatModel {
 
 export const chatModels: Array<ChatModel> = [
   {
-    id: 'chat-model',
-    name: 'Chat model',
-    description: 'Primary model for all-purpose chat',
+    id: "chat-model",
+    name: "Chat model",
+    description: "Primary model for all-purpose chat",
   },
   {
-    id: 'chat-model-reasoning',
-    name: 'Reasoning model',
-    description: 'Uses advanced reasoning',
+    id: "chat-model-reasoning",
+    name: "Reasoning model",
+    description: "Uses advanced reasoning",
+  },
+  {
+    id: "gemini-flash",
+    name: "Gemini Flash",
+    description: "Gemini Flash model",
+  },
+  {
+    id: "gemini-reasoning",
+    name: "Gemini Reasoning",
+    description: "Gemini Reasoning model",
   },
 ];

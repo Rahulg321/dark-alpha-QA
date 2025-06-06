@@ -132,22 +132,41 @@ export const generateEmbedding = async (value: string): Promise<number[]> => {
 
 export const findRelevantContent = async (userQuery: string) => {
   console.log("Finding relevant content for user query:", userQuery);
+
+  // Generate embedding for the user query
   const userQueryEmbedded = await generateEmbedding(userQuery);
+
+  // Calculate similarity using cosine distance
   const similarity = sql<number>`1 - (${cosineDistance(
     embeddings.embedding,
     userQueryEmbedded
   )})`;
 
+  // Query for similar content with improved filtering and ranking
   const similarGuides = await db
-    .select({ name: embeddingsTable.content, similarity })
+    .select({
+      content: embeddingsTable.content,
+      similarity,
+      // Add metadata if available in your schema
+      resourceId: embeddingsTable.resourceId,
+    })
     .from(embeddingsTable)
-    .where(gt(similarity, 0.5))
+    // Lower threshold for more matches, but still maintain quality
+    .where(gt(similarity, 0.4))
+    // Order by similarity for best matches first
     .orderBy((t) => desc(t.similarity))
-    .limit(4);
+    // Increase limit for more context
+    .limit(6);
 
-  console.log("Similar guides found:", similarGuides);
+  // Filter out very low similarity matches
+  const filteredGuides = similarGuides.filter(
+    (guide) => guide.similarity > 0.5
+  );
 
-  return similarGuides;
+  console.log("Similar guides found:", filteredGuides);
+
+  // Return the most relevant content
+  return filteredGuides;
 };
 
 // export const findRelevantContent = async (userQuery: string) => {

@@ -1,8 +1,8 @@
 "use server";
 
 import { db } from "../db/queries";
-import { newCompanySchema } from "@/lib/schemas/new-company-schema";
-import { auth } from "@/app/(auth)/auth";
+import { newCompanySchema } from "../schemas/new-company-schema";
+import { auth } from "../../app/(auth)/auth";
 import { z } from "zod";
 import { company } from "../db/schema";
 

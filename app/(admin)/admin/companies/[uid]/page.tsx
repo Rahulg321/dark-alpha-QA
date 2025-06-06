@@ -161,6 +161,14 @@ export default async function CompanyDetail({
                 <h2 className="text-xl font-semibold tracking-tight">
                   Resources
                 </h2>
+                <Link
+                  href={`/admin/companies/${company.id}/resources/new-audio`}
+                >
+                  <Button>
+                    <PlusCircle className="mr-2 h-4 w-4" />
+                    Add Audio Resource
+                  </Button>
+                </Link>
                 <Link href={`/admin/companies/${company.id}/resources/new`}>
                   <Button>
                     <PlusCircle className="mr-2 h-4 w-4" />
@@ -169,7 +177,7 @@ export default async function CompanyDetail({
                 </Link>
               </div>
 
-              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+              <div className="">
                 {resources.map((resource) => (
                   <ResourceCard
                     key={resource.id}

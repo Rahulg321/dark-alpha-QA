@@ -1,8 +1,8 @@
 "use server";
 
-import { companyQuestions as companyQuestionsTable } from "@/lib/db/schema";
+import { companyQuestions as companyQuestionsTable } from "../db/schema";
 import { db } from "../db/queries";
-import { auth } from "@/app/(auth)/auth";
+import { auth } from "../../app/(auth)/auth";
 import { revalidatePath } from "next/cache";
 
 export async function bulkAddQuestions(

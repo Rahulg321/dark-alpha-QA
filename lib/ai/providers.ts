@@ -14,8 +14,13 @@ import {
 import { createOpenAI } from "@ai-sdk/openai";
 import OpenAI from "openai";
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
+import { GoogleGenAI } from "@google/genai";
 
-export const google = createGoogleGenerativeAI({
+export const googleGenAIProvider = new GoogleGenAI({
+  apiKey: process.env.GOOGLE_GEMINI_AI_KEY,
+});
+
+export const googleProvider = createGoogleGenerativeAI({
   apiKey: process.env.GOOGLE_GEMINI_AI_KEY,
 });
 
@@ -40,16 +45,26 @@ export const myProvider = isTestEnvironment
         "chat-model-reasoning": reasoningModel,
         "title-model": titleModel,
         "artifact-model": artifactModel,
+        "gemini-flash": googleProvider("gemini-2.0-flash"),
+        "gemini-reasoning": wrapLanguageModel({
+          model: googleProvider("gemini-2.0-pro"),
+          middleware: extractReasoningMiddleware({ tagName: "think" }),
+        }),
       },
     })
   : customProvider({
       languageModels: {
-        "chat-model": openai("gpt-4o"),
+        "chat-model": openaiProvider("o4-mini"),
         "chat-model-reasoning": wrapLanguageModel({
-          model: openai("gpt-o3-mini"),
+          model: openaiProvider("gpt-o3-mini"),
           middleware: extractReasoningMiddleware({ tagName: "think" }),
         }),
-        "title-model": openai("gpt-4o"),
-        "artifact-model": openai("gpt-4o"),
+        "title-model": openaiProvider("gpt-4.5-preview"),
+        "artifact-model": openaiProvider("gpt-4.5-preview"),
+        "gemini-flash": googleProvider("gemini-2.0-flash-001"),
+        "gemini-reasoning": wrapLanguageModel({
+          model: googleProvider("gemini-2.0-pro"),
+          middleware: extractReasoningMiddleware({ tagName: "think" }),
+        }),
       },
     });
