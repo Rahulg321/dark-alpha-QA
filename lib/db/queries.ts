@@ -32,6 +32,7 @@ import {
   resources,
   companyQuestions,
   answers,
+  resourceCategories,
 } from "./schema";
 import type { ArtifactKind } from "@/components/artifact";
 import { generateUUID } from "../utils";
@@ -55,6 +56,24 @@ export async function getUser(email: string): Promise<Array<User>> {
       "bad_request:database",
       "Failed to get user by email"
     );
+  }
+}
+
+/**
+ * Get a resource by id
+ * @param resourceId - The id of the resource
+ * @returns The resource
+ */
+export async function getResourceById(resourceId: string) {
+  try {
+    const [resource] = await db
+      .select()
+      .from(resources)
+      .where(eq(resources.id, resourceId));
+    return resource;
+  } catch (error) {
+    console.log("An error occured trying to get resource by id", error);
+    return null;
   }
 }
 
@@ -89,6 +108,49 @@ export async function getAllAnswersByQuestionId(questionId: string) {
   } catch (error) {
     console.log(
       "An error occured trying to get all answers by question id",
+      error
+    );
+    return [];
+  }
+}
+/**
+ * Get all resource categories name and id
+ * @returns All resource categories name and id
+ */
+export async function getAllResourceCategoriesNameAndId() {
+  try {
+    const allResourceCategories = await db
+      .select({
+        id: resourceCategories.id,
+        name: resourceCategories.name,
+      })
+      .from(resourceCategories);
+
+    return allResourceCategories;
+  } catch (error) {
+    console.log(
+      "An error occured trying to get all resource categories",
+      error
+    );
+    return [];
+  }
+}
+
+/**
+ * Get all resource categories
+ * @returns All resource categories
+ */
+export async function getAllResourceCategories() {
+  try {
+    const allResourceCategories = await db
+      .select()
+      .from(resourceCategories)
+      .orderBy(desc(resourceCategories.createdAt));
+
+    return allResourceCategories;
+  } catch (error) {
+    console.log(
+      "An error occured trying to get all resource categories",
       error
     );
     return [];

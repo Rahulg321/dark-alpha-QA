@@ -23,10 +23,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Textarea } from "../ui/textarea";
 import { useRouter } from "next/navigation";
+import { Select } from "../ui/select";
 
 const newResourceFormSchema = z.object({
   name: z.string().min(1),
   description: z.string().min(1),
+  categoryId: z.string().min(1),
 });
 
 const NewResourceForm = ({ companyId }: { companyId: string }) => {
@@ -40,6 +42,7 @@ const NewResourceForm = ({ companyId }: { companyId: string }) => {
     defaultValues: {
       name: "",
       description: "",
+      categoryId: "",
     },
   });
 
@@ -98,6 +101,7 @@ const NewResourceForm = ({ companyId }: { companyId: string }) => {
       formData.append("name", values.name);
       formData.append("description", values.description);
       formData.append("companyId", companyId);
+      formData.append("categoryId", values.categoryId);
 
       const response = await axios.post("/api/add-resource", formData);
       if (response.status !== 200) {
@@ -137,6 +141,20 @@ const NewResourceForm = ({ companyId }: { companyId: string }) => {
                   <FormLabel>Name</FormLabel>
                   <FormControl>
                     <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="categoryId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Category</FormLabel>
+                  <FormControl>
+                    <Select {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

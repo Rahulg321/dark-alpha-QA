@@ -1,4 +1,10 @@
+import { getResourceById } from "@/lib/db/queries";
+import { Resource } from "@/lib/db/schema";
 import React from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import Link from "next/link";
+import { Pencil } from "lucide-react";
 
 const DetailResourcePage = async ({
   params,
@@ -6,10 +12,29 @@ const DetailResourcePage = async ({
   params: Promise<{ uid: string; resourceId: string }>;
 }) => {
   const { uid, resourceId } = await params;
+  const resource = await getResourceById(resourceId);
+
+  if (!resource) {
+    return <div>Resource not found</div>;
+  }
 
   return (
-    <div className="block-space-mini narrow-container">
-      <ResourceDetail resourceId={resourceId} companyId={uid} />
+    <div className="block-space-mini narrow-container min-h-screen">
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-bold">Resource {resource.name}</h1>
+        <Link href={`/admin/companies/${uid}/resources/${resourceId}/edit`}>
+          <Button variant="outline" size="sm">
+            <Pencil className="w-4 h-4 mr-2" />
+            Edit Resource
+          </Button>
+        </Link>
+      </div>
+
+      <ResourceDetail
+        resourceId={resourceId}
+        companyId={uid}
+        resource={resource}
+      />
     </div>
   );
 };
@@ -19,9 +44,48 @@ export default DetailResourcePage;
 const ResourceDetail = ({
   resourceId,
   companyId,
+  resource,
 }: {
   resourceId: string;
   companyId: string;
+  resource: Resource;
 }) => {
-  return <div>ResourceDetail</div>;
+  return (
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>Resource Details</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div>
+            <h3 className="text-sm font-medium text-muted-foreground">Name</h3>
+            <p className="mt-1">{resource.name}</p>
+          </div>
+
+          <div>
+            <h3 className="text-sm font-medium text-muted-foreground">
+              Description
+            </h3>
+            <p className="mt-1 whitespace-pre-wrap">{resource.description}</p>
+          </div>
+
+          <div>
+            <h3 className="text-sm font-medium text-muted-foreground">
+              Category
+            </h3>
+            <p className="mt-1">{resource.categoryId}</p>
+          </div>
+
+          <div>
+            <h3 className="text-sm font-medium text-muted-foreground">
+              Created At
+            </h3>
+            <p className="mt-1">
+              {new Date(resource.createdAt).toLocaleDateString()}
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
 };

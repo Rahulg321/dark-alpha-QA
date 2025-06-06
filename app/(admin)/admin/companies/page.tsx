@@ -17,8 +17,8 @@ import { getCompanies } from "@/lib/db/queries";
 import { Company } from "@/lib/db/schema";
 
 export const metadata: Metadata = {
-  title: "Admin",
-  description: "Admin page",
+  title: "Dark Alpha QA - Companies",
+  description: "Dark Alpha QA - Companies",
 };
 
 const CompaniesPage = async () => {
@@ -50,6 +50,10 @@ const CompaniesPage = async () => {
             <Button variant="ghost" size="sm">
               Research
             </Button>
+            <Button variant="ghost" size="sm">
+              Other
+            </Button>
+
             <Button variant="ghost" size="sm">
               Consultancy
             </Button>
