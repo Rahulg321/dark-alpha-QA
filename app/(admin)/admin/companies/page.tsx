@@ -21,61 +21,6 @@ export const metadata: Metadata = {
   description: "Dark Alpha QA - Companies",
 };
 
-const CompaniesPage = async () => {
-  const companies = await getCompanies();
-
-  return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto py-8 px-4 md:px-6 max-w-7xl">
-        <header className="mb-8">
-          <h1 className="text-3xl font-semibold tracking-tight mb-2">
-            Companies
-          </h1>
-          <p className="text-muted-foreground">
-            Manage your companies and their associated resources.
-          </p>
-        </header>
-
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
-          <div className="flex items-center gap-2">
-            <Button variant="secondary" size="sm">
-              All
-            </Button>
-            <Button variant="ghost" size="sm">
-              Enterprise
-            </Button>
-            <Button variant="ghost" size="sm">
-              Agency
-            </Button>
-            <Button variant="ghost" size="sm">
-              Research
-            </Button>
-            <Button variant="ghost" size="sm">
-              Other
-            </Button>
-
-            <Button variant="ghost" size="sm">
-              Consultancy
-            </Button>
-          </div>
-          <Link href="/admin/companies/new">
-            <Button>
-              <PlusCircle className="mr-2 h-4 w-4" />
-              New Company
-            </Button>
-          </Link>
-        </div>
-
-        <div className="">
-          <CompanyCards companies={companies} />
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export default CompaniesPage;
-
 function CompanyCards({ companies }: { companies: Company[] }) {
   if (companies.length === 0) {
     return (
@@ -104,11 +49,11 @@ function CompanyCards({ companies }: { companies: Company[] }) {
       {companies.map((company) => (
         <div
           key={company.id}
-          className="flex items-center justify-between px-4 sm:px-6 py-3 hover:bg-muted/30 group transition-colors border-b rounded-md"
+          className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 px-3 sm:px-6 py-3 hover:bg-muted/30 group transition-colors border-b rounded-md w-full"
         >
           <Link
             href={`/admin/companies/${company.id}`}
-            className="flex-1 min-w-0 pr-3 block"
+            className="flex-1 min-w-0 pr-0 sm:pr-3 block"
           >
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium text-foreground hover:text-primary transition-colors truncate">
@@ -122,7 +67,10 @@ function CompanyCards({ companies }: { companies: Company[] }) {
               {company.createdAt.toLocaleDateString()}
             </div>
           </Link>
-          <Link href={`/companies/${company.id}/edit`}>
+          <Link
+            href={`/companies/${company.id}/edit`}
+            className="self-end sm:self-auto"
+          >
             <Button
               variant="ghost"
               size="icon"
@@ -137,3 +85,59 @@ function CompanyCards({ companies }: { companies: Company[] }) {
     </>
   );
 }
+
+const CompaniesPage = async () => {
+  const companies = await getCompanies();
+
+  return (
+    <div className="min-h-screen bg-background">
+      <div className="container mx-auto py-8 px-4 sm:px-6 md:px-8 max-w-screen-lg">
+        <header className="mb-8">
+          <h1 className="text-3xl font-semibold tracking-tight mb-2">
+            Companies
+          </h1>
+          <p className="text-muted-foreground">
+            Manage your companies and their associated resources.
+          </p>
+        </header>
+
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 w-full">
+          <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+            <Button variant="secondary" size="sm">
+              All
+            </Button>
+            <Button variant="ghost" size="sm">
+              Enterprise
+            </Button>
+            <Button variant="ghost" size="sm">
+              Agency
+            </Button>
+            <Button variant="ghost" size="sm">
+              Research
+            </Button>
+            <Button variant="ghost" size="sm">
+              Other
+            </Button>
+            <Button variant="ghost" size="sm">
+              Consultancy
+            </Button>
+          </div>
+          <div className="w-full sm:w-auto flex justify-start sm:justify-end mt-2 sm:mt-0">
+            <Link href="/admin/companies/new" className="w-full sm:w-auto">
+              <Button className="w-full sm:w-auto">
+                <PlusCircle className="mr-2 h-4 w-4" />
+                New Company
+              </Button>
+            </Link>
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-2 w-full">
+          <CompanyCards companies={companies} />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default CompaniesPage;

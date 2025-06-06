@@ -227,6 +227,40 @@ export async function getCompanies() {
  * @param companyId - The id of the company
  * @returns The resources
  */
+export async function getResourcesWithCategoryByCompanyId(companyId: string) {
+  try {
+    const resourcesWithCategory = await db
+      .select({
+        id: resources.id,
+        name: resources.name,
+        description: resources.description,
+        kind: resources.kind,
+        createdAt: resources.createdAt,
+        categoryId: resources.categoryId,
+        categoryName: resourceCategories.name,
+      })
+      .from(resources)
+      .where(eq(resources.companyId, companyId))
+      .leftJoin(
+        resourceCategories,
+        eq(resources.categoryId, resourceCategories.id)
+      )
+      .orderBy(desc(resources.createdAt));
+
+    return resourcesWithCategory;
+  } catch (error) {
+    throw new ChatSDKError(
+      "bad_request:database",
+      "Failed to get resources by company id"
+    );
+  }
+}
+
+/**
+ * Get resources by company id
+ * @param companyId - The id of the company
+ * @returns The resources
+ */
 export async function getResourcesByCompanyId(companyId: string) {
   try {
     return await db
