@@ -22,6 +22,7 @@ export async function POST(request: NextRequest) {
     const name = formData.get("name") as string;
     const description = formData.get("description") as string;
     const companyId = formData.get("companyId") as string;
+    const categoryId = formData.get("categoryId") as string;
 
     if (!file) {
       throw new Error("No file provided");
@@ -37,6 +38,10 @@ export async function POST(request: NextRequest) {
 
     if (!companyId) {
       throw new Error("No company ID provided");
+    }
+
+    if (!categoryId) {
+      throw new Error("No category ID provided");
     }
 
     // Get file type
@@ -184,7 +189,14 @@ export async function POST(request: NextRequest) {
     const embeddings = await generateEmbeddingsFromChunks(embeddingInput);
     const [resource] = await db
       .insert(resources)
-      .values({ content, name, description, companyId, kind: kind as any })
+      .values({
+        content,
+        name,
+        description,
+        companyId,
+        kind: kind as any,
+        categoryId,
+      })
       .returning();
 
     await db.insert(embeddingsTable).values(

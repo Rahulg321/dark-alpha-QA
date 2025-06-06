@@ -4,7 +4,7 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
-import { Pencil } from "lucide-react";
+import { ArrowLeft, Pencil } from "lucide-react";
 
 const DetailResourcePage = async ({
   params,
@@ -20,11 +20,19 @@ const DetailResourcePage = async ({
 
   return (
     <div className="block-space-mini narrow-container min-h-screen">
-      <div className="flex items-center justify-between mb-6">
+      <div>
+        <Link className="block" href={`/admin/companies/${uid}`}>
+          <Button variant="outline" size="sm">
+            <ArrowLeft className="size-4 mr-2" />
+            Back to Resources
+          </Button>
+        </Link>
+      </div>
+      <div className="flex items-center justify-between my-6">
         <h1 className="text-2xl font-bold">Resource {resource.name}</h1>
         <Link href={`/admin/companies/${uid}/resources/${resourceId}/edit`}>
           <Button variant="outline" size="sm">
-            <Pencil className="w-4 h-4 mr-2" />
+            <Pencil className="size-4 mr-2" />
             Edit Resource
           </Button>
         </Link>

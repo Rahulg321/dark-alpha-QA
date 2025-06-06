@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft } from "lucide-react";
 import NewResourceForm from "@/components/forms/new-resource-form";
-import { getCompanyNameById } from "@/lib/db/queries";
+import { getAllResourceCategories, getCompanyNameById } from "@/lib/db/queries";
 
 export default async function NewResource({
   params,
@@ -15,6 +15,7 @@ export default async function NewResource({
 }) {
   const { uid } = await params;
   const company = await getCompanyNameById(uid);
+  const resourceCategories = await getAllResourceCategories();
 
   return (
     <div className="min-h-screen bg-background">
@@ -23,7 +24,7 @@ export default async function NewResource({
           href={`/admin/companies/${uid}`}
           className="inline-flex items-center text-muted-foreground hover:text-foreground mb-6 transition-colors"
         >
-          <ArrowLeft className="mr-2 h-4 w-4" />
+          <ArrowLeft className="size-4 mr-2" />
           Back to Company Details
         </Link>
 
@@ -34,7 +35,10 @@ export default async function NewResource({
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <NewResourceForm companyId={uid} />
+            <NewResourceForm
+              companyId={uid}
+              resourceCategories={resourceCategories}
+            />
           </CardContent>
         </Card>
       </div>

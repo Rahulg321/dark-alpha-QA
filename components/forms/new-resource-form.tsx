@@ -23,7 +23,14 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Textarea } from "../ui/textarea";
 import { useRouter } from "next/navigation";
-import { Select } from "../ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
+import { ResourceCategory } from "@/lib/db/schema";
 
 const newResourceFormSchema = z.object({
   name: z.string().min(1),
@@ -31,7 +38,13 @@ const newResourceFormSchema = z.object({
   categoryId: z.string().min(1),
 });
 
-const NewResourceForm = ({ companyId }: { companyId: string }) => {
+const NewResourceForm = ({
+  companyId,
+  resourceCategories,
+}: {
+  companyId: string;
+  resourceCategories: ResourceCategory[];
+}) => {
   const router = useRouter();
   const [file, setFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -154,7 +167,18 @@ const NewResourceForm = ({ companyId }: { companyId: string }) => {
                 <FormItem>
                   <FormLabel>Category</FormLabel>
                   <FormControl>
-                    <Select {...field} />
+                    <Select {...field}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a category" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {resourceCategories.map((category) => (
+                          <SelectItem key={category.id} value={category.id}>
+                            {category.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
