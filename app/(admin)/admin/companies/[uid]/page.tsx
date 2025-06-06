@@ -25,6 +25,23 @@ import { getCompanyById, getResourcesByCompanyId } from "@/lib/db/queries";
 import DeleteCompanyButton from "./delete-company-button";
 import ResourceCard from "./resource-card";
 
+export const generateMetadata = async ({
+  params,
+}: {
+  params: Promise<{ uid: string }>;
+}) => {
+  const { uid } = await params;
+  const company = await getCompanyById(uid);
+  return {
+    title: `Company Name: ${company.name}`,
+    description: `Company Description: ${company.description}`,
+    openGraph: {
+      title: `Company Name: ${company.name}`,
+      description: `Company Description: ${company.description}`,
+    },
+  };
+};
+
 export default async function CompanyDetail({
   params,
 }: {

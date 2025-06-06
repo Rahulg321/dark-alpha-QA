@@ -1,5 +1,4 @@
-import { getResourceById } from "@/lib/db/queries";
-import { Resource } from "@/lib/db/schema";
+import { getResourceWithCategoryById } from "@/lib/db/queries";
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,7 +11,7 @@ const DetailResourcePage = async ({
   params: Promise<{ uid: string; resourceId: string }>;
 }) => {
   const { uid, resourceId } = await params;
-  const resource = await getResourceById(resourceId);
+  const resource = await getResourceWithCategoryById(resourceId);
 
   if (!resource) {
     return <div>Resource not found</div>;
@@ -56,7 +55,16 @@ const ResourceDetail = ({
 }: {
   resourceId: string;
   companyId: string;
-  resource: Resource;
+  resource: {
+    id: string;
+    name: string;
+    categoryId: string | null;
+    tags: string[] | null;
+    description: string | null;
+    kind: string;
+    createdAt: Date;
+    categoryName: string | null;
+  };
 }) => {
   return (
     <div className="space-y-6">
@@ -81,16 +89,14 @@ const ResourceDetail = ({
             <h3 className="text-sm font-medium text-muted-foreground">
               Category
             </h3>
-            <p className="mt-1">{resource.categoryId}</p>
+            <p className="mt-1">{resource.categoryName ?? "No category"}</p>
           </div>
 
           <div>
             <h3 className="text-sm font-medium text-muted-foreground">
               Created At
             </h3>
-            <p className="mt-1">
-              {new Date(resource.createdAt).toLocaleDateString()}
-            </p>
+            <p className="mt-1">{resource.createdAt.toLocaleDateString()}</p>
           </div>
         </CardContent>
       </Card>

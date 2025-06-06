@@ -62,6 +62,41 @@ export async function getUser(email: string): Promise<Array<User>> {
 /**
  * Get a resource by id
  * @param resourceId - The id of the resource
+ * @returns The resource with optional category information
+ */
+export async function getResourceWithCategoryById(resourceId: string) {
+  try {
+    const [result] = await db
+      .select({
+        id: resources.id,
+        name: resources.name,
+        description: resources.description,
+        kind: resources.kind,
+        tags: resources.tags,
+        createdAt: resources.createdAt,
+        categoryId: resources.categoryId,
+        categoryName: resourceCategories.name,
+      })
+      .from(resources)
+      .leftJoin(
+        resourceCategories,
+        eq(resources.categoryId, resourceCategories.id)
+      )
+      .where(eq(resources.id, resourceId));
+
+    return {
+      ...result,
+      categoryName: result.categoryName ?? null,
+    };
+  } catch (error) {
+    console.log("An error occured trying to get resource by id", error);
+    return null;
+  }
+}
+
+/**
+ * Get a resource by id
+ * @param resourceId - The id of the resource
  * @returns The resource
  */
 export async function getResourceById(resourceId: string) {
