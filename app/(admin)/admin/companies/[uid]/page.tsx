@@ -35,6 +35,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+
 export const generateMetadata = async ({
   params,
 }: {
@@ -228,6 +229,14 @@ export default async function CompanyDetail({
                       Add Audio Resource
                     </Button>
                   </Link>
+
+                  <Link
+                    href={`/admin/companies/${company.id}/compare`}
+                    className="w-full sm:w-auto"
+                  >
+                    <Button className="w-full sm:w-auto">Compare</Button>
+                  </Link>
+
                   <Link
                     href={`/admin/companies/${company.id}/resources/new`}
                     className="w-full sm:w-auto"
