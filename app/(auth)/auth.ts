@@ -5,6 +5,7 @@ import { createGuestUser, getUser } from "../../lib/db/queries";
 import { authConfig } from "./auth.config";
 import { DUMMY_PASSWORD } from "../../lib/constants";
 import type { DefaultJWT } from "next-auth/jwt";
+import { sign } from "jsonwebtoken";
 
 export type UserType = "guest" | "regular";
 
@@ -13,13 +14,16 @@ declare module "next-auth" {
     user: {
       id: string;
       type: UserType;
+      accessToken: string;
     } & DefaultSession["user"];
+    accessToken: string;
   }
 
   interface User {
     id?: string;
     email?: string | null;
     type: UserType;
+    accessToken: string;
   }
 }
 
@@ -27,6 +31,7 @@ declare module "next-auth/jwt" {
   interface JWT extends DefaultJWT {
     id: string;
     type: UserType;
+    accessToken: string;
   }
 }
 
@@ -59,7 +64,15 @@ export const {
 
         if (!passwordsMatch) return null;
 
-        return { ...user, type: "regular" };
+        console.log("calling access token");
+        const accessToken = sign(
+          { id: user.id, type: "regular" },
+          process.env.AUTH_SECRET as string
+        );
+
+        console.log("accessToken", accessToken);
+
+        return { ...user, type: "regular", accessToken };
       },
     }),
     Credentials({
@@ -67,7 +80,7 @@ export const {
       credentials: {},
       async authorize() {
         const [guestUser] = await createGuestUser();
-        return { ...guestUser, type: "guest" };
+        return { ...guestUser, type: "guest", accessToken: "" };
       },
     }),
   ],
@@ -76,6 +89,7 @@ export const {
       if (user) {
         token.id = user.id as string;
         token.type = user.type;
+        token.accessToken = user.accessToken as string;
       }
 
       return token;
@@ -85,6 +99,8 @@ export const {
         session.user.id = token.id;
         session.user.type = token.type;
       }
+
+      session.accessToken = token.accessToken;
 
       return session;
     },

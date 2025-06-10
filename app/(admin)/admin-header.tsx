@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import { ChevronDown, Menu } from "lucide-react";
 import {
@@ -13,6 +15,7 @@ import Link from "next/link";
 import { Session } from "next-auth";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { signOut } from "next-auth/react";
 
 const AdminHeader = ({ session }: { session: Session | null }) => {
   return (
@@ -104,7 +107,7 @@ function ProfileMenu({ session }: { session: Session | null }) {
           <Link href="/settings">Settings</Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>Logout</DropdownMenuItem>
+        <DropdownMenuItem onClick={() => signOut()}>Logout</DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );

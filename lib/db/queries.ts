@@ -60,6 +60,24 @@ export async function getUser(email: string): Promise<Array<User>> {
 }
 
 /**
+ * Get a user by email
+ * @param email - The email of the user
+ * @returns The user
+ */
+export async function getUserByEmail(email: string): Promise<User | null> {
+  try {
+    const [foundUser] = await db
+      .select()
+      .from(user)
+      .where(eq(user.email, email));
+    return foundUser;
+  } catch (error) {
+    console.log("An error occured trying to get user by email", error);
+    return null;
+  }
+}
+
+/**
  * Get a resource by id
  * @param resourceId - The id of the resource
  * @returns The resource with optional category information

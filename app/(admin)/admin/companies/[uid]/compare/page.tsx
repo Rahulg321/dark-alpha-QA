@@ -3,6 +3,7 @@ import CompareSection from "./compare-section";
 import { db, getResourcesByCompanyId } from "@/lib/db/queries";
 import { company, resources } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
+import CompareSelectionResult from "./compare-selection-result";
 
 export const generateMetadata = async ({
   params,
@@ -42,6 +43,7 @@ const CompareCompanyResourcesPage = async ({
   return (
     <div className="block-space-mini min-h-screen narrow-container">
       <CompareSection resources={allCompanyResources} />
+      <CompareSelectionResult />
     </div>
   );
 };
