@@ -1,7 +1,7 @@
 import { openai } from "@ai-sdk/openai";
 import { Output, streamObject, streamText } from "ai";
 import { generateAnswerSchema } from "@/lib/schemas/generate-answer-schema";
-import { google, openaiProvider } from "@/lib/ai/providers";
+import { openaiProvider } from "@/lib/ai/providers";
 import { screenQuestionCompany } from "@/lib/ai/tools/screen-question-company";
 import { auth } from "@/app/(auth)/auth";
 
@@ -21,7 +21,6 @@ export async function POST(req: Request) {
 
   const result = streamText({
     model: openaiProvider("gpt-4o"),
-    // model: google("gemini-2.0-flash-001"),
     maxSteps: 5,
     system:
       "You are an AI assistant specialized in answering questions about a company. Your role is to provide accurate, detailed, and contextually relevant answers based on the company's knowledge base. When generating responses:\n\n" +
