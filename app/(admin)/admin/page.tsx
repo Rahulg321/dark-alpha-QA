@@ -11,9 +11,6 @@ const page = () => {
           <h1 className="text-3xl font-semibold tracking-tight mb-2">
             Admin Dashboard
           </h1>
-          <p className="text-muted-foreground">
-            Overview of your system&apos;s sources and support tickets.
-          </p>
         </header>
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-8">
@@ -67,72 +64,6 @@ const page = () => {
               <p className="text-xs text-muted-foreground">
                 Across all sources
               </p>
-            </CardContent>
-          </Card>
-        </div>
-
-        <div className="grid gap-6 md:grid-cols-2">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Quick Actions</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <Link
-                href="/admin/companies"
-                className="block p-3 rounded-lg border hover:bg-muted/50 transition-colors"
-              >
-                <div className="flex items-center gap-3">
-                  <Building2 className="h-5 w-5 text-muted-foreground" />
-                  <div>
-                    <h3 className="font-medium">Manage Companies</h3>
-                    <span className="text-sm text-muted-foreground">
-                      Add, edit, or remove companies
-                    </span>
-                  </div>
-                </div>
-              </Link>
-              <Link
-                href="/admin/tickets"
-                className="block p-3 rounded-lg border hover:bg-muted/50 transition-colors"
-              >
-                <div className="flex items-center gap-3">
-                  <Ticket className="h-5 w-5 text-muted-foreground" />
-                  <div>
-                    <h3 className="font-medium">Support Tickets</h3>
-                    <span className="text-sm text-muted-foreground">
-                      Review and respond to user support requests
-                    </span>
-                  </div>
-                </div>
-              </Link>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Recent Activity</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                <div className="flex items-center gap-3 text-sm">
-                  <div className="h-2 w-2 rounded-full bg-orange-500"></div>
-                  <span className="text-muted-foreground">
-                    New ticket from john.doe@example.com
-                  </span>
-                </div>
-                <div className="flex items-center gap-3 text-sm">
-                  <div className="h-2 w-2 rounded-full bg-green-500"></div>
-                  <span className="text-muted-foreground">
-                    Ticket #3 marked as resolved
-                  </span>
-                </div>
-                <div className="flex items-center gap-3 text-sm">
-                  <div className="h-2 w-2 rounded-full bg-blue-500"></div>
-                  <span className="text-muted-foreground">
-                    New source &quot;Digital Frontiers&quot; added
-                  </span>
-                </div>
-              </div>
             </CardContent>
           </Card>
         </div>

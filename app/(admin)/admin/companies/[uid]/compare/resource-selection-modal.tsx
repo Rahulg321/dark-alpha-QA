@@ -17,8 +17,16 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 interface ResourceSelectionModalProps {
   isOpen: boolean;
   onClose: () => void;
-  resources: Resource[];
-  onSelectResource: (resource: Resource) => void;
+  resources: {
+    id: string;
+    name: string;
+    description: string | null;
+  }[];
+  onSelectResource: (resource: {
+    id: string;
+    name: string;
+    description: string | null;
+  }) => void;
 }
 
 export function ResourceSelectionModal({
@@ -32,11 +40,14 @@ export function ResourceSelectionModal({
   const filteredResources = resources.filter(
     (resource) =>
       resource.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      resource.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      resource.categoryId?.toLowerCase().includes(searchTerm.toLowerCase())
+      resource.description?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleSelect = (resource: Resource) => {
+  const handleSelect = (resource: {
+    id: string;
+    name: string;
+    description: string | null;
+  }) => {
     onSelectResource(resource);
     onClose();
   };
@@ -51,7 +62,7 @@ export function ResourceSelectionModal({
           </DialogDescription>
         </DialogHeader>
         <ScrollArea className="h-[150px] sm:h-[200px] md:h-[300px] rounded-md">
-          <div className="space-y-4 sm:space-y-6 md:space-y-8">
+          <div className="space-y-4">
             {filteredResources.length === 0 ? (
               <div className="text-center py-2 sm:py-3 md:py-4 text-muted-foreground">
                 <p className="text-[10px] sm:text-xs">No resources found</p>
@@ -62,7 +73,7 @@ export function ResourceSelectionModal({
                   <div
                     key={resource.id}
                     onClick={() => handleSelect(resource)}
-                    className="flex items-start gap-2 p-2 border rounded hover:bg-muted cursor-pointer transition-colors"
+                    className="flex items-start gap-2 p-2 hover:bg-muted cursor-pointer transition-colors"
                   >
                     <div className="flex-1 min-w-0">
                       <h4 className="text-sm font-medium mb-0.5 truncate">
@@ -70,9 +81,6 @@ export function ResourceSelectionModal({
                       </h4>
                       <span className="text-xs text-muted-foreground line-clamp-2">
                         {resource.description || "No description"}
-                      </span>
-                      <span className="inline-block text-xs text-muted-foreground px-1.5 py-0.5 rounded-sm mt-1">
-                        {resource.categoryId || "No category"}
                       </span>
                     </div>
                   </div>

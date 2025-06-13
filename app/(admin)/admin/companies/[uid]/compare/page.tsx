@@ -3,7 +3,9 @@ import CompareSection from "./compare-section";
 import { db, getResourcesByCompanyId } from "@/lib/db/queries";
 import { company, resources } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
-import CompareSelectionResult from "./compare-selection-result";
+import { auth } from "@/app/(auth)/auth";
+import { Session } from "next-auth";
+import { redirect } from "next/navigation";
 
 export const generateMetadata = async ({
   params,
@@ -31,19 +33,24 @@ const CompareCompanyResourcesPage = async ({
 }) => {
   const { uid } = await params;
 
-  const allCompanyResources = await db
-    .select()
-    .from(resources)
-    .where(eq(resources.companyId, uid));
+  const userSession = await auth();
+
+  if (!userSession) {
+    return redirect("/login");
+  }
+
+  const allCompanyResources = await getResourcesByCompanyId(uid);
 
   if (!allCompanyResources) {
     return <div>No resources found</div>;
   }
 
   return (
-    <div className="block-space-mini min-h-screen narrow-container">
-      <CompareSection resources={allCompanyResources} />
-      <CompareSelectionResult />
+    <div className="block-space-mini min-h-screen container mx-auto">
+      <CompareSection
+        resources={allCompanyResources}
+        session={userSession as Session}
+      />
     </div>
   );
 };

@@ -39,6 +39,7 @@ import { generateUUID } from "../utils";
 import { generateHashedPassword } from "./utils";
 import type { VisibilityType } from "@/components/visibility-selector";
 import { ChatSDKError } from "../errors";
+import { ResourcesWithoutContent } from "../types";
 
 // Optionally, if not using email/pass login, you can
 // use the Drizzle adapter for Auth.js / NextAuth
@@ -286,8 +287,6 @@ export async function getResourcesByCompanyId(companyId: string) {
         id: resources.id,
         name: resources.name,
         description: resources.description,
-        kind: resources.kind,
-        createdAt: resources.createdAt,
       })
       .from(resources)
       .where(eq(resources.companyId, companyId))

@@ -1,12 +1,9 @@
 "use client";
 
-// frontend: src/components/CompanyResearch.js
 import { useSession } from "next-auth/react";
 
 import React, { useState } from "react";
-import axios from "axios";
 import { toast } from "sonner";
-import { Session } from "next-auth";
 
 function CompanyResearch() {
   const { data: session } = useSession();
@@ -14,12 +11,10 @@ function CompanyResearch() {
   const [response, setResponse] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  console.log("session", session);
-
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (prompt.length < 10) {
-      alert("Prompt must be at least 10 characters");
+      toast("Prompt must be at least 10 characters");
       return;
     }
 
@@ -27,6 +22,10 @@ function CompanyResearch() {
     setResponse(""); // Clear previous response
 
     try {
+      if (!session?.accessToken) {
+        throw new Error("No token available yet, please login again");
+      }
+
       const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/compare`, {
         method: "POST",
         headers: {
@@ -46,8 +45,6 @@ function CompanyResearch() {
       if (!res.body) {
         throw new Error("No response body");
       }
-
-      console.log("res", res);
 
       const reader = res.body.getReader();
       const decoder = new TextDecoder("utf-8");
