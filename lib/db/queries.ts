@@ -242,6 +242,61 @@ export async function getCompanies() {
 }
 
 /**
+ * Get filtered resources by company id and categories
+ * @param companyId - The id of the company
+ * @param categories - The categories of the resources
+ * @returns The filtered resources
+ */
+export async function getFilteredResourcesByCompanyId(
+  companyId: string,
+  categories?: string | string[]
+) {
+  try {
+    // Normalize categories to an array of strings
+    const categoryArray: string[] =
+      typeof categories === "string"
+        ? [categories]
+        : Array.isArray(categories)
+        ? categories
+        : [];
+
+    const whereClause =
+      categoryArray.length > 0
+        ? and(
+            eq(resources.companyId, companyId),
+            inArray(resources.categoryId, categoryArray)
+          )
+        : eq(resources.companyId, companyId);
+
+    const filteredResources = await db
+      .select({
+        id: resources.id,
+        name: resources.name,
+        description: resources.description,
+        kind: resources.kind,
+        createdAt: resources.createdAt,
+        categoryId: resources.categoryId,
+        categoryName: resourceCategories.name,
+      })
+      .from(resources)
+      .leftJoin(
+        resourceCategories,
+        eq(resources.categoryId, resourceCategories.id)
+      )
+      .where(whereClause)
+      .orderBy(desc(resources.createdAt));
+
+    return filteredResources;
+  } catch (error) {
+    console.error(
+      "An error occurred trying to get filtered resources by company id",
+      error
+    );
+    return [];
+  }
+}
+
+/**
  * Get resources by company id
  * @param companyId - The id of the company
  * @returns The resources

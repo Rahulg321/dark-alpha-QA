@@ -24,6 +24,7 @@ import {
 import {
   getAllResourceCategoriesNameAndId,
   getCompanyById,
+  getFilteredResourcesByCompanyId,
   getResourcesWithCategoryByCompanyId,
 } from "@/lib/db/queries";
 import DeleteCompanyButton from "./delete-company-button";
@@ -35,11 +36,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Suspense } from "react";
+import DocumentSkeleton from "@/components/skeletons/DocumentSkeleton";
+import FilterResourceCategory from "./filter-resource-category";
 
 export const generateMetadata = async ({
   params,
+  searchParams,
 }: {
   params: Promise<{ uid: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) => {
   const { uid } = await params;
   const company = await getCompanyById(uid);
@@ -55,18 +61,18 @@ export const generateMetadata = async ({
 
 export default async function CompanyDetail({
   params,
+  searchParams,
 }: {
   params: Promise<{ uid: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
   const { uid } = await params;
-
+  const categories = (await searchParams).category;
   const company = await getCompanyById(uid);
-  const resources = await getResourcesWithCategoryByCompanyId(uid);
-
   const resourceCategories = await getAllResourceCategoriesNameAndId();
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen group">
       <div className="container mx-auto py-8 px-4 sm:px-6 md:px-8 max-w-screen-lg">
         <Link
           href="/admin/companies"
@@ -122,7 +128,7 @@ export default async function CompanyDetail({
             </div>
           </header>
 
-          <Tabs defaultValue="overview" className="w-full">
+          <Tabs defaultValue="resources" className="w-full">
             <TabsList className="mb-6 overflow-x-auto">
               <TabsTrigger value="overview">Overview</TabsTrigger>
               <TabsTrigger value="resources">Resources</TabsTrigger>
@@ -200,32 +206,25 @@ export default async function CompanyDetail({
               </div>
             </TabsContent>
 
-            <TabsContent value="resources" className="space-y-6">
+            <TabsContent
+              defaultValue="resources"
+              value="resources"
+              className="space-y-6"
+            >
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <h2 className="text-xl font-semibold tracking-tight">
                   Resources
                 </h2>
                 <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-                  <Select>
-                    <SelectTrigger className="w-full sm:w-[180px]">
-                      <SelectValue placeholder="Filter by category" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Categories</SelectItem>
-                      {resourceCategories.map((category) => (
-                        <SelectItem key={category.id} value={category.id}>
-                          {category.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-
+                  <FilterResourceCategory
+                    resourceCategories={resourceCategories}
+                  />
                   <Link
                     href={`/admin/companies/${company.id}/resources/new-audio`}
                     className="w-full sm:w-auto"
                   >
                     <Button className="w-full sm:w-auto">
-                      <PlusCircle className="mr-2 h-4 w-4" />
+                      <PlusCircle className="size-4 mr-2" />
                       Add Audio Resource
                     </Button>
                   </Link>
@@ -242,26 +241,25 @@ export default async function CompanyDetail({
                     className="w-full sm:w-auto"
                   >
                     <Button className="w-full sm:w-auto">
-                      <PlusCircle className="mr-2 h-4 w-4" />
+                      <PlusCircle className="size-4 mr-2" />
                       Add Resource
                     </Button>
                   </Link>
                 </div>
               </div>
 
-              <div className="flex flex-col gap-2 w-full">
-                {resources.map((resource) => (
-                  <ResourceCard
-                    key={resource.id}
-                    resourceId={resource.id}
-                    resourceName={resource.name}
-                    resourceDescription={resource.description ?? ""}
-                    resourceKind={resource.kind}
-                    companyId={company.id}
-                    categoryName={resource.categoryName ?? null}
-                  />
-                ))}
-              </div>
+              <Suspense
+                fallback={
+                  <div>
+                    <DocumentSkeleton />
+                  </div>
+                }
+              >
+                <DisplayFetchResources
+                  companyId={company.id}
+                  categories={categories}
+                />
+              </Suspense>
             </TabsContent>
 
             <TabsContent value="activity">
@@ -279,6 +277,42 @@ export default async function CompanyDetail({
           </Tabs>
         </div>
       </div>
+    </div>
+  );
+}
+
+async function DisplayFetchResources({
+  companyId,
+  categories,
+}: {
+  companyId: string;
+  categories: string[] | string | undefined;
+}) {
+  const resources = await getFilteredResourcesByCompanyId(
+    companyId,
+    categories
+  );
+  if (resources.length === 0) {
+    return (
+      <div className="flex flex-col gap-2 w-full">
+        <p className="text-muted-foreground">No resources found</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col group-has-[[data-pending]]:animate-pulse gap-2 w-full">
+      {resources.map((resource) => (
+        <ResourceCard
+          key={resource.id}
+          resourceId={resource.id}
+          resourceName={resource.name}
+          resourceDescription={resource.description ?? ""}
+          resourceKind={resource.kind}
+          companyId={companyId}
+          categoryName={resource.categoryName ?? null}
+        />
+      ))}
     </div>
   );
 }

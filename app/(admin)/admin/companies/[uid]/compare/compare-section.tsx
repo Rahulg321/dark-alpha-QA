@@ -171,7 +171,7 @@ export default function CompareSection({
       {/* Header */}
       <div className="mb-2 flex flex-col items-center">
         <Link
-          href="/companies"
+          href={`/admin/companies/${companyId}`}
           className="self-start inline-flex items-center text-muted-foreground hover:text-gray-700 text-xs mb-2"
         >
           <ArrowLeft className="size-3 mr-1" />
