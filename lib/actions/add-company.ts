@@ -30,6 +30,7 @@ export async function addCompany(values: z.infer<typeof newCompanySchema>) {
         email: validatedData.data.email,
         address: validatedData.data.address,
         description: validatedData.data.description,
+        industry: validatedData.data.industry,
       })
       .returning();
 

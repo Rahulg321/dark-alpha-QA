@@ -1,0 +1,1 @@
+ALTER TABLE "company" ADD COLUMN "industry" varchar DEFAULT 'other' NOT NULL;

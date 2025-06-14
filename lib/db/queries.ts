@@ -9,6 +9,7 @@ import {
   gt,
   gte,
   inArray,
+  ilike,
   lt,
   type SQL,
 } from "drizzle-orm";
@@ -232,9 +233,79 @@ export async function getCompanyQuestionsByCompanyId(companyId: string) {
   }
 }
 
+export async function getFilteredCompanyQuestionsByCompanyId(
+  companyId: string,
+  query?: string
+) {
+  try {
+    const whereClause = query
+      ? ilike(companyQuestions.title, `%${query}%`)
+      : undefined;
+
+    const questions = await db
+      .select()
+      .from(companyQuestions)
+      .where(and(eq(companyQuestions.companyId, companyId), whereClause))
+      .orderBy(desc(companyQuestions.createdAt));
+
+    return questions;
+  } catch (error) {
+    console.log(
+      "An error occurred trying to get filtered company questions by company id",
+      error
+    );
+    return [];
+  }
+}
+
+/**
+ * Get filtered companies with types
+ * @param companyType - The type of the company
+ * @returns The filtered companies
+ */
+export async function getFilteredCompaniesWithTypes(
+  companyType?: string | string[]
+) {
+  try {
+    let whereClause;
+
+    if (companyType) {
+      if (typeof companyType === "string") {
+        whereClause = eq(
+          company.type,
+          companyType as (typeof company.type.enumValues)[number]
+        );
+      } else if (Array.isArray(companyType)) {
+        whereClause = inArray(
+          company.type,
+          companyType as (typeof company.type.enumValues)[number][]
+        );
+      }
+    }
+
+    return await db
+      .select({
+        id: company.id,
+        name: company.name,
+        type: company.type,
+        industry: company.industry,
+        createdAt: company.createdAt,
+      })
+      .from(company)
+      .where(whereClause)
+      .orderBy(desc(company.createdAt));
+  } catch (error) {
+    console.log(
+      "An error occured trying to get filtered companies with types",
+      error
+    );
+    return [];
+  }
+}
+
 export async function getCompanies() {
   try {
-    return await db.select().from(company);
+    return await db.select().from(company).orderBy(desc(company.createdAt));
   } catch (error) {
     console.log("An error occured trying to get companies", error);
     return [];

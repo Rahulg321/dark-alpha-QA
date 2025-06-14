@@ -302,6 +302,9 @@ async function DisplayFetchResources({
 
   return (
     <div className="flex flex-col group-has-[[data-pending]]:animate-pulse gap-2 w-full">
+      <p className="text-muted-foreground">
+        {resources.length} {resources.length === 1 ? "resource" : "resources"}
+      </p>
       {resources.map((resource) => (
         <ResourceCard
           key={resource.id}

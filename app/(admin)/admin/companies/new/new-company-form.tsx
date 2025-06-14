@@ -31,6 +31,7 @@ import { toast } from "sonner";
 import { addCompany } from "@/lib/actions/add-company";
 import { useRouter } from "next/navigation";
 import { newCompanySchema } from "@/lib/schemas/new-company-schema";
+import { company } from "@/lib/db/schema";
 
 const NewCompanyForm = () => {
   const router = useRouter();
@@ -46,6 +47,7 @@ const NewCompanyForm = () => {
       email: "",
       address: "",
       description: "",
+      industry: "other",
     },
   });
 
@@ -124,15 +126,13 @@ const NewCompanyForm = () => {
                             <SelectValue placeholder="Select a type" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="enterprise">
-                              Enterprise
-                            </SelectItem>
-                            <SelectItem value="consultancy">
-                              Consultancy
-                            </SelectItem>
-                            <SelectItem value="agency">Agency</SelectItem>
-                            <SelectItem value="research">Research</SelectItem>
-                            <SelectItem value="other">Other</SelectItem>
+                            {company.type.enumValues.map((type) => (
+                              <SelectItem key={type} value={type}>
+                                {type
+                                  .replace(/_/g, " ")
+                                  .replace(/\b\w/g, (l) => l.toUpperCase())}
+                              </SelectItem>
+                            ))}
                           </SelectContent>
                         </Select>
                       </FormControl>
@@ -140,6 +140,36 @@ const NewCompanyForm = () => {
                     </FormItem>
                   )}
                 />
+                <FormField
+                  control={form.control}
+                  name="industry"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Industry</FormLabel>
+                      <FormControl>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select an industry" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {company.industry.enumValues.map((industry) => (
+                              <SelectItem key={industry} value={industry}>
+                                {industry
+                                  .replace(/_/g, " ")
+                                  .replace(/\b\w/g, (l) => l.toUpperCase())}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
                 <FormField
                   control={form.control}
                   name="website"

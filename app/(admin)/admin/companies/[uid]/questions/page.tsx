@@ -12,24 +12,35 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { getCompanyQuestionsByCompanyId } from "@/lib/db/queries";
+import {
+  getCompanyQuestionsByCompanyId,
+  getFilteredCompanyQuestionsByCompanyId,
+} from "@/lib/db/queries";
 import QuestionItem from "./question-item";
+import SearchQuestionFilter from "./search-question-filter";
 
 const CompanyQuestionsPage = async ({
   params,
+  searchParams,
 }: {
   params: Promise<{ uid: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) => {
   const { uid } = await params;
+  const { query } = await searchParams;
 
-  const questions = await getCompanyQuestionsByCompanyId(uid);
+  const questions = await getFilteredCompanyQuestionsByCompanyId(
+    uid,
+    query as string
+  );
 
   const totalQuestions = questions.length;
 
   return (
-    <div className="container mx-auto py-4 px-4 sm:py-6 sm:px-6 max-w-6xl">
+    <div className="container min-h-screen group mx-auto p-4 sm:p-6 max-w-6xl">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+        <SearchQuestionFilter />
         <div>
           <h1 className="text-xl sm:text-2xl font-semibold">
             Due Diligence Questions
@@ -46,13 +57,13 @@ const CompanyQuestionsPage = async ({
             asChild
           >
             <Link href={`/admin/companies/${uid}/questions/bulk-upload`}>
-              <Upload className="h-4 w-4 mr-2" />
+              <Upload className="size-4 mr-2" />
               Bulk Upload
             </Link>
           </Button>
           <Button size="sm" className="h-9 justify-center" asChild>
             <Link href={`/admin/companies/${uid}/questions/new`}>
-              <Plus className="h-4 w-4 mr-2" />
+              <Plus className="size-4 mr-2" />
               New Question
             </Link>
           </Button>
@@ -73,7 +84,7 @@ const CompanyQuestionsPage = async ({
           <CardTitle className="text-sm font-medium">Questions</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
-          <div className="space-y-0">
+          <div className="space-y-0 group-has-[[data-pending]]:animate-pulse">
             {questions.map((question) => (
               <QuestionItem
                 key={question.id}
@@ -86,8 +97,8 @@ const CompanyQuestionsPage = async ({
       </Card>
 
       {/* Pagination */}
-      <Button variant="outline" size="sm" className="h-8 w-8 p-0">
-        <ChevronRight className="h-4 w-4" />
+      <Button variant="outline" size="sm" className="size-8 p-0">
+        <ChevronRight className="size-4" />
       </Button>
     </div>
   );

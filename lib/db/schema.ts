@@ -205,12 +205,36 @@ export const company = pgTable(
     id: uuid("id").notNull().defaultRandom(),
     name: text("name").notNull(),
     type: varchar("type", {
-      enum: ["enterprise", "consultancy", "agency", "research", "other"],
+      enum: [
+        "enterprise",
+        "consultancy",
+        "agency",
+        "research",
+        "mature",
+        "startup",
+        "growth_equity",
+        "distressed",
+        "other",
+      ],
     })
       .notNull()
       .default("other"),
     website: text("website"),
     email: text("email"),
+    industry: varchar("industry", {
+      enum: [
+        "technology",
+        "finance",
+        "healthcare",
+        "education",
+        "energy",
+        "manufacturing",
+        "retail",
+        "other",
+      ],
+    })
+      .notNull()
+      .default("other"),
     address: text("address"),
     description: text("description"),
     createdAt: timestamp("created_at").notNull().defaultNow(),

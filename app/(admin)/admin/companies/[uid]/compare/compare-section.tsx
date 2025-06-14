@@ -110,7 +110,7 @@ export default function CompareSection({
         if (!res.ok) {
           const errorData = await res.json();
           throw new Error(
-            errorData.error || "Failed to make the initial request."
+            errorData.message || "Failed to make the initial request."
           );
         }
 
