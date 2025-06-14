@@ -12,12 +12,14 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import ReactMarkdown from "react-markdown";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Skeleton } from "@/components/ui/skeleton";
+import SaveComparisonResult from "@/lib/actions/save-comparison-result";
 
 export default function CompareSection({
+  companyId,
   resources,
   session,
 }: {
+  companyId: string;
   resources: {
     id: string;
     name: string;
@@ -37,6 +39,7 @@ export default function CompareSection({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [compareSelectionResult, setCompareSelectionResult] = useState("");
   const [isPending, startTransition] = useTransition();
+  const [isSaving, startSaving] = useTransition();
 
   const handleAddResource = (resource: {
     id: string;
@@ -145,6 +148,24 @@ export default function CompareSection({
       !selectedResources.find((selected) => selected.id === resource.id)
   );
 
+  const handleSaveAnalysis = async () => {
+    startSaving(async () => {
+      const result = await SaveComparisonResult(
+        customQuery,
+        compareSelectionResult,
+        companyId,
+        selectedResources.map((r) => r.id)
+      );
+
+      if (result.success) {
+        toast.success("Analysis saved successfully");
+        setCompareSelectionResult("");
+      } else {
+        toast.error(result.message);
+      }
+    });
+  };
+
   return (
     <div className="w-full max-w-7xl mx-auto px-2 sm:px-4">
       {/* Header */}
@@ -185,7 +206,7 @@ export default function CompareSection({
                     size="sm"
                     className="h-7 px-2 text-xs"
                   >
-                    <Plus className="w-3 h-3 mr-1" />
+                    <Plus className="size-3 mr-1" />
                     Add Resource
                   </Button>
                 </div>
@@ -199,7 +220,7 @@ export default function CompareSection({
                       size="sm"
                       className="h-7 text-xs"
                     >
-                      <Plus className="w-3 h-3 mr-1" />
+                      <Plus className="size-3 mr-1" />
                       Add
                     </Button>
                   </div>
@@ -284,25 +305,32 @@ export default function CompareSection({
 
         {/* Right: Result */}
         <div className="flex-1 min-w-0 space-y-2">
-          <h3 className="text-xs font-semibold mb-1">
-            Compare Selection Result
-          </h3>
-          <Card className="border h-[calc(100vh-200px)]">
+          <div className="flex items-center justify-between">
+            <h3 className="text-xs font-semibold mb-1">
+              Compare Selection Result
+            </h3>
+            <Button
+              size="sm"
+              className="text-xs"
+              onClick={handleSaveAnalysis}
+              disabled={isSaving}
+            >
+              {isSaving ? (
+                <>
+                  <Loader2 className="size-3 animate-spin mr-1" />
+                  Saving...
+                </>
+              ) : (
+                "Save Analysis"
+              )}
+            </Button>
+          </div>
+          <Card className="border h-[calc(100vh-200px)] my-4">
             <ScrollArea className="h-full">
               <CardContent className="p-4">
-                {isPending ? (
-                  <div className="space-y-3">
-                    <Skeleton className="h-4 w-[250px]" />
-                    <Skeleton className="h-4 w-[200px]" />
-                    <Skeleton className="h-4 w-[300px]" />
-                    <Skeleton className="h-4 w-[275px]" />
-                    <Skeleton className="h-4 w-[225px]" />
-                  </div>
-                ) : (
-                  <ReactMarkdown className="prose dark:prose-invert text-xs prose-sm max-w-none">
-                    {compareSelectionResult}
-                  </ReactMarkdown>
-                )}
+                <ReactMarkdown className="prose dark:prose-invert text-xs prose-sm max-w-none">
+                  {compareSelectionResult}
+                </ReactMarkdown>
               </CardContent>
             </ScrollArea>
           </Card>

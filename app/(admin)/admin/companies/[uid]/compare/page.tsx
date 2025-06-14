@@ -48,6 +48,7 @@ const CompareCompanyResourcesPage = async ({
   return (
     <div className="block-space-mini min-h-screen container mx-auto">
       <CompareSection
+        companyId={uid}
         resources={allCompanyResources}
         session={userSession as Session}
       />

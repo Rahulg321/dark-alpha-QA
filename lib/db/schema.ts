@@ -378,3 +378,26 @@ export const resourceCategories = pgTable(
 );
 
 export type ResourceCategory = InferSelectModel<typeof resourceCategories>;
+
+export const comparisonQuestions = pgTable(
+  "comparison_questions",
+  {
+    id: uuid("id").notNull().defaultRandom(),
+    userQuery: text("user_query").notNull(),
+    resourceIds: uuid("resource_ids").array().notNull(),
+    answer: text("answer").notNull(),
+    companyId: uuid("company_id")
+      .notNull()
+      .references(() => company.id),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (table) => ({
+    pk: primaryKey({ columns: [table.id] }),
+    companyIdRef: foreignKey({
+      columns: [table.companyId],
+      foreignColumns: [company.id],
+    }),
+  })
+);
+
+export type ComparisonQuestion = InferSelectModel<typeof comparisonQuestions>;
