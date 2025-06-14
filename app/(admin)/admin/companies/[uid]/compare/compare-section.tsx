@@ -118,19 +118,8 @@ export default function CompareSection({
           throw new Error("No response body");
         }
 
-        const reader = res.body.getReader();
-        const decoder = new TextDecoder("utf-8");
-        let done = false;
-
-        while (!done) {
-          const { value, done: doneReading } = await reader.read();
-          done = doneReading;
-          if (value) {
-            console.log("value", value);
-            setCompareSelectionResult((prev) => prev + decoder.decode(value));
-          }
-        }
-
+        const result = await res.json();
+        setCompareSelectionResult(result.result);
         toast.success("Successfully made the initial request.");
       } catch (error) {
         console.error("Request failed:", error);
