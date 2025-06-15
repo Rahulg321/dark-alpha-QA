@@ -118,7 +118,7 @@
   }
 
   p {
-    @apply leading-7 [&:not(:first-child)]:mt-4;
+    @apply leading-7;
   }
 
   .lead {
