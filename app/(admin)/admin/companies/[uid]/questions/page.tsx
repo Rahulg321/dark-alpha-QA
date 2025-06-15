@@ -21,6 +21,7 @@ import SearchQuestionFilter from "./search-question-filter";
 import { db } from "@/lib/db/queries";
 import { eq, desc } from "drizzle-orm";
 import { company } from "@/lib/db/schema";
+import QuestionsPagination from "./questions-pagination";
 
 export async function generateMetadata({
   params,
@@ -50,14 +51,19 @@ const CompanyQuestionsPage = async ({
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) => {
   const { uid } = await params;
-  const { query } = await searchParams;
+  const { query, page } = await searchParams;
 
-  const questions = await getFilteredCompanyQuestionsByCompanyId(
-    uid,
-    query as string
-  );
+  const currentPage = Number(page) || 1;
+  const limit = 50;
+  const offset = (currentPage - 1) * limit;
 
-  const totalQuestions = questions.length;
+  const { questions, totalPages, totalQuestions } =
+    await getFilteredCompanyQuestionsByCompanyId(
+      uid,
+      query as string,
+      offset,
+      limit
+    );
 
   return (
     <div className="container min-h-screen group mx-auto p-4 sm:p-6 max-w-6xl">
@@ -70,6 +76,12 @@ const CompanyQuestionsPage = async ({
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
             {totalQuestions} total questions
+          </p>
+          <p className="text-sm text-muted-foreground mt-1">
+            {totalPages} total pages
+          </p>
+          <p className="text-sm text-muted-foreground mt-1">
+            {currentPage} current page
           </p>
         </div>
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
@@ -111,9 +123,7 @@ const CompanyQuestionsPage = async ({
       </Card>
 
       {/* Pagination */}
-      <Button variant="outline" size="sm" className="size-8 p-0">
-        <ChevronRight className="size-4" />
-      </Button>
+      <QuestionsPagination totalPages={totalPages} />
     </div>
   );
 };

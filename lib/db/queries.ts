@@ -233,9 +233,19 @@ export async function getCompanyQuestionsByCompanyId(companyId: string) {
   }
 }
 
+/**
+ * Get filtered company questions by company id
+ * @param companyId - The id of the company
+ * @param query - The query to filter the questions
+ * @param offset - The offset to paginate the questions
+ * @param limit - The limit to paginate the questions
+ * @returns The filtered company questions
+ */
 export async function getFilteredCompanyQuestionsByCompanyId(
   companyId: string,
-  query?: string
+  query?: string,
+  offset?: number,
+  limit?: number
 ) {
   try {
     const whereClause = query
@@ -246,15 +256,24 @@ export async function getFilteredCompanyQuestionsByCompanyId(
       .select()
       .from(companyQuestions)
       .where(and(eq(companyQuestions.companyId, companyId), whereClause))
-      .orderBy(desc(companyQuestions.createdAt));
+      .orderBy(desc(companyQuestions.createdAt))
+      .limit(limit ?? 50)
+      .offset(offset ?? 0);
 
-    return questions;
+    const [{ total }] = await db
+      .select({ total: count(companyQuestions.id) })
+      .from(companyQuestions)
+      .where(and(eq(companyQuestions.companyId, companyId), whereClause));
+
+    const totalPages = Math.ceil(Number(total) / (limit ?? 50));
+
+    return { questions, totalPages, totalQuestions: total };
   } catch (error) {
     console.log(
       "An error occurred trying to get filtered company questions by company id",
       error
     );
-    return [];
+    return { questions: [], totalPages: 0, totalQuestions: 0 };
   }
 }
 

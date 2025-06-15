@@ -55,7 +55,7 @@ export const generateMetadata = async ({
     description: `Company Overview for ${company.name} with the ${company.description} ${company.website}`,
     openGraph: {
       title: `Company Overview for ${company.name}`,
-      description: `Company Description: ${company.description}`,
+      description: `Company Overview for ${company.name} with the ${company.description} ${company.website}`,
     },
   };
 };
@@ -81,15 +81,15 @@ export default async function CompanyDetail({
           className="inline-flex items-center text-muted-foreground hover:text-foreground mb-6 transition-colors"
           aria-label="Back to Companies"
         >
-          <ArrowLeft className="mr-2 h-4 w-4" />
+          <ArrowLeft className="mr-2 size-4" />
           Back to Companies
         </Link>
 
         <div className="space-y-6">
           <header className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div className="flex flex-col sm:flex-row sm:items-center gap-4 flex-1 min-w-0">
-              <div className="h-12 w-12 rounded-lg bg-muted flex items-center justify-center shrink-0">
-                <Building2 className="h-6 w-6 text-muted-foreground" />
+              <div className="size-12 rounded-lg bg-muted flex items-center justify-center shrink-0">
+                <Building2 className="size-6 text-muted-foreground" />
               </div>
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2 mb-1">
@@ -101,7 +101,7 @@ export default async function CompanyDetail({
                   </Badge>
                 </div>
                 <div className="flex items-center gap-2 text-sm text-muted-foreground flex-wrap">
-                  <Calendar className="h-3.5 w-3.5" />
+                  <Calendar className="size-3.5" />
                   <span>Created {company.createdAt.toLocaleDateString()}</span>
                 </div>
               </div>
@@ -112,7 +112,7 @@ export default async function CompanyDetail({
                 className="w-full sm:w-auto"
               >
                 <Button variant="outline" className="w-full sm:w-auto">
-                  <MessageCircle className="h-4 w-4 mr-2" />
+                  <MessageCircle className="size-4 mr-2" />
                   Questions
                 </Button>
               </Link>
@@ -168,7 +168,7 @@ export default async function CompanyDetail({
                             aria-label="Company website"
                           >
                             {company.website}
-                            <ExternalLink className="h-3 w-3" />
+                            <ExternalLink className="size-3.5" />
                           </a>
                         </dd>
                       </div>
