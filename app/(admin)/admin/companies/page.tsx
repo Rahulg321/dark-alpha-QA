@@ -89,7 +89,7 @@ function CompanyCards({
               </Badge>
             </div>
             <div className="flex items-center gap-2 mt-2">
-              <Calendar className="h-3 w-3 text-muted-foreground" />
+              <Calendar className="size-3 text-muted-foreground" />
               <span className="text-xs text-muted-foreground">
                 Created {company.createdAt.toLocaleDateString()}
               </span>
@@ -104,7 +104,7 @@ function CompanyCards({
               size="icon"
               className="size-7 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0"
             >
-              <MoreHorizontal className="h-4 w-4 text-muted-foreground" />
+              <MoreHorizontal className="size-4 text-muted-foreground" />
               <span className="sr-only">Edit company</span>
             </Button>
           </Link>
@@ -141,7 +141,7 @@ const CompaniesPage = async ({
         <div className="w-full sm:w-auto flex justify-start sm:justify-end mt-2 sm:mt-0">
           <Link href="/admin/companies/new" className="w-full sm:w-auto">
             <Button className="w-full sm:w-auto">
-              <PlusCircle className="mr-2 h-4 w-4" />
+              <PlusCircle className="mr-2 size-4" />
               New Company
             </Button>
           </Link>

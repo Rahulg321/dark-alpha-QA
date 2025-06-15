@@ -18,6 +18,29 @@ import {
 } from "@/lib/db/queries";
 import QuestionItem from "./question-item";
 import SearchQuestionFilter from "./search-question-filter";
+import { db } from "@/lib/db/queries";
+import { eq, desc } from "drizzle-orm";
+import { company } from "@/lib/db/schema";
+
+export async function generateMetadata({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ uid: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
+  const { uid } = await params;
+
+  const [returnedCompany] = await db
+    .select()
+    .from(company)
+    .where(eq(company.id, uid));
+
+  return {
+    title: `Due Diligence Questions for ${returnedCompany?.name}`,
+    description: `Due Diligence Questions for ${returnedCompany?.name} with the ${returnedCompany?.description} ${returnedCompany?.website}`,
+  };
+}
 
 const CompanyQuestionsPage = async ({
   params,
@@ -70,15 +93,6 @@ const CompanyQuestionsPage = async ({
         </div>
       </div>
 
-      {/* Search */}
-      {/* <div className="mb-6">
-        <div className="relative max-w-md">
-          <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-          <Input placeholder="Search questions..." className="pl-10 h-10" />
-        </div>
-      </div> */}
-
-      {/* Questions List */}
       <Card className="border-border/50 shadow-sm">
         <CardHeader className="px-4 sm:px-6 py-3 border-b border-border/50">
           <CardTitle className="text-sm font-medium">Questions</CardTitle>

@@ -39,6 +39,7 @@ import {
 import { Suspense } from "react";
 import DocumentSkeleton from "@/components/skeletons/DocumentSkeleton";
 import FilterResourceCategory from "./filter-resource-category";
+import ResourceSearchFilter from "./resource-search-filter";
 
 export const generateMetadata = async ({
   params,
@@ -50,10 +51,10 @@ export const generateMetadata = async ({
   const { uid } = await params;
   const company = await getCompanyById(uid);
   return {
-    title: `Company Name: ${company.name}`,
-    description: `Company Description: ${company.description}`,
+    title: `Company Overview for ${company.name}`,
+    description: `Company Overview for ${company.name} with the ${company.description} ${company.website}`,
     openGraph: {
-      title: `Company Name: ${company.name}`,
+      title: `Company Overview for ${company.name}`,
       description: `Company Description: ${company.description}`,
     },
   };
@@ -68,6 +69,7 @@ export default async function CompanyDetail({
 }) {
   const { uid } = await params;
   const categories = (await searchParams).category;
+  const resourceSearchQuery = (await searchParams).query as string;
   const company = await getCompanyById(uid);
   const resourceCategories = await getAllResourceCategoriesNameAndId();
 
@@ -216,6 +218,7 @@ export default async function CompanyDetail({
                   Resources
                 </h2>
                 <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                  <ResourceSearchFilter />
                   <FilterResourceCategory
                     resourceCategories={resourceCategories}
                   />
@@ -258,6 +261,7 @@ export default async function CompanyDetail({
                 <DisplayFetchResources
                   companyId={company.id}
                   categories={categories}
+                  resourceSearchQuery={resourceSearchQuery || ""}
                 />
               </Suspense>
             </TabsContent>
@@ -284,14 +288,18 @@ export default async function CompanyDetail({
 async function DisplayFetchResources({
   companyId,
   categories,
+  resourceSearchQuery,
 }: {
   companyId: string;
   categories: string[] | string | undefined;
+  resourceSearchQuery: string | undefined;
 }) {
   const resources = await getFilteredResourcesByCompanyId(
     companyId,
-    categories
+    categories,
+    resourceSearchQuery
   );
+
   if (resources.length === 0) {
     return (
       <div className="flex flex-col gap-2 w-full">

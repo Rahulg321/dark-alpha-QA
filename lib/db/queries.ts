@@ -320,7 +320,8 @@ export async function getCompanies() {
  */
 export async function getFilteredResourcesByCompanyId(
   companyId: string,
-  categories?: string | string[]
+  categories?: string | string[],
+  query?: string
 ) {
   try {
     // Normalize categories to an array of strings
@@ -331,13 +332,14 @@ export async function getFilteredResourcesByCompanyId(
         ? categories
         : [];
 
-    const whereClause =
-      categoryArray.length > 0
-        ? and(
-            eq(resources.companyId, companyId),
-            inArray(resources.categoryId, categoryArray)
-          )
-        : eq(resources.companyId, companyId);
+    const whereClause = query
+      ? ilike(resources.name, `%${query}%`)
+      : categoryArray.length > 0
+      ? and(
+          eq(resources.companyId, companyId),
+          inArray(resources.categoryId, categoryArray)
+        )
+      : eq(resources.companyId, companyId);
 
     const filteredResources = await db
       .select({
