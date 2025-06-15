@@ -40,6 +40,7 @@ import { Suspense } from "react";
 import DocumentSkeleton from "@/components/skeletons/DocumentSkeleton";
 import FilterResourceCategory from "./filter-resource-category";
 import ResourceSearchFilter from "./resource-search-filter";
+import ResourcePagination from "./resource-pagination";
 
 export const generateMetadata = async ({
   params,
@@ -50,6 +51,7 @@ export const generateMetadata = async ({
 }) => {
   const { uid } = await params;
   const company = await getCompanyById(uid);
+
   return {
     title: `Company Overview for ${company.name}`,
     description: `Company Overview for ${company.name} with the ${company.description} ${company.website}`,
@@ -70,6 +72,11 @@ export default async function CompanyDetail({
   const { uid } = await params;
   const categories = (await searchParams).category;
   const resourceSearchQuery = (await searchParams).query as string;
+  const { page } = await searchParams;
+  const currentPage = Number(page) || 1;
+  const limit = 10;
+  const offset = (currentPage - 1) * limit;
+
   const company = await getCompanyById(uid);
   const resourceCategories = await getAllResourceCategoriesNameAndId();
 
@@ -262,6 +269,9 @@ export default async function CompanyDetail({
                   companyId={company.id}
                   categories={categories}
                   resourceSearchQuery={resourceSearchQuery || ""}
+                  currentPage={currentPage}
+                  limit={limit}
+                  offset={offset}
                 />
               </Suspense>
             </TabsContent>
@@ -289,16 +299,25 @@ async function DisplayFetchResources({
   companyId,
   categories,
   resourceSearchQuery,
+  currentPage,
+  limit,
+  offset,
 }: {
   companyId: string;
   categories: string[] | string | undefined;
   resourceSearchQuery: string | undefined;
+  currentPage: number;
+  limit: number;
+  offset: number;
 }) {
-  const resources = await getFilteredResourcesByCompanyId(
-    companyId,
-    categories,
-    resourceSearchQuery
-  );
+  const { resources, totalPages, totalResources } =
+    await getFilteredResourcesByCompanyId(
+      companyId,
+      categories,
+      resourceSearchQuery,
+      offset,
+      limit
+    );
 
   if (resources.length === 0) {
     return (
@@ -311,8 +330,12 @@ async function DisplayFetchResources({
   return (
     <div className="flex flex-col group-has-[[data-pending]]:animate-pulse gap-2 w-full">
       <p className="text-muted-foreground">
-        {resources.length} {resources.length === 1 ? "resource" : "resources"}
+        {totalPages} {totalPages === 1 ? "page" : "pages"}
       </p>
+      <p className="text-muted-foreground">
+        {totalResources} {totalResources === 1 ? "resource" : "resources"}
+      </p>
+      <p className="text-muted-foreground">Page: {currentPage}</p>
       {resources.map((resource) => (
         <ResourceCard
           key={resource.id}
@@ -324,6 +347,8 @@ async function DisplayFetchResources({
           categoryName={resource.categoryName ?? null}
         />
       ))}
+
+      <ResourcePagination totalPages={totalPages} />
     </div>
   );
 }

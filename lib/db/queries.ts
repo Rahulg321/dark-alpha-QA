@@ -340,7 +340,9 @@ export async function getCompanies() {
 export async function getFilteredResourcesByCompanyId(
   companyId: string,
   categories?: string | string[],
-  query?: string
+  query?: string,
+  offset?: number,
+  limit?: number
 ) {
   try {
     // Normalize categories to an array of strings
@@ -376,15 +378,24 @@ export async function getFilteredResourcesByCompanyId(
         eq(resources.categoryId, resourceCategories.id)
       )
       .where(whereClause)
-      .orderBy(desc(resources.createdAt));
+      .orderBy(desc(resources.createdAt))
+      .limit(limit ?? 10)
+      .offset(offset ?? 0);
 
-    return filteredResources;
+    const [{ total }] = await db
+      .select({ total: count(resources.id) })
+      .from(resources)
+      .where(whereClause);
+
+    const totalPages = Math.ceil(Number(total) / (limit ?? 10));
+
+    return { resources: filteredResources, totalPages, totalResources: total };
   } catch (error) {
     console.error(
       "An error occurred trying to get filtered resources by company id",
       error
     );
-    return [];
+    return { resources: [], totalPages: 0, totalResources: 0 };
   }
 }
 
