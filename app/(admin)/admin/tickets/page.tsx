@@ -21,6 +21,7 @@ import {
 import { getFilteredTickets } from "@/lib/db/queries";
 import { Suspense } from "react";
 import TicketCardSkeleton from "@/components/skeletons/TicketCardSkeleton";
+import AdminTicketCard from "./AdminTicketCard";
 
 export default function AdminTickets() {
   return (
@@ -83,113 +84,20 @@ export default function AdminTickets() {
 async function TicketCards() {
   const tickets = await getFilteredTickets();
 
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case "high":
-        return "destructive";
-      case "medium":
-        return "default";
-      case "low":
-        return "secondary";
-      default:
-        return "secondary";
-    }
-  };
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case "open":
-        return <AlertCircle className="size-4 text-orange-500" />;
-      case "closed":
-        return <CheckCircle className="size-4 text-green-500" />;
-      default:
-        return <Clock className="size-4 text-muted-foreground" />;
-    }
-  };
-
-  const getSourceIcon = (source: string) => {
-    switch (source) {
-      case "email":
-        return <Mail className="size-4 text-blue-500" />;
-      case "website":
-        return <MessageSquare className="size-4 text-green-500" />;
-      default:
-        return <MessageSquare className="size-4 text-muted-foreground" />;
-    }
-  };
-
   return (
     <>
       {tickets.map((ticket) => (
-        <Card
+        <AdminTicketCard
           key={ticket.id}
-          className="group hover:shadow-md transition-all duration-200 border-border"
-        >
-          <CardContent className="p-6">
-            <div className="flex items-start justify-between mb-4">
-              <div className="flex items-center gap-2">
-                {getStatusIcon(ticket.status)}
-                <Badge variant="outline" className="text-xs">
-                  {ticket.type}
-                </Badge>
-                <Badge
-                  variant={getPriorityColor(ticket.priority)}
-                  className="text-xs"
-                >
-                  {ticket.priority}
-                </Badge>
-              </div>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="size-8 opacity-0 group-hover:opacity-100 transition-opacity"
-                  >
-                    <MoreHorizontal className="size-4" />
-                    <span className="sr-only">Open menu</span>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem>
-                    Mark as {ticket.status === "open" ? "Closed" : "Open"}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>Change Priority</DropdownMenuItem>
-                  <DropdownMenuItem className="text-destructive">
-                    Delete
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-
-            <Link href={`/admin/tickets/${ticket.id}`} className="block group">
-              <div className="flex items-center gap-2 mb-2">
-                <h3 className="font-semibold text-lg group-hover:text-foreground/80 transition-colors line-clamp-1 flex-1">
-                  {ticket.title}
-                </h3>
-                <Badge variant="secondary" className="text-xs">
-                  {ticket.type}
-                </Badge>
-              </div>
-              <p className="text-muted-foreground text-sm leading-relaxed mb-4 line-clamp-2">
-                {ticket.description}
-              </p>
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                  <User className="size-3" />
-                  <span className="truncate">{ticket.fromName}</span>
-                </div>
-                <div className="flex items-center justify-between text-xs text-muted-foreground">
-                  <div className="flex items-center gap-1">
-                    <Calendar className="size-3" />
-                    <span>{ticket.createdAt.toLocaleString()}</span>
-                  </div>
-                  <span className="capitalize">{ticket.status}</span>
-                </div>
-              </div>
-            </Link>
-          </CardContent>
-        </Card>
+          ticketId={ticket.id}
+          status={ticket.status}
+          type={ticket.type}
+          priority={ticket.priority}
+          title={ticket.title}
+          description={ticket.description ?? "No description"}
+          fromName={ticket.fromName}
+          createdAt={ticket.createdAt}
+        />
       ))}
     </>
   );
