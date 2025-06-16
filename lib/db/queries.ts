@@ -489,13 +489,43 @@ export async function getTicketById({ id }: { id: string }) {
   }
 }
 
-export async function getFilteredTickets() {
+export async function getFilteredTickets(
+  status: string,
+  limit: number,
+  offset: number,
+  type: string,
+  query: string
+) {
   try {
-    const companyTickets = await db.select().from(ticket);
-    return companyTickets;
+    const whereClause = status
+      ? eq(ticket.status, status as (typeof ticket.status.enumValues)[number])
+      : undefined;
+
+    const typeClause = type
+      ? eq(ticket.type, type as (typeof ticket.type.enumValues)[number])
+      : undefined;
+
+    const queryClause = query ? ilike(ticket.title, `%${query}%`) : undefined;
+
+    const companyTickets = await db
+      .select()
+      .from(ticket)
+      .where(and(whereClause, typeClause, queryClause))
+      .orderBy(desc(ticket.createdAt))
+      .limit(limit)
+      .offset(offset);
+
+    const [{ total }] = await db
+      .select({ total: count(ticket.id) })
+      .from(ticket)
+      .where(and(whereClause, typeClause, queryClause));
+
+    const totalPages = Math.ceil(Number(total) / (limit ?? 10));
+
+    return { tickets: companyTickets, totalPages, totalTickets: total };
   } catch (error) {
     console.error("error fetching filtered tickets", error);
-    return [];
+    return { tickets: [], totalPages: 0, totalTickets: 0 };
   }
 }
 

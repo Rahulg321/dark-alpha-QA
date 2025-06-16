@@ -22,10 +22,31 @@ import { getFilteredTickets } from "@/lib/db/queries";
 import { Suspense } from "react";
 import TicketCardSkeleton from "@/components/skeletons/TicketCardSkeleton";
 import AdminTicketCard from "./AdminTicketCard";
+import StatusTicketFilter from "./StatusTicketFilter";
+import TicketPaginationFilter from "./TicketPaginationFilter";
+import TicketTypeFilter from "./TicketTypeFilter";
+import SearchTicketFilter from "./SearchTicketFilter";
 
-export default function AdminTickets() {
+export const metadata = {
+  title: "Support Tickets",
+  description: "Manage website submissions and email-based support requests.",
+};
+
+export default async function AdminTickets({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
+  const status = (await searchParams).status as string;
+  const type = (await searchParams).type as string;
+  const query = (await searchParams).query as string;
+  const { page } = await searchParams;
+  const currentPage = Number(page) || 1;
+  const limit = 50;
+  const offset = (currentPage - 1) * limit;
+
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background group">
       <div className="big-container block-space-mini">
         <header className="mb-8">
           <h1 className="text-3xl font-semibold tracking-tight mb-2">
@@ -38,28 +59,9 @@ export default function AdminTickets() {
 
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
           <div className="flex items-center gap-2">
-            <Button variant="secondary" size="sm">
-              Open
-            </Button>
-            <Button variant="ghost" size="sm">
-              Closed
-            </Button>
-            <Button variant="ghost" size="sm">
-              All
-            </Button>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm">
-              <Mail className="size-3 mr-1" />
-              Email Tickets
-            </Button>
-            <Button variant="outline" size="sm">
-              <MessageSquare className="size-3 mr-1" />
-              Website Tickets
-            </Button>
-            <Button variant="outline" size="sm">
-              High Priority
-            </Button>
+            <StatusTicketFilter />
+            <TicketTypeFilter />
+            <SearchTicketFilter />
           </div>
         </div>
 
@@ -69,36 +71,85 @@ export default function AdminTickets() {
               <TicketCardSkeleton />
               <TicketCardSkeleton />
               <TicketCardSkeleton />
+              <TicketCardSkeleton />
+              <TicketCardSkeleton />
+              <TicketCardSkeleton />
+              <TicketCardSkeleton />
+              <TicketCardSkeleton />
+              <TicketCardSkeleton />
             </div>
           }
         >
-          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
-            <TicketCards />
-          </div>
+          <TicketCards
+            status={status}
+            type={type}
+            currentPage={currentPage}
+            limit={limit}
+            offset={offset}
+            query={query}
+          />
         </Suspense>
       </div>
     </div>
   );
 }
 
-async function TicketCards() {
-  const tickets = await getFilteredTickets();
+async function TicketCards({
+  status,
+  type,
+  currentPage,
+  limit,
+  offset,
+  query,
+}: {
+  status: string;
+  type: string;
+  currentPage: number;
+  limit: number;
+  offset: number;
+  query: string;
+}) {
+  const { tickets, totalPages, totalTickets } = await getFilteredTickets(
+    status,
+    limit,
+    offset,
+    type,
+    query
+  );
 
   return (
-    <>
-      {tickets.map((ticket) => (
-        <AdminTicketCard
-          key={ticket.id}
-          ticketId={ticket.id}
-          status={ticket.status}
-          type={ticket.type}
-          priority={ticket.priority}
-          title={ticket.title}
-          description={ticket.description ?? "No description"}
-          fromName={ticket.fromName}
-          createdAt={ticket.createdAt}
-        />
-      ))}
-    </>
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-semibold">
+          {tickets.length} {tickets.length === 1 ? "ticket" : "tickets"} found
+        </h2>
+        {currentPage && (
+          <div>
+            <p className="text-sm text-muted-foreground">
+              Page {currentPage} of {totalPages}
+            </p>
+            {/* <p className="text-sm text-muted-foreground">
+              {totalTickets} Total tickets
+            </p> */}
+          </div>
+        )}
+        {totalPages > 1 && <TicketPaginationFilter totalPages={totalPages} />}
+      </div>
+      <div className="grid grid-cols-1 group-has-[[data-pending]]:animate-pulse lg:grid-cols-2 xl:grid-cols-3 gap-4">
+        {tickets.map((ticket) => (
+          <AdminTicketCard
+            key={ticket.id}
+            ticketId={ticket.id}
+            status={ticket.status}
+            type={ticket.type}
+            priority={ticket.priority}
+            title={ticket.title}
+            description={ticket.description ?? "No description"}
+            fromName={ticket.fromName}
+            createdAt={ticket.createdAt}
+          />
+        ))}
+      </div>
+    </div>
   );
 }

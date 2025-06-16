@@ -124,7 +124,6 @@ export default function AdminTicketCard({
               >
                 Mark as {status === "open" ? "Closed" : "Open"}
               </DropdownMenuItem>
-              <DropdownMenuItem>Change Priority</DropdownMenuItem>
               <DropdownMenuItem
                 className="text-destructive"
                 onClick={async () => {
@@ -147,9 +146,6 @@ export default function AdminTicketCard({
             <h3 className="font-semibold text-lg group-hover:text-foreground/80 transition-colors line-clamp-1 flex-1">
               {title}
             </h3>
-            <Badge variant="secondary" className="text-xs">
-              {type}
-            </Badge>
           </div>
           <p className="text-muted-foreground text-sm leading-relaxed mb-4 line-clamp-2">
             {description}
