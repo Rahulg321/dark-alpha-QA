@@ -69,7 +69,6 @@ const CompanyQuestionsPage = async ({
     <div className="container min-h-screen group mx-auto p-4 sm:p-6 max-w-6xl">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-        <SearchQuestionFilter />
         <div>
           <h1 className="text-xl sm:text-2xl font-semibold">
             Due Diligence Questions
@@ -84,6 +83,7 @@ const CompanyQuestionsPage = async ({
             {currentPage} current page
           </p>
         </div>
+        <SearchQuestionFilter />
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
           <Button
             size="sm"

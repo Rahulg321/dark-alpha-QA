@@ -179,21 +179,20 @@ export const ticket = pgTable(
     id: uuid("id").notNull().defaultRandom(),
     createdAt: timestamp("createdAt").notNull().defaultNow(),
     title: text("title").notNull(),
+    type: varchar("type", { enum: ["website", "email"] }).notNull(),
+    priority: varchar("priority", { enum: ["low", "medium", "high"] })
+      .notNull()
+      .default("low"),
+    fromName: text("from_name").notNull(),
+    fromEmail: text("from_email").notNull(),
     tags: text("tags").array().notNull(),
     description: text("description"),
     status: varchar("status", { enum: ["open", "closed"] })
       .notNull()
       .default("open"),
-    userId: uuid("userId")
-      .notNull()
-      .references(() => user.id),
   },
   (pgTable) => ({
     pk: primaryKey({ columns: [pgTable.id] }),
-    userIdRef: foreignKey({
-      columns: [pgTable.userId],
-      foreignColumns: [user.id],
-    }),
   })
 );
 
