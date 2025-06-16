@@ -6,7 +6,6 @@ import {
   NewTicketFormSchemaType,
 } from "@/components/forms/new-ticket-form";
 import { auth } from "../(auth)/auth";
-import { createTicket } from "@/lib/db/queries";
 import { revalidatePath } from "next/cache";
 
 export async function createTicketServerAction(formData: FormData) {
@@ -33,13 +32,13 @@ export async function createTicketServerAction(formData: FormData) {
     console.log("inside server action");
     console.log(title, description, content, tags);
 
-    const [ticket] = await createTicket(
-      title,
-      description,
-      content,
-      authSession.user.id,
-      tags
-    );
+    // const [ticket] = await createTicket(
+    //   title,
+    //   description,
+    //   content,
+    //   authSession.user.id,
+    //   tags
+    // );
 
     console.log("ticket created", ticket);
 
