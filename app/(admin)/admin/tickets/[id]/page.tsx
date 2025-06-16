@@ -26,6 +26,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { db } from "@/lib/db/queries";
+import { ticket } from "@/lib/db/schema";
+import { eq } from "drizzle-orm";
 
 export default async function TicketDetail({
   params,
@@ -34,62 +37,16 @@ export default async function TicketDetail({
 }) {
   const { id } = await params;
 
-  const isEmailTicket = id === "2" || id === "4" || id === "6";
-
-  const ticket = {
-    id: Number.parseInt(id),
-    title: isEmailTicket
-      ? "Re: Account access issues"
-      : "Unable to upload files larger than 10MB",
-    description: isEmailTicket
-      ? "I reset my password yesterday but I'm still unable to log into my account. The system says my credentials are invalid. I've tried multiple browsers and cleared my cache but the issue persists."
-      : "I'm trying to upload a PDF file that's 15MB but the system keeps showing an error message. This is blocking my workflow. I've tried multiple times and different browsers but the issue persists. The error message says 'File size exceeds limit' but I thought the limit was 50MB according to your documentation.",
-    user: {
-      name: isEmailTicket ? "Sarah Wilson" : "John Doe",
-      email: isEmailTicket
-        ? "sarah.wilson@company.com"
-        : "john.doe@example.com",
-      company: isEmailTicket ? "Wilson & Associates" : "Tech Solutions Inc.",
-    },
-    status: "open",
-    priority: isEmailTicket ? "medium" : "high",
-    category: isEmailTicket ? "Account" : "Technical",
-    source: isEmailTicket ? "email" : "website",
-    createdAt: isEmailTicket
-      ? "December 7, 2023 at 9:15 AM"
-      : "December 8, 2023 at 2:30 PM",
-    updatedAt: isEmailTicket
-      ? "December 7, 2023 at 9:15 AM"
-      : "December 8, 2023 at 2:30 PM",
-    adminResponse: null,
-    // Email-specific fields
-    emailSubject: isEmailTicket ? "Re: Account access issues" : null,
-    emailFrom: isEmailTicket ? "sarah.wilson@company.com" : null,
-    emailTo: isEmailTicket ? "support@yourcompany.com" : null,
-    emailThread: isEmailTicket
-      ? [
-          {
-            id: 1,
-            from: "sarah.wilson@company.com",
-            to: "support@yourcompany.com",
-            subject: "Account access issues",
-            content:
-              "I reset my password yesterday but I'm still unable to log into my account. The system says my credentials are invalid.",
-            timestamp: "December 7, 2023 at 9:15 AM",
-            isFromUser: true,
-          },
-        ]
-      : null,
-  };
+  const [userTicket] = await db.select().from(ticket).where(eq(ticket.id, id));
 
   const getStatusIcon = (status: string) => {
     switch (status) {
       case "open":
-        return <AlertCircle className="h-5 w-5 text-orange-500" />;
+        return <AlertCircle className="size-5 text-orange-500" />;
       case "closed":
-        return <CheckCircle className="h-5 w-5 text-green-500" />;
+        return <CheckCircle className="size-5 text-green-500" />;
       default:
-        return <Clock className="h-5 w-5 text-muted-foreground" />;
+        return <Clock className="size-5 text-muted-foreground" />;
     }
   };
 
@@ -109,11 +66,11 @@ export default async function TicketDetail({
   const getSourceIcon = (source: string) => {
     switch (source) {
       case "email":
-        return <Mail className="h-5 w-5 text-blue-500" />;
+        return <Mail className="size-5 text-blue-500" />;
       case "website":
-        return <MessageSquare className="h-5 w-5 text-green-500" />;
+        return <MessageSquare className="size-5 text-green-500" />;
       default:
-        return <MessageSquare className="h-5 w-5 text-muted-foreground" />;
+        return <MessageSquare className="size-5 text-muted-foreground" />;
     }
   };
 
@@ -124,7 +81,7 @@ export default async function TicketDetail({
           href="/admin/tickets"
           className="inline-flex items-center text-muted-foreground hover:text-foreground mb-6 transition-colors"
         >
-          <ArrowLeft className="mr-2 h-4 w-4" />
+          <ArrowLeft className="mr-2 size-4" />
           Back to Tickets
         </Link>
 
@@ -132,28 +89,33 @@ export default async function TicketDetail({
           <header className="flex flex-col lg:flex-row lg:items-start justify-between gap-4">
             <div className="space-y-4">
               <div className="flex items-center gap-3">
-                {getStatusIcon(ticket.status)}
-                {getSourceIcon(ticket.source)}
+                {getStatusIcon(userTicket.status)}
+                {getSourceIcon(userTicket.type)}
                 <h1 className="text-2xl font-semibold tracking-tight">
-                  {ticket.title}
+                  {userTicket.title}
                 </h1>
               </div>
               <div className="flex items-center gap-2">
-                <Badge variant="outline">{ticket.category}</Badge>
-                <Badge variant={getPriorityColor(ticket.priority)}>
-                  {ticket.priority} priority
+                {userTicket.tags.map((tag) => (
+                  <Badge key={tag} variant="outline">
+                    {tag}
+                  </Badge>
+                ))}
+                <Badge variant={getPriorityColor(userTicket.priority)}>
+                  {userTicket.priority} priority
                 </Badge>
                 <Badge
-                  variant={ticket.status === "open" ? "default" : "secondary"}
+                  variant={
+                    userTicket.status === "open" ? "default" : "secondary"
+                  }
                   className="capitalize"
                 >
-                  {ticket.status}
+                  {userTicket.status}
                 </Badge>
-                <Badge variant="secondary">{ticket.source} ticket</Badge>
               </div>
             </div>
             <div className="flex gap-2">
-              <Select defaultValue={ticket.status}>
+              <Select defaultValue={userTicket.status}>
                 <SelectTrigger className="w-32">
                   <SelectValue />
                 </SelectTrigger>
@@ -162,7 +124,7 @@ export default async function TicketDetail({
                   <SelectItem value="closed">Closed</SelectItem>
                 </SelectContent>
               </Select>
-              <Select defaultValue={ticket.priority}>
+              <Select defaultValue={userTicket.priority}>
                 <SelectTrigger className="w-32">
                   <SelectValue />
                 </SelectTrigger>
@@ -178,10 +140,7 @@ export default async function TicketDetail({
           <Tabs defaultValue="details" className="w-full">
             <TabsList className="mb-6">
               <TabsTrigger value="details">
-                {ticket.source === "email" ? "Email Details" : "Ticket Details"}
-              </TabsTrigger>
-              <TabsTrigger value="response">
-                {ticket.source === "email"
+                {userTicket.type === "email"
                   ? "Email Response"
                   : "Admin Response"}
               </TabsTrigger>
@@ -191,74 +150,17 @@ export default async function TicketDetail({
             <TabsContent value="details" className="space-y-6">
               <div className="grid gap-6 md:grid-cols-3">
                 <div className="md:col-span-2 space-y-4">
-                  {ticket.source === "email" && ticket.emailThread && (
+                  {userTicket.type === "website" && (
                     <Card>
                       <CardHeader>
                         <CardTitle className="text-lg flex items-center gap-2">
-                          <Mail className="h-5 w-5" />
-                          Email Thread
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="space-y-4">
-                          {ticket.emailThread.map((email) => (
-                            <div
-                              key={email.id}
-                              className="border rounded-lg p-4 space-y-3"
-                            >
-                              <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-2">
-                                  <Badge
-                                    variant={
-                                      email.isFromUser ? "default" : "secondary"
-                                    }
-                                  >
-                                    {email.isFromUser
-                                      ? "From User"
-                                      : "From Support"}
-                                  </Badge>
-                                </div>
-                                <span className="text-xs text-muted-foreground">
-                                  {email.timestamp}
-                                </span>
-                              </div>
-                              <div className="space-y-2">
-                                <div className="text-sm">
-                                  <span className="font-medium">From:</span>{" "}
-                                  {email.from}
-                                </div>
-                                <div className="text-sm">
-                                  <span className="font-medium">To:</span>{" "}
-                                  {email.to}
-                                </div>
-                                <div className="text-sm">
-                                  <span className="font-medium">Subject:</span>{" "}
-                                  {email.subject}
-                                </div>
-                              </div>
-                              <div className="pt-2 border-t">
-                                <p className="text-foreground leading-relaxed whitespace-pre-wrap">
-                                  {email.content}
-                                </p>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  )}
-
-                  {ticket.source === "website" && (
-                    <Card>
-                      <CardHeader>
-                        <CardTitle className="text-lg flex items-center gap-2">
-                          <MessageSquare className="h-5 w-5" />
+                          <MessageSquare className="size-5" />
                           User Message
                         </CardTitle>
                       </CardHeader>
                       <CardContent>
                         <p className="text-foreground leading-relaxed whitespace-pre-wrap">
-                          {ticket.description}
+                          {userTicket.description}
                         </p>
                       </CardContent>
                     </Card>
@@ -269,7 +171,7 @@ export default async function TicketDetail({
                   <Card>
                     <CardHeader>
                       <CardTitle className="text-lg flex items-center gap-2">
-                        <User className="h-5 w-5" />
+                        <User className="size-5" />
                         User Details
                       </CardTitle>
                     </CardHeader>
@@ -280,7 +182,7 @@ export default async function TicketDetail({
                             Name
                           </dt>
                           <dd className="text-foreground">
-                            {ticket.user.name}
+                            {userTicket.fromName}
                           </dd>
                         </div>
                         <div>
@@ -289,20 +191,12 @@ export default async function TicketDetail({
                           </dt>
                           <dd>
                             <a
-                              href={`mailto:${ticket.user.email}`}
+                              href={`mailto:${userTicket.fromEmail}`}
                               className="text-foreground hover:underline inline-flex items-center gap-1"
                             >
-                              {ticket.user.email}
-                              <ExternalLink className="h-3 w-3" />
+                              {userTicket.fromEmail}
+                              <ExternalLink className="size-3" />
                             </a>
-                          </dd>
-                        </div>
-                        <div>
-                          <dt className="text-muted-foreground font-medium text-sm">
-                            Company
-                          </dt>
-                          <dd className="text-foreground">
-                            {ticket.user.company}
                           </dd>
                         </div>
                       </dl>
@@ -312,7 +206,7 @@ export default async function TicketDetail({
                   <Card>
                     <CardHeader>
                       <CardTitle className="text-lg flex items-center gap-2">
-                        <Calendar className="h-5 w-5" />
+                        <Calendar className="size-5" />
                         Timeline
                       </CardTitle>
                     </CardHeader>
@@ -323,7 +217,7 @@ export default async function TicketDetail({
                             Created
                           </dt>
                           <dd className="text-foreground text-sm">
-                            {ticket.createdAt}
+                            {userTicket.createdAt.toLocaleString()}
                           </dd>
                         </div>
                         <div>
@@ -331,7 +225,7 @@ export default async function TicketDetail({
                             Last Updated
                           </dt>
                           <dd className="text-foreground text-sm">
-                            {ticket.updatedAt}
+                            {userTicket.createdAt.toLocaleString()}
                           </dd>
                         </div>
                       </dl>
@@ -342,29 +236,16 @@ export default async function TicketDetail({
             </TabsContent>
 
             <TabsContent value="response" className="space-y-6">
-              {ticket.adminResponse && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg">Previous Response</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-foreground leading-relaxed">
-                      {ticket.adminResponse}
-                    </p>
-                  </CardContent>
-                </Card>
-              )}
-
-              {ticket.source === "email" ? (
+              {userTicket.type === "email" ? (
                 <Card>
                   <CardHeader>
                     <CardTitle className="text-lg flex items-center gap-2">
-                      <Reply className="h-5 w-5" />
+                      <Reply className="size-5" />
                       Send Email Response
                     </CardTitle>
                     <p className="text-sm text-muted-foreground">
                       Compose an email response that will be sent to{" "}
-                      {ticket.user.email}
+                      {userTicket.fromEmail}
                     </p>
                   </CardHeader>
                   <CardContent>
@@ -380,16 +261,18 @@ export default async function TicketDetail({
                         </div>
                         <div className="space-y-2">
                           <Label htmlFor="to">To</Label>
-                          <Input id="to" value={ticket.user.email} disabled />
+                          <Input
+                            id="to"
+                            value={userTicket.fromEmail}
+                            disabled
+                          />
                         </div>
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="subject">Subject</Label>
                         <Input
                           id="subject"
-                          defaultValue={`Re: ${
-                            ticket.emailSubject || ticket.title
-                          }`}
+                          defaultValue={`Re: ${userTicket.title}`}
                         />
                       </div>
                       <div className="space-y-2">
@@ -406,7 +289,7 @@ export default async function TicketDetail({
                           type="submit"
                           className="flex items-center gap-2"
                         >
-                          <Send className="h-4 w-4" />
+                          <Send className="size-4" />
                           Send Email & Close Ticket
                         </Button>
                         <Button type="button" variant="outline">
@@ -423,7 +306,7 @@ export default async function TicketDetail({
                 <Card>
                   <CardHeader>
                     <CardTitle className="text-lg flex items-center gap-2">
-                      <MessageSquare className="h-5 w-5" />
+                      <MessageSquare className="size-5" />
                       Send Response
                     </CardTitle>
                     <p className="text-sm text-muted-foreground">
@@ -447,7 +330,7 @@ export default async function TicketDetail({
                           type="submit"
                           className="flex items-center gap-2"
                         >
-                          <Send className="h-4 w-4" />
+                          <Send className="size-4" />
                           Send Response & Close Ticket
                         </Button>
                         <Button type="button" variant="outline">
@@ -468,26 +351,26 @@ export default async function TicketDetail({
                 <CardContent>
                   <div className="space-y-4">
                     <div className="flex items-start gap-3 pb-4 border-b">
-                      <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center">
-                        {ticket.source === "email" ? (
-                          <Mail className="h-4 w-4" />
+                      <div className="size-8 rounded-full bg-muted flex items-center justify-center">
+                        {userTicket.type === "email" ? (
+                          <Mail className="size-4" />
                         ) : (
-                          <User className="h-4 w-4" />
+                          <User className="size-4" />
                         )}
                       </div>
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
                           <span className="font-medium">
-                            {ticket.user.name}
+                            {userTicket.fromName}
                           </span>
                           <span className="text-xs text-muted-foreground">
-                            {ticket.source === "email"
+                            {userTicket.type === "email"
                               ? "sent an email"
                               : "created this ticket"}
                           </span>
                         </div>
                         <p className="text-sm text-muted-foreground">
-                          {ticket.createdAt}
+                          {userTicket.createdAt.toLocaleString()}
                         </p>
                       </div>
                     </div>

@@ -24,19 +24,22 @@ import { Label } from "../ui/label";
 import MarkdownEditor from "../MDXEditors/MarkdownEditor";
 import { createTicketServerAction } from "@/app/(tickets)/actions";
 import { toast } from "sonner";
-
-export const newTicketFormSchema = z.object({
-  title: z.string().min(2).max(50),
-  description: z.string().min(10).max(100),
-});
-
-export type NewTicketFormSchemaType = z.infer<typeof newTicketFormSchema>;
+import { newTicketFormSchema } from "@/lib/schemas/new-ticket-form-schema";
+import {
+  Select,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+} from "../ui/select";
+import { useRouter } from "next/navigation";
+import { Textarea } from "../ui/textarea";
 
 const NewTicketForm = () => {
   const { theme } = useTheme();
   const [isPending, startTransition] = useTransition();
+  const router = useRouter();
 
-  const [content, setContent] = useState("");
   const [error, setError] = useState<Record<string, string>>({});
   const [tags, setTags] = useState<string[]>([]);
 
@@ -45,15 +48,15 @@ const NewTicketForm = () => {
     console.log("Tags updated:", newTags);
   };
 
-  const handleContentChange = (value: string | undefined) => {
-    setContent(value ?? "");
-  };
-
   const form = useForm<z.infer<typeof newTicketFormSchema>>({
     resolver: zodResolver(newTicketFormSchema),
     defaultValues: {
       title: "",
       description: "",
+      fromName: "",
+      fromEmail: "",
+      priority: "low",
+      tags: [],
     },
   });
 
@@ -66,31 +69,33 @@ const NewTicketForm = () => {
         return;
       }
 
-      if (content.length < 10) {
-        setError({ content: "Content must be at least 10 characters" });
-        toast.error("Content must be at least 10 characters");
-        return;
-      }
-
       const formdata = new FormData();
       formdata.append("title", values.title);
       formdata.append("description", values.description);
-      formdata.append("content", content);
-      formdata.append("tags", tags.join(","));
+      formdata.append("tags", JSON.stringify(tags));
+      formdata.append("fromName", values.fromName);
+      formdata.append("fromEmail", values.fromEmail);
+      formdata.append("priority", values.priority);
 
       console.log(formdata);
 
       const response = await createTicketServerAction(formdata);
 
-      if (response.error) {
-        setError({ content: response.error });
-        toast.error(response.error);
-      } else {
-        toast.success("Ticket created successfully");
-        form.reset();
-        setContent("");
-        setTags([]);
+      if (!response.success) {
+        setError({ content: response.message });
+        toast.error(response.message);
       }
+
+      toast.success(response.message, {
+        action: {
+          label: "View Ticket",
+          onClick: () => {
+            router.push(`/tickets/${response.ticketId}`);
+          },
+        },
+      });
+      form.reset();
+      setTags([]);
     });
   }
 
@@ -112,6 +117,60 @@ const NewTicketForm = () => {
               </FormItem>
             )}
           />
+          <FormField
+            control={form.control}
+            name="fromName"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>From Name</FormLabel>
+                <FormControl>
+                  <Input placeholder="John Doe" {...field} />
+                </FormControl>
+
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="fromEmail"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>From Email</FormLabel>
+                <FormControl>
+                  <Input placeholder="john.doe@example.com" {...field} />
+                </FormControl>
+
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="priority"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Priority</FormLabel>
+                <FormControl>
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a priority" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="low">Low</SelectItem>
+                      <SelectItem value="medium">Medium</SelectItem>
+                      <SelectItem value="high">High</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </FormControl>
+
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
           <div>
             <Label>Add Tags</Label>
 
@@ -127,29 +186,24 @@ const NewTicketForm = () => {
               <span className="text-red-500 text-sm">{error.tags}</span>
             )}
           </div>
-
-          <FormField
-            control={form.control}
-            name="description"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Description</FormLabel>
-                <FormControl>
-                  <Input placeholder="shadcn" {...field} />
-                </FormControl>
-
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
           <div>
-            <Label>Content</Label>
-            <MarkdownEditor value={content} onChange={handleContentChange} />
-
-            {error.content && (
-              <span className="text-red-500 text-sm">{error.content}</span>
-            )}
+            <Label>Description</Label>
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Enter your description here..."
+                      rows={10}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </div>
 
           <Button type="submit" disabled={isPending}>

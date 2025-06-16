@@ -489,6 +489,16 @@ export async function getTicketById({ id }: { id: string }) {
   }
 }
 
+export async function getFilteredTickets() {
+  try {
+    const companyTickets = await db.select().from(ticket);
+    return companyTickets;
+  } catch (error) {
+    console.error("error fetching filtered tickets", error);
+    return [];
+  }
+}
+
 /**
  * Get all tickets
  * @returns All tickets
