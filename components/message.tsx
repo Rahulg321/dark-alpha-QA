@@ -247,7 +247,7 @@ const PurePreviewMessage = ({
                                     key={index}
                                     className="flex items-center justify-between p-2 rounded-md bg-muted/50"
                                   >
-                                    <span className="whitespace-pre-wrap  prose text-sm font-medium">
+                                    <span className="whitespace-pre-wrap  prose text-sm text-muted-foreground font-medium">
                                       {item.content}
                                     </span>
                                     <span className="text-xs px-2 py-1 rounded-full bg-primary/10 text-primary">

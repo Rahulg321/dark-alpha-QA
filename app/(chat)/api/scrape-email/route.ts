@@ -13,8 +13,6 @@ export async function POST(req: Request) {
     console.log("inside scrape email request");
     console.log("body", body);
 
-    throw new Error("test error");
-
     return NextResponse.json({
       message: "Email scraped successfully",
     });
