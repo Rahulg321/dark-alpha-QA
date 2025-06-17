@@ -34,6 +34,8 @@ import {
   companyQuestions,
   answers,
   resourceCategories,
+  verificationToken,
+  type verificationToken,
 } from "./schema";
 import type { ArtifactKind } from "@/components/artifact";
 import { generateUUID } from "../utils";
@@ -568,7 +570,8 @@ export async function createUser(email: string, password: string) {
   const hashedPassword = generateHashedPassword(password);
 
   try {
-    return await db.insert(user).values({ email, password: hashedPassword });
+    const [newToken] = await db.insert(verificationToken).values({}).returning();
+    return await db.insert(user).values({ email, password: hashedPassword, verificationTokenId: newToken.id });
   } catch (error) {
     throw new ChatSDKError("bad_request:database", "Failed to create user");
   }
