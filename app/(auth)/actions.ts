@@ -2,14 +2,14 @@
 
 import { z } from 'zod';
 
-import { createUser, getUser, verifyUser } from '@/lib/db/queries';
+import { createUser, getUser, verifyUser, notUserVerified } from '@/lib/db/queries';
 
 import { signIn } from './auth';
 
 const authFormSchema = z.object({
   email: z.string().email(),
   password: z.string().regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{10,}$/,"invalid password"),
-  verifiedPassword: z.string(),
+  verifiedPassword: z.optional(z.string()),
 });
 
 export const verify = async (
@@ -37,6 +37,10 @@ export const login = async (
       password: formData.get('password'),
     });
 
+    if (notUserVerified(validatedData.email)) {
+      return {status: 'unverified_account'};
+    }
+
     await signIn('credentials', {
       email: validatedData.email,
       password: validatedData.password,
@@ -45,6 +49,7 @@ export const login = async (
 
     return { status: 'success' };
   } catch (error) {
+    console.log(error)
     if (error instanceof z.ZodError) {
       return { status: 'invalid_data' };
     }

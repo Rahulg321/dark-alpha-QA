@@ -8,6 +8,9 @@ import { toast } from '@/components/toast';
 import { AuthForm } from '@/components/auth-form';
 import { SubmitButton } from '@/components/submit-button';
 
+
+import * as verificationToast from "sonner";
+
 import { login, type LoginActionState } from '../actions';
 import { useSession } from 'next-auth/react';
 
@@ -37,7 +40,17 @@ export default function Page() {
         type: 'error',
         description: 'Failed validating your submission!',
       });
-    } else if (state.status === 'success') {
+    } else if (state.status === 'unverified_account') {
+      verificationToast.toast.error("", {
+        description: "Account is not verified.",
+        action: {
+          label: "Recieve new verification link",
+          onClick: () => {
+            router.push(`/newVerificationLink?email=${email}`);
+          }
+        }
+      })
+    }else if (state.status === 'success') {
       setIsSuccessful(true);
       updateSession();
       router.refresh();
@@ -58,7 +71,7 @@ export default function Page() {
             Use your email and password to sign in
           </p>
         </div>
-        <AuthForm action={handleSubmit} defaultEmail={email}>
+        <AuthForm action={handleSubmit} defaultEmail={email} noPassVerify={true}>
           <SubmitButton isSuccessful={isSuccessful}>Sign in</SubmitButton>
           <p className="text-center text-sm text-gray-600 mt-4 dark:text-zinc-400">
             {"Don't have an account? "}

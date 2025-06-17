@@ -16,6 +16,8 @@ import {
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 
+import { Resend } from 'resend';
+
 import {
   user,
   chat,
@@ -51,6 +53,7 @@ import { ResourcesWithoutContent } from "../types";
 // biome-ignore lint: Forbidden non-null assertion.
 const client = postgres(process.env.POSTGRES_URL!);
 export const db = drizzle(client);
+export const resend = new Resend(process.env.RESEND_API_KEY!);
 
 export async function getUser(email: string): Promise<Array<User>> {
   try {
@@ -545,6 +548,23 @@ export async function getAllTickets() {
 }
 
 /**
+ * Returns true if a user is not verified
+ * @param userEmail - the email of the user to Checks
+ * @returns true if the user is not verified, false if otherwise
+ */
+export async function notUserVerified(userEmail: string) {
+  try {
+    const [user] = await getUserByEmail(userEmail);
+    return !user.verified;
+  } catch (error) {
+    throw new ChatSDKError(
+      'bad_request:database',
+      "Failed to get user's verification"
+    );
+  }
+}
+
+/**
  * Checks the timestamp of the user's verification token to confirm it is valid, and then verifies them
  * @param userId - the id of the user
  * @param verificationTokenId - the token used to verify the user
@@ -594,13 +614,30 @@ export async function getCompanyNameById(companyId: string) {
   }
 }
 
+export async function generateVerificationToken(userEmail: string, userId: string) {
+  console.log("Sending email")
+  const [token] = await db.insert(verificationToken).values({}).returning();
+  resend.emails.send({
+    from: 'dark-alpha-capital@resend.dev',
+    to: userEmail,
+    subject: "Account Verificaiton",
+    html: "<p>Thank you for creating an account. To verify it, please go to <a href=\"http://localhost:3000/verify?userId=" + userId + "&verificationToken=" + token.id + "\">this page</a>"
+  });
+  console.log("Sent email")
+  return token;
+}
+
 export async function createUser(email: string, password: string) {
   const hashedPassword = generateHashedPassword(password);
 
   try {
-    const [newToken] = await db.insert(verificationToken).values({}).returning();
-    return await db.insert(user).values({ email, password: hashedPassword, verificationTokenId: newToken.id });
+    console.log("Here")
+    const [newUser] = await db.insert(user).values({ email, password: hashedPassword}).returning();
+    console.log(newUser)
+    const token = await generateVerificationToken(email, newUser.id);
+    return await db.update(user).set({verificationTokenId: token.id}).where(eq(newUser.email, email));
   } catch (error) {
+    console.log(error)
     throw new ChatSDKError("bad_request:database", "Failed to create user");
   }
 }
