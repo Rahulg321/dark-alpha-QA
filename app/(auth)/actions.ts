@@ -2,13 +2,14 @@
 
 import { z } from 'zod';
 
-import { createUser, getUser } from '@/lib/db/queries';
+import { createUser, getUser, verifyUser } from '@/lib/db/queries';
 
 import { signIn } from './auth';
 
 const authFormSchema = z.object({
   email: z.string().email(),
   password: z.string().regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{10,}$/,"invalid password"),
+  verifiedPassword: z.string(),
 });
 
 export interface LoginActionState {
@@ -59,7 +60,7 @@ export const register = async (
     const validatedData = authFormSchema.parse({
       email: formData.get('email'),
       password: formData.get('password'),
-      verifiedPassword: formData.get('verified-password'),
+      verifiedPassword: formData.get('verify-password'),
     });
 
     const [user] = await getUser(validatedData.email);
