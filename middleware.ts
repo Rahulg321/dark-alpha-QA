@@ -25,7 +25,7 @@ export async function middleware(request: NextRequest) {
   });
 
   // Handle auth pages
-  if (["/login", "/register"].includes(pathname)) {
+  if (["/login", "/register", "/verify"].includes(pathname)) {
     if (token) {
       // If user is authenticated, redirect to home
       return NextResponse.redirect(new URL("/", request.url));

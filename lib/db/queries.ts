@@ -545,6 +545,34 @@ export async function getAllTickets() {
 }
 
 /**
+ * Checks the timestamp of the user's verification token to confirm it is valid, and then verifies them
+ * @param userId - the id of the user
+ * @param verificationTokenId - the token used to verify the user
+ * @returns true if the user was verified, false if verification failed
+ */
+export async function verifyUser(userId: string, verificationTokenId: string) {
+  try {
+    const [ verifyingUser ] = await db.select().from(user).where(eq(user.id, userId));
+    const [ userVerificationToken ] = await db.select().from(verificationToken).where(eq(verificationToken.id, verifyingUser.verificationTokenId));
+
+    if (userVerificationToken.id == verifyingUser.verificationTokenId && userVerificationToken.id == verificationTokenId) {
+      await db.transaction(async (tx) => {
+        await tx.update(user).set({verified: true}).where(eq(user.id, userId));
+        await tx.delete(verificationToken).where(eq(verificationToken.id, verifyingUser.verificationTokenId));
+      });
+      return true;
+    } else {
+      return false;
+    }
+  } catch (error) {
+    throw new ChatSDKError(
+      "bad_request:database",
+      "Failed to verify user"
+    );
+  }
+}
+
+/**
  * Get the name of a company by id
  * @param companyId - The id of the company
  * @returns The name of the company

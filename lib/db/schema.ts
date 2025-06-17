@@ -21,7 +21,7 @@ export const user = pgTable("User", {
   email: varchar("email", { length: 64 }).notNull(),
   password: varchar("password", { length: 64 }),
   verified: boolean("verified").default(false),
-  verificationTokenId: uuid("verificationTokenId").references(() => verificationToken.id),
+  verificationTokenId: uuid("verificationTokenId").references(() => verificationToken.id, {onDelete: 'set null'}),
 });
 
 export type User = InferSelectModel<typeof user>;

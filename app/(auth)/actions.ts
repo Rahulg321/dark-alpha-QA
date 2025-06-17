@@ -12,6 +12,17 @@ const authFormSchema = z.object({
   verifiedPassword: z.string(),
 });
 
+export const verify = async (
+  userId: string,
+  verificationToken: string
+): Promise<boolean> => {
+  try {
+    return await verifyUser(userId, verificationToken);
+  } catch (error) {
+    return false;
+  }
+};
+
 export interface LoginActionState {
   status: 'idle' | 'in_progress' | 'success' | 'failed' | 'invalid_data';
 }
