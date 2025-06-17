@@ -8,7 +8,7 @@ import { signIn } from './auth';
 
 const authFormSchema = z.object({
   email: z.string().email(),
-  password: z.string().min(6),
+  password: z.string().regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{10,}$/,"invalid password"),
 });
 
 export interface LoginActionState {
@@ -59,6 +59,7 @@ export const register = async (
     const validatedData = authFormSchema.parse({
       email: formData.get('email'),
       password: formData.get('password'),
+      verifiedPassword: formData.get('verified-password'),
     });
 
     const [user] = await getUser(validatedData.email);
@@ -66,16 +67,20 @@ export const register = async (
     if (user) {
       return { status: 'user_exists' } as RegisterActionState;
     }
+    if (validatedData.password !== validatedData.verifiedPassword) {
+      return {status: 'unverified_password'} as RegisterActionState;
+    }
     await createUser(validatedData.email, validatedData.password);
-    await signIn('credentials', {
-      email: validatedData.email,
-      password: validatedData.password,
-      redirect: false,
-    });
 
     return { status: 'success' };
   } catch (error) {
     if (error instanceof z.ZodError) {
+      console.log(error.issues);
+      if (error.issues[0].message == "invalid password") {
+        return {
+          status: 'invalid_password'
+        };
+      }
       return { status: 'invalid_data' };
     }
 

@@ -52,6 +52,20 @@ export function AuthForm({
           type="password"
           required
         />
+
+        <Label
+          htmlFor="password"
+          className="text-zinc-600 font-normal dark:text-zinc-400"
+        >
+          Verify Password
+        </Label>
+        <Input
+          id="verify-password"
+          name="verify-password"
+          className="bg-muted text-md md:text-sm"
+          type="password"
+          required
+        />
       </div>
 
       {children}

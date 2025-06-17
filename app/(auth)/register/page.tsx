@@ -36,6 +36,16 @@ export default function Page() {
         type: 'error',
         description: 'Failed validating your submission!',
       });
+    } else if (state.status === 'invalid_password') {
+      toast({
+        type: 'error',
+        description: 'Your password must be a minimum of 10 characters, and contain an uppercase letter, a number and a special character',
+      });
+    } else if (state.status === 'unverified_password') {
+      toast({
+        type: 'error',
+        description: 'Your first and second password entries do not match',
+      });
     } else if (state.status === 'success') {
       toast({ type: 'success', description: 'Account created successfully! You will recieve a verification email shortly.' });
 
