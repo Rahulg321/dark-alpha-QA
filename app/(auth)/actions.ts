@@ -2,7 +2,7 @@
 
 import { z } from 'zod';
 
-import { createUser, getUser, verifyUser, notUserVerified } from '@/lib/db/queries';
+import { createUser, getUser, verifyUser, notUserVerified, generateVerificationToken} from '@/lib/db/queries';
 
 import { signIn } from './auth';
 
@@ -11,6 +11,11 @@ const authFormSchema = z.object({
   password: z.string().regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{10,}$/,"invalid password"),
   verifiedPassword: z.optional(z.string()),
 });
+
+const allowedDomains = [
+  "darkalphacapital.com",
+  "gmail.com"
+];
 
 export const verify = async (
   userId: string,
@@ -87,6 +92,10 @@ export const register = async (
     if (validatedData.password !== validatedData.verifiedPassword) {
       return {status: 'unverified_password'} as RegisterActionState;
     }
+    if (!allowedDomains.includes(validatedData.email.split('@').pop())) {
+      return {status: 'unallowed_domain'} as RegisterActionState;
+    }
+
     await createUser(validatedData.email, validatedData.password);
 
     return { status: 'success' };
@@ -102,5 +111,16 @@ export const register = async (
     }
 
     return { status: 'failed' };
+  }
+};
+
+export const newVerificationLink = async (
+  userEmail: string,
+): Promise<boolean> => {
+  try {
+    const [user] = await getUser(userEmail);
+    generateVerificationToken(userEmail, user.id);
+  } catch (error) {
+    console.log(error)
   }
 };

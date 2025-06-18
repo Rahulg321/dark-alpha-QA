@@ -615,15 +615,21 @@ export async function getCompanyNameById(companyId: string) {
 }
 
 export async function generateVerificationToken(userEmail: string, userId: string) {
-  console.log("Sending email")
   const [token] = await db.insert(verificationToken).values({}).returning();
-  resend.emails.send({
+  try {
+    const [oldToken] = await db.select({id: user.verificationTokenId}).from(user).where(eq(user.id, userId));
+    console.log(oldToken)
+    await db.delete(verificationToken).where(eq(verificationToken.id, oldToken.id));
+  } catch (error) {
+    const oldToken = null;
+  }
+  db.update(user).set({verificationTokenId: token.id}).where(eq(user.id, userId));
+  /**resend.emails.send({
     from: 'dark-alpha-capital@resend.dev',
     to: userEmail,
     subject: "Account Verificaiton",
     html: "<p>Thank you for creating an account. To verify it, please go to <a href=\"http://localhost:3000/verify?userId=" + userId + "&verificationToken=" + token.id + "\">this page</a>"
-  });
-  console.log("Sent email")
+  });*/
   return token;
 }
 
@@ -631,11 +637,8 @@ export async function createUser(email: string, password: string) {
   const hashedPassword = generateHashedPassword(password);
 
   try {
-    console.log("Here")
     const [newUser] = await db.insert(user).values({ email, password: hashedPassword}).returning();
-    console.log(newUser)
-    const token = await generateVerificationToken(email, newUser.id);
-    return await db.update(user).set({verificationTokenId: token.id}).where(eq(newUser.email, email));
+    return await generateVerificationToken(email, newUser.id);
   } catch (error) {
     console.log(error)
     throw new ChatSDKError("bad_request:database", "Failed to create user");
