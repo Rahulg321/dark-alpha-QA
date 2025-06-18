@@ -35,6 +35,7 @@ import { ResourceCategory } from "@/lib/db/schema";
 const newResourceFormSchema = z.object({
   name: z.string().min(1),
   description: z.string().min(1),
+  categoryId: z.string().min(1),
 });
 
 const NewResourceForm = ({
@@ -48,13 +49,13 @@ const NewResourceForm = ({
   const [file, setFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [categoryId, setCategoryId] = useState<string | null>(null);
 
   const form = useForm<z.infer<typeof newResourceFormSchema>>({
     resolver: zodResolver(newResourceFormSchema),
     defaultValues: {
       name: "",
       description: "",
+      categoryId: "",
     },
   });
 
@@ -113,7 +114,7 @@ const NewResourceForm = ({
       formData.append("name", values.name);
       formData.append("description", values.description);
       formData.append("companyId", companyId);
-      formData.append("categoryId", categoryId);
+      formData.append("categoryId", values.categoryId);
 
       const response = await axios.post("/api/add-resource", formData);
       if (response.status !== 200) {
@@ -169,8 +170,9 @@ const NewResourceForm = ({
                   <FormLabel>Category</FormLabel>
                   <FormControl>
                     <Select
-                      {...field}
-                      onValueChange={(value) => setCategoryId(value)}
+                      value={field.value}
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Select a category" />
