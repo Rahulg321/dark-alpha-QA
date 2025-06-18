@@ -48,6 +48,7 @@ const NewResourceForm = ({
   const [file, setFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [categoryId, setCategoryId] = useState<string | null>(null);
 
   const form = useForm<z.infer<typeof newResourceFormSchema>>({
     resolver: zodResolver(newResourceFormSchema),
@@ -112,13 +113,12 @@ const NewResourceForm = ({
       formData.append("name", values.name);
       formData.append("description", values.description);
       formData.append("companyId", companyId);
-      formData.append("categoryId", values.categoryId);
+      formData.append("categoryId", categoryId);
 
       const response = await axios.post("/api/add-resource", formData);
       if (response.status !== 200) {
         throw new Error("Failed to process file");
       }
-     
 
       toast.success("Successful!!", {
         description: `${values.name} created successfully`,
@@ -129,7 +129,7 @@ const NewResourceForm = ({
           },
         },
       });
-    
+
       form.reset();
       setFile(null);
       setError(null);
@@ -168,7 +168,10 @@ const NewResourceForm = ({
                 <FormItem>
                   <FormLabel>Category</FormLabel>
                   <FormControl>
-                    <Select {...field}>
+                    <Select
+                      {...field}
+                      onValueChange={(value) => setCategoryId(value)}
+                    >
                       <SelectTrigger>
                         <SelectValue placeholder="Select a category" />
                       </SelectTrigger>
