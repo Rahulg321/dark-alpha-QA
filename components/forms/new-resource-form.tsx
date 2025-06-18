@@ -35,7 +35,6 @@ import { ResourceCategory } from "@/lib/db/schema";
 const newResourceFormSchema = z.object({
   name: z.string().min(1),
   description: z.string().min(1),
-  categoryId: z.string().min(1),
 });
 
 const NewResourceForm = ({
@@ -55,7 +54,6 @@ const NewResourceForm = ({
     defaultValues: {
       name: "",
       description: "",
-      categoryId: "",
     },
   });
 
@@ -120,6 +118,8 @@ const NewResourceForm = ({
       if (response.status !== 200) {
         throw new Error("Failed to process file");
       }
+     
+
       toast.success("Successful!!", {
         description: `${values.name} created successfully`,
         action: {
@@ -129,6 +129,7 @@ const NewResourceForm = ({
           },
         },
       });
+    
       form.reset();
       setFile(null);
       setError(null);
