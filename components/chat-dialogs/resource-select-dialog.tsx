@@ -48,7 +48,7 @@ export default function ResourceSelectDialog({
     if (!open) {
       setSelectedCompany(null);
     }
-  }, [open, setSelectedResources]);
+  }, [open]);
 
   const handleResourceSelect = (resource: {
     id: string;
@@ -56,7 +56,7 @@ export default function ResourceSelectDialog({
     createdAt: Date;
   }) => {
     setSelectedResources((prev) =>
-      prev.includes(resource)
+      prev.find((r) => r.id === resource.id)
         ? prev.filter((r) => r.id !== resource.id)
         : [...prev, resource]
     );
@@ -205,7 +205,11 @@ function DisplayResourcesScreen({
                 <ResourceCard
                   key={resource.id}
                   resource={resource}
-                  isSelected={selectedResources.includes(resource)}
+                  isSelected={
+                    selectedResources.find((r) => r.id === resource.id)
+                      ? true
+                      : false
+                  }
                   onSelect={onResourceSelect}
                 />
               ))
@@ -256,7 +260,12 @@ function ResourceCard({
       className="flex items-center gap-4 p-2 hover:bg-accent rounded-md cursor-pointer"
       onClick={() => onSelect(resource)}
     >
-      <Checkbox checked={isSelected} id={resource.id} className="size-5" />
+      <Checkbox
+        checked={isSelected}
+        id={resource.id}
+        className="size-5"
+        onCheckedChange={() => onSelect(resource)}
+      />
       <div className="grid gap-1.5">
         <p className="text-sm font-medium leading-none">{resource.name}</p>
         <p className="text-xs text-muted-foreground">

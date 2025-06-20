@@ -189,12 +189,44 @@ const PurePreviewMessage = ({
                             <div className="text-primary">
                               <SparklesIcon size={16} />
                             </div>
-                            <h4 className="font-medium">
-                              Knowledge Base Results
-                            </h4>
+                            <h5 className="font-medium">
+                              Searching Knowledge Base
+                            </h5>
                           </div>
-                          <div className="space-y-2">
-                            <p>Fetching from knowledge base...</p>
+                          <div className="space-y-3">
+                            <div className="flex items-center gap-2">
+                              <div className="animate-spin rounded-full size-4 border-2 border-primary border-t-transparent"></div>
+                              <p className="text-sm text-muted-foreground">
+                                Searching knowledge base...
+                              </p>
+                            </div>
+                            <div className="space-y-2">
+                              <div className="h-3 bg-muted rounded animate-pulse"></div>
+                              <div className="h-3 bg-muted rounded animate-pulse w-3/4"></div>
+                              <div className="h-3 bg-muted rounded animate-pulse w-1/2"></div>
+                            </div>
+                          </div>
+                        </div>
+                      ) : toolName === "getResourcesInformation" ? (
+                        <div className="flex flex-col gap-3 p-4 rounded-lg border bg-card">
+                          <div className="flex items-center gap-2">
+                            <div className="text-primary">
+                              <SparklesIcon size={16} />
+                            </div>
+                            <h5 className="font-medium">Searching Resources</h5>
+                          </div>
+                          <div className="space-y-3">
+                            <div className="flex items-center gap-2">
+                              <div className="animate-spin rounded-full size-4 border-2 border-primary border-t-transparent"></div>
+                              <p className="text-sm text-muted-foreground">
+                                Searching resources...
+                              </p>
+                            </div>
+                            <div className="space-y-2">
+                              <div className="h-3 bg-muted rounded animate-pulse"></div>
+                              <div className="h-3 bg-muted rounded animate-pulse w-3/4"></div>
+                              <div className="h-3 bg-muted rounded animate-pulse w-1/2"></div>
+                            </div>
                           </div>
                         </div>
                       ) : null}
@@ -232,9 +264,9 @@ const PurePreviewMessage = ({
                             <div className="text-primary">
                               <SparklesIcon size={16} />
                             </div>
-                            <h4 className="font-medium">
+                            <h5 className="font-medium">
                               Knowledge Base Results
-                            </h4>
+                            </h5>
                           </div>
                           <div className="space-y-2">
                             {Array.isArray(result) && result.length > 0 ? (
@@ -259,6 +291,60 @@ const PurePreviewMessage = ({
                             ) : (
                               <p className="text-sm text-muted-foreground">
                                 No results found
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      ) : toolName === "getResourcesInformation" ? (
+                        <div className="flex flex-col gap-3 p-4 rounded-lg border bg-card">
+                          <div className="flex items-center gap-2">
+                            <div className="text-primary">
+                              <SparklesIcon size={16} />
+                            </div>
+                            <h5 className="font-medium">Resources Results</h5>
+                          </div>
+                          <div className="space-y-2">
+                            {result.message && (
+                              <p className="text-sm text-muted-foreground">
+                                {result.message}
+                              </p>
+                            )}
+                            {result.results &&
+                            Array.isArray(result.results) &&
+                            result.results.length > 0 ? (
+                              result.results.map(
+                                (
+                                  item: {
+                                    resourceId: string;
+                                    name: string;
+                                    content: string;
+                                    similarity: number;
+                                  },
+                                  index: number
+                                ) => (
+                                  <div
+                                    key={index}
+                                    className="flex flex-col gap-2 p-3 rounded-md bg-muted/50"
+                                  >
+                                    <div className="flex items-center justify-between">
+                                      <span className="text-sm font-medium">
+                                        {item.name}
+                                      </span>
+                                      <span className="text-xs px-2 py-1 rounded-full bg-primary/10 text-primary">
+                                        {Math.round(item.similarity * 100)}%
+                                        match
+                                      </span>
+                                    </div>
+                                    <span className="text-sm text-muted-foreground whitespace-pre-wrap">
+                                      {item.content}
+                                    </span>
+                                  </div>
+                                )
+                              )
+                            ) : (
+                              <p className="text-sm text-muted-foreground">
+                                No relevant content found in the selected
+                                resources.
                               </p>
                             )}
                           </div>

@@ -16,13 +16,7 @@ import {
 import { toast } from "sonner";
 import { useLocalStorage, useWindowSize } from "usehooks-ts";
 
-import {
-  ArrowUpIcon,
-  PaperclipIcon,
-  StopIcon,
-  PlusIcon,
-  ThumbUpIcon,
-} from "./icons";
+import { ArrowUpIcon, PaperclipIcon, StopIcon } from "./icons";
 import { PreviewAttachment } from "./preview-attachment";
 import { Button } from "./ui/button";
 import { Textarea } from "./ui/textarea";
@@ -33,16 +27,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { ArrowDown } from "lucide-react";
 import { useScrollToBottom } from "@/hooks/use-scroll-to-bottom";
 import type { VisibilityType } from "./visibility-selector";
-import {
-  Dialog,
-  DialogTrigger,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-  DialogClose,
-} from "./ui/dialog";
+
 import ResourceSelectDialog from "./chat-dialogs/resource-select-dialog";
 import SelectedResourceDialog from "./chat-dialogs/selected-resource-dialog";
 
@@ -60,6 +45,8 @@ function PureMultimodalInput({
   handleSubmit,
   className,
   selectedVisibilityType,
+  selectedResources,
+  setSelectedResources,
 }: {
   chatId: string;
   input: UseChatHelpers["input"];
@@ -74,11 +61,11 @@ function PureMultimodalInput({
   handleSubmit: UseChatHelpers["handleSubmit"];
   className?: string;
   selectedVisibilityType: VisibilityType;
+  selectedResources: { id: string; name: string; createdAt: Date }[];
+  setSelectedResources: Dispatch<
+    SetStateAction<{ id: string; name: string; createdAt: Date }[]>
+  >;
 }) {
-  const [selectedResources, setSelectedResources] = useState<
-    { id: string; name: string; createdAt: Date }[]
-  >([]);
-
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { width } = useWindowSize();
 
@@ -138,6 +125,9 @@ function PureMultimodalInput({
 
     handleSubmit(undefined, {
       experimental_attachments: attachments,
+      body: {
+        selectedResources,
+      },
     });
 
     setAttachments([]);
@@ -154,6 +144,7 @@ function PureMultimodalInput({
     setLocalStorageInput,
     width,
     chatId,
+    selectedResources,
   ]);
 
   const uploadFile = async (file: File) => {
@@ -355,6 +346,8 @@ export const MultimodalInput = memo(
     if (prevProps.status !== nextProps.status) return false;
     if (!equal(prevProps.attachments, nextProps.attachments)) return false;
     if (prevProps.selectedVisibilityType !== nextProps.selectedVisibilityType)
+      return false;
+    if (!equal(prevProps.selectedResources, nextProps.selectedResources))
       return false;
 
     return true;

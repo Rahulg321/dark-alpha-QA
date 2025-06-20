@@ -8,6 +8,27 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+export function cosineSimilarity(a: number[], b: number[]) {
+  if (
+    !Array.isArray(a) ||
+    !Array.isArray(b) ||
+    a.length !== b.length ||
+    a.length === 0
+  )
+    return 0;
+  let dot = 0,
+    magA = 0,
+    magB = 0;
+  for (let i = 0; i < a.length; i++) {
+    if (typeof a[i] !== "number" || typeof b[i] !== "number") return 0;
+    dot += a[i]! * b[i]!;
+    magA += a[i]! * a[i]!;
+    magB += b[i]! * b[i]!;
+  }
+  if (magA === 0 || magB === 0) return 0;
+  return dot / (Math.sqrt(magA) * Math.sqrt(magB));
+}
+
 export const swrFetcher = (...args: Parameters<typeof fetch>) =>
   fetch(...args).then((res) => res.json());
 

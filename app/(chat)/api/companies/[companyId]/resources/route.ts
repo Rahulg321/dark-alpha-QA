@@ -6,14 +6,15 @@ import { NextResponse } from "next/server";
 
 export async function GET(
   req: Request,
-  { params }: { params: { companyId: string } }
+  { params }: { params: Promise<{ companyId: string }> }
 ) {
   const session = await auth();
+
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const companyId = params.companyId;
+  const companyId = (await params).companyId;
 
   if (!companyId) {
     return NextResponse.json(
@@ -21,8 +22,6 @@ export async function GET(
       { status: 400 }
     );
   }
-
-  await new Promise((resolve) => setTimeout(resolve, 1000));
 
   try {
     const companyResources = await db

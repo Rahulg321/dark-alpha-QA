@@ -38,6 +38,9 @@ export function Chat({
   session: Session;
   autoResume: boolean;
 }) {
+  const [selectedResources, setSelectedResources] = useState<
+    { id: string; name: string; createdAt: Date }[]
+  >([]);
   const { mutate } = useSWRConfig();
 
   const { visibilityType } = useChatVisibility({
@@ -70,6 +73,7 @@ export function Chat({
       message: body.messages.at(-1),
       selectedChatModel: initialChatModel,
       selectedVisibilityType: visibilityType,
+      selectedResources,
     }),
     onFinish: () => {
       mutate(unstable_serialize(getChatHistoryPaginationKey));
@@ -154,6 +158,8 @@ export function Chat({
               setMessages={setMessages}
               append={append}
               selectedVisibilityType={visibilityType}
+              selectedResources={selectedResources}
+              setSelectedResources={setSelectedResources}
             />
           )}
         </form>
