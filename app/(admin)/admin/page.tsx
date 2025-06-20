@@ -3,6 +3,11 @@ import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Building2, Ticket, Mail, MessageSquare } from "lucide-react";
 
+export const metadata = {
+  title: "Admin Dashboard",
+  description: "Admin Dashboard",
+};
+
 const page = () => {
   return (
     <div className="min-h-screen bg-background">

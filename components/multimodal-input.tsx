@@ -43,6 +43,8 @@ import {
   DialogFooter,
   DialogClose,
 } from "./ui/dialog";
+import ResourceSelectDialog from "./chat-dialogs/resource-select-dialog";
+import SelectedResourceDialog from "./chat-dialogs/selected-resource-dialog";
 
 function PureMultimodalInput({
   chatId,
@@ -73,6 +75,10 @@ function PureMultimodalInput({
   className?: string;
   selectedVisibilityType: VisibilityType;
 }) {
+  const [selectedResources, setSelectedResources] = useState<
+    { id: string; name: string; createdAt: Date }[]
+  >([]);
+
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { width } = useWindowSize();
 
@@ -312,8 +318,18 @@ function PureMultimodalInput({
       <div className="absolute bottom-0 p-2 w-fit flex flex-row justify-start">
         <div className="flex flex-row gap-2 items-center mb-2">
           <AttachmentsButton fileInputRef={fileInputRef} status={status} />
-          <CompanySelectDialog />
-          <ResourceSelectDialog />
+          <div className="flex flex-row gap-2 items-center">
+            <ResourceSelectDialog
+              selectedResources={selectedResources}
+              setSelectedResources={setSelectedResources}
+            />
+            {selectedResources.length > 0 && (
+              <SelectedResourceDialog
+                selectedResources={selectedResources}
+                setSelectedResources={setSelectedResources}
+              />
+            )}
+          </div>
         </div>
       </div>
 
@@ -424,55 +440,3 @@ const SendButton = memo(PureSendButton, (prevProps, nextProps) => {
   if (prevProps.input !== nextProps.input) return false;
   return true;
 });
-
-// CompanySelectDialog component
-function CompanySelectDialog() {
-  return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button variant="ghost" size="icon" aria-label="Select Company">
-          <PlusIcon />
-        </Button>
-      </DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Select a Company</DialogTitle>
-          <DialogDescription>
-            This dialog will allow you to select a company. (UI placeholder)
-          </DialogDescription>
-        </DialogHeader>
-        <DialogFooter>
-          <DialogClose asChild>
-            <Button variant="secondary">Close</Button>
-          </DialogClose>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
-}
-
-// ResourceSelectDialog component
-function ResourceSelectDialog() {
-  return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button variant="ghost" size="icon" aria-label="Select Resource">
-          <ThumbUpIcon />
-        </Button>
-      </DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Select a Resource</DialogTitle>
-          <DialogDescription>
-            This dialog will allow you to select a resource. (UI placeholder)
-          </DialogDescription>
-        </DialogHeader>
-        <DialogFooter>
-          <DialogClose asChild>
-            <Button variant="secondary">Close</Button>
-          </DialogClose>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
-}
