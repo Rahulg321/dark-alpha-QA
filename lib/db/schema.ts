@@ -184,7 +184,7 @@ export const ticket = pgTable(
       .notNull()
       .default("low"),
     fromName: text("from_name").notNull(),
-    fromEmail: text("from_email").notNull(),
+    //fromEmail: text("from_email").notNull(),
     tags: text("tags").array().notNull(),
     description: text("description"),
     status: varchar("status", { enum: ["open", "closed"] })

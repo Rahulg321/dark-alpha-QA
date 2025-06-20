@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "Ticket" ADD COLUMN     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ALTER COLUMN "priority" SET DEFAULT 'medium';

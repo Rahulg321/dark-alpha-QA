@@ -1,0 +1,145 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String      @id @default(uuid())
+  chats       Chat[]
+  documents   Document[]
+  suggestions Suggestion[]
+}
+
+model Chat {
+  id       String      @id @default(uuid())
+  userId   String
+  user     User        @relation(fields: [userId], references: [id])
+  messages Message[]
+  votes    Vote[]
+  streams  Stream[]
+}
+
+model Message {
+  id     String @id @default(uuid())
+  chatId String
+  chat   Chat   @relation(fields: [chatId], references: [id])
+  votes  Vote[]
+}
+
+model Vote {
+  id        String  @id @default(uuid())
+  chatId    String
+  messageId String
+  chat      Chat    @relation(fields: [chatId], references: [id])
+  message   Message @relation(fields: [messageId], references: [id])
+}
+
+model Stream {
+  id     String @id @default(uuid())
+  chatId String
+  chat   Chat   @relation(fields: [chatId], references: [id])
+}
+
+model Document {
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+}
+
+model Suggestion {
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+}
+
+model Company {
+  id                    Int                    @id @default(autoincrement())
+  questions            CompanyQuestion[]
+  comparisonQuestions  ComparisonQuestion[]
+  resources            Resource[]
+}
+
+model CompanyQuestion {
+  id         Int      @id @default(autoincrement())
+  companyId  Int
+  company    Company  @relation(fields: [companyId], references: [id])
+  answers    Answer[]
+}
+
+model Answer {
+  id                  Int             @id @default(autoincrement())
+  companyQuestionId   Int
+  companyQuestion     CompanyQuestion @relation(fields: [companyQuestionId], references: [id])
+}
+
+model ComparisonQuestion {
+  id        Int     @id @default(autoincrement())
+  companyId Int
+  company   Company @relation(fields: [companyId], references: [id])
+}
+
+model ResourceCategory {
+  id        Int        @id @default(autoincrement())
+  name      String     @unique
+  resources Resource[]
+}
+
+model Resource {
+  id          Int              @id @default(autoincrement())
+  categoryId  Int
+  companyId   Int
+  category    ResourceCategory @relation(fields: [categoryId], references: [id])
+  company     Company         @relation(fields: [companyId], references: [id])
+  embeddings  Embedding[]
+}
+
+model Embedding {
+  id         Int      @id @default(autoincrement())
+  resourceId Int
+  embedding  String
+  resource   Resource @relation(fields: [resourceId], references: [id])
+
+  @@index([embedding])
+}
+
+model Ticket {
+  id          String   @id @default(uuid())
+  title       String
+  description String
+  priority    String   @default("medium")
+  status      String   @default("open")
+  type        String   @default("website")          // email | website
+  fromName    String   @map("from_name")            // <─ only ONE field here
+  createdBy   String?
+  createdAt   DateTime @default(now())
+
+  tags TicketTag[]
+
+  @@index([type])
+}
+
+
+model Tag {
+  id    Int     @id @default(autoincrement())
+  name  String  @unique                            // ← ensure unique
+  tickets TicketTag[]
+}
+
+model TicketTag {
+  ticketId String                                  // String if Ticket.id is String
+  tagId    Int
+  ticket   Ticket @relation(fields: [ticketId], references: [id])
+  tag      Tag    @relation(fields: [tagId],    references: [id])
+
+  @@id([ticketId, tagId])
+}
