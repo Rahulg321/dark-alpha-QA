@@ -16,13 +16,7 @@ import {
 import { toast } from "sonner";
 import { useLocalStorage, useWindowSize } from "usehooks-ts";
 
-import {
-  ArrowUpIcon,
-  PaperclipIcon,
-  StopIcon,
-  PlusIcon,
-  ThumbUpIcon,
-} from "./icons";
+import { ArrowUpIcon, PaperclipIcon, StopIcon } from "./icons";
 import { PreviewAttachment } from "./preview-attachment";
 import { Button } from "./ui/button";
 import { Textarea } from "./ui/textarea";
@@ -33,16 +27,9 @@ import { AnimatePresence, motion } from "framer-motion";
 import { ArrowDown } from "lucide-react";
 import { useScrollToBottom } from "@/hooks/use-scroll-to-bottom";
 import type { VisibilityType } from "./visibility-selector";
-import {
-  Dialog,
-  DialogTrigger,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-  DialogClose,
-} from "./ui/dialog";
+
+import ResourceSelectDialog from "./chat-dialogs/resource-select-dialog";
+import SelectedResourceDialog from "./chat-dialogs/selected-resource-dialog";
 
 function PureMultimodalInput({
   chatId,
@@ -58,6 +45,8 @@ function PureMultimodalInput({
   handleSubmit,
   className,
   selectedVisibilityType,
+  selectedResources,
+  setSelectedResources,
 }: {
   chatId: string;
   input: UseChatHelpers["input"];
@@ -72,6 +61,10 @@ function PureMultimodalInput({
   handleSubmit: UseChatHelpers["handleSubmit"];
   className?: string;
   selectedVisibilityType: VisibilityType;
+  selectedResources: { id: string; name: string; createdAt: Date }[];
+  setSelectedResources: Dispatch<
+    SetStateAction<{ id: string; name: string; createdAt: Date }[]>
+  >;
 }) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { width } = useWindowSize();
@@ -132,6 +125,9 @@ function PureMultimodalInput({
 
     handleSubmit(undefined, {
       experimental_attachments: attachments,
+      body: {
+        selectedResources,
+      },
     });
 
     setAttachments([]);
@@ -148,6 +144,7 @@ function PureMultimodalInput({
     setLocalStorageInput,
     width,
     chatId,
+    selectedResources,
   ]);
 
   const uploadFile = async (file: File) => {
@@ -312,8 +309,18 @@ function PureMultimodalInput({
       <div className="absolute bottom-0 p-2 w-fit flex flex-row justify-start">
         <div className="flex flex-row gap-2 items-center mb-2">
           <AttachmentsButton fileInputRef={fileInputRef} status={status} />
-          <CompanySelectDialog />
-          <ResourceSelectDialog />
+          <div className="flex flex-row gap-2 items-center">
+            <ResourceSelectDialog
+              selectedResources={selectedResources}
+              setSelectedResources={setSelectedResources}
+            />
+            {selectedResources.length > 0 && (
+              <SelectedResourceDialog
+                selectedResources={selectedResources}
+                setSelectedResources={setSelectedResources}
+              />
+            )}
+          </div>
         </div>
       </div>
 
@@ -339,6 +346,8 @@ export const MultimodalInput = memo(
     if (prevProps.status !== nextProps.status) return false;
     if (!equal(prevProps.attachments, nextProps.attachments)) return false;
     if (prevProps.selectedVisibilityType !== nextProps.selectedVisibilityType)
+      return false;
+    if (!equal(prevProps.selectedResources, nextProps.selectedResources))
       return false;
 
     return true;
@@ -424,55 +433,3 @@ const SendButton = memo(PureSendButton, (prevProps, nextProps) => {
   if (prevProps.input !== nextProps.input) return false;
   return true;
 });
-
-// CompanySelectDialog component
-function CompanySelectDialog() {
-  return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button variant="ghost" size="icon" aria-label="Select Company">
-          <PlusIcon />
-        </Button>
-      </DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Select a Company</DialogTitle>
-          <DialogDescription>
-            This dialog will allow you to select a company. (UI placeholder)
-          </DialogDescription>
-        </DialogHeader>
-        <DialogFooter>
-          <DialogClose asChild>
-            <Button variant="secondary">Close</Button>
-          </DialogClose>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
-}
-
-// ResourceSelectDialog component
-function ResourceSelectDialog() {
-  return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button variant="ghost" size="icon" aria-label="Select Resource">
-          <ThumbUpIcon />
-        </Button>
-      </DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Select a Resource</DialogTitle>
-          <DialogDescription>
-            This dialog will allow you to select a resource. (UI placeholder)
-          </DialogDescription>
-        </DialogHeader>
-        <DialogFooter>
-          <DialogClose asChild>
-            <Button variant="secondary">Close</Button>
-          </DialogClose>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
-}

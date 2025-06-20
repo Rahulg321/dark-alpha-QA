@@ -48,6 +48,8 @@ export async function POST(request: NextRequest) {
     const fileType = file.type;
     const buffer = await file.arrayBuffer();
 
+    console.log("file type", fileType);
+
     let content: string = "";
     let sheets: Record<string, any[][]> | undefined;
     let chunks: any;
@@ -114,6 +116,8 @@ export async function POST(request: NextRequest) {
       fileType ===
         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     ) {
+      console.log("inside excel loader buffer", buffer);
+
       const excelLoader = new ExcelLoader();
       sheets = await excelLoader.loadExcelFromBuffer(buffer);
       kind = "excel";

@@ -1121,3 +1121,30 @@ export async function getStreamIdsByChatId({ chatId }: { chatId: string }) {
     );
   }
 }
+
+/**
+ * Get company resources by company id
+ * @param companyId - The id of the company
+ * @returns The company resources
+ */
+export async function getCompanyResources(companyId: string) {
+  try {
+    const companyResources = await db
+      .select({
+        id: resources.id,
+        name: resources.name,
+        description: resources.description,
+        kind: resources.kind,
+        createdAt: resources.createdAt,
+      })
+      .from(resources)
+      .where(eq(resources.companyId, companyId));
+    return companyResources;
+  } catch (error) {
+    console.log(
+      "An error occured trying to get company resources by company id",
+      error
+    );
+    return [];
+  }
+}

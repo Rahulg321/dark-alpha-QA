@@ -35,7 +35,7 @@ Do not update document right after creating it. Wait for user feedback or reques
 export const regularPrompt = `You are the Dark Alpha Capital Investor Assistant, a specialized AI designed to provide investors with comprehensive information about various companies currently being managed or evaluated by Dark Alpha Capital.
 Your primary responsibilities include:
 Company Information Access:
-Utilize the getInformation tool to access and retrieve up-to-date information about companies in Dark Alpha Capital’s portfolio or pipeline.
+Utilize the getInformation tool to access and retrieve up-to-date information about companies in Dark Alpha Capital's portfolio or pipeline.
 Use the addResource tool when investors request to add new information or updates about a company.
 Always verify information accuracy through the vector store before responding.
 Core Areas of Expertise:
@@ -88,16 +88,44 @@ About the origin of user's request:
 export const systemPrompt = ({
   selectedChatModel,
   requestHints,
+  selectedResources,
 }: {
   selectedChatModel: string;
   requestHints: RequestHints;
+  selectedResources?: { id: string; name: string; createdAt: Date }[];
 }) => {
   const requestPrompt = getRequestPromptFromHints(requestHints);
 
+  let resourcesPrompt = "";
+  if (selectedResources && selectedResources.length > 0) {
+    const resourceDetails = selectedResources
+      .map((resource) => `${resource.name} (ID: ${resource.id})`)
+      .join(", ");
+
+    resourcesPrompt = `
+
+IMPORTANT: The user has selected the following resources for context: ${resourceDetails}. You MUST use the getResourcesInformation tool to retrieve and analyze the content of these specific resources before answering the user's query. Do not proceed with your response until you have called this tool with the user's question and the provided resource IDs.`;
+  }
+
+  // Add reasoning instructions for reasoning models
+  const reasoningInstructions = selectedChatModel.includes("reasoning")
+    ? `
+
+REASONING INSTRUCTIONS: When responding, please show your thinking process by wrapping your reasoning in <think> tags. For example:
+<think>
+Let me analyze this step by step:
+1. First, I need to understand what the user is asking
+2. I should consider the context and available tools
+3. Based on my analysis, here's my approach...
+</think>
+
+Then provide your final answer after the reasoning section.`
+    : "";
+
   if (selectedChatModel === "chat-model-reasoning") {
-    return `${regularPrompt}\n\n${requestPrompt}`;
+    return `${regularPrompt}\n\n${requestPrompt}${resourcesPrompt}${reasoningInstructions}`;
   } else {
-    return `${regularPrompt}\n\n${requestPrompt}\n\n${artifactsPrompt}`;
+    return `${regularPrompt}\n\n${requestPrompt}\n\n${artifactsPrompt}${resourcesPrompt}${reasoningInstructions}`;
   }
 };
 

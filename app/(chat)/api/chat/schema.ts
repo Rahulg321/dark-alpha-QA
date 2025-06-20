@@ -30,6 +30,15 @@ export const postRequestBodySchema = z.object({
     "gemini-reasoning",
   ]),
   selectedVisibilityType: z.enum(["public", "private"]),
+  selectedResources: z
+    .array(
+      z.object({
+        id: z.string(),
+        name: z.string(),
+        createdAt: z.coerce.date(),
+      })
+    )
+    .optional(),
 });
 
 export type PostRequestBody = z.infer<typeof postRequestBodySchema>;

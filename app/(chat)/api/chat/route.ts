@@ -39,6 +39,7 @@ import { differenceInSeconds } from "date-fns";
 import { ChatSDKError } from "@/lib/errors";
 import { addResource } from "@/lib/ai/tools/add-resource";
 import { getInformation } from "@/lib/ai/tools/get-information";
+import { getResourcesInformation } from "@/lib/ai/tools/get-resources-information";
 
 export const maxDuration = 60;
 
@@ -76,14 +77,23 @@ export async function POST(request: Request) {
   }
 
   try {
-    const { id, message, selectedChatModel, selectedVisibilityType } =
-      requestBody;
-
+    const {
+      id,
+      message,
+      selectedChatModel,
+      selectedVisibilityType,
+      selectedResources,
+    } = requestBody;
     const session = await auth();
 
     if (!session?.user) {
       return new ChatSDKError("unauthorized:chat").toResponse();
     }
+
+    console.log(
+      "selectedResources recieved inside chat route",
+      selectedResources
+    );
 
     const userType: UserType = session.user.type;
 
@@ -148,32 +158,33 @@ export async function POST(request: Request) {
     const streamId = generateUUID();
     await createStreamId({ streamId, chatId: id });
 
-    console.log("selectedChatModel", selectedChatModel);
-
     const stream = createDataStream({
       execute: (dataStream) => {
         const result = streamText({
           model: myProvider.languageModel(selectedChatModel),
-          system: systemPrompt({ selectedChatModel, requestHints }),
+          system: systemPrompt({
+            selectedChatModel,
+            requestHints,
+            selectedResources,
+          }),
           messages,
           maxSteps: 10,
-          experimental_activeTools:
-            selectedChatModel === "chat-model-reasoning"
-              ? []
-              : [
-                  "getWeather",
-                  "addResource",
-                  "getInformation",
-                  "createDocument",
-                  "updateDocument",
-                  "requestSuggestions",
-                  // 'darkAlphaOps',
-                ],
+          experimental_activeTools: [
+            "getWeather",
+            "addResource",
+            "getInformation",
+            "createDocument",
+            "updateDocument",
+            "requestSuggestions",
+            "getResourcesInformation",
+            // 'darkAlphaOps',
+          ],
           experimental_transform: smoothStream({ chunking: "word" }),
           experimental_generateMessageId: generateUUID,
           tools: {
             getWeather,
             // darkAlphaOps,
+            getResourcesInformation,
             addResource,
             getInformation,
             createDocument: createDocument({ session, dataStream }),

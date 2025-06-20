@@ -120,6 +120,7 @@ const NewResourceForm = ({
       if (response.status !== 200) {
         throw new Error("Failed to process file");
       }
+
       toast.success("Successful!!", {
         description: `${values.name} created successfully`,
         action: {
@@ -129,6 +130,7 @@ const NewResourceForm = ({
           },
         },
       });
+
       form.reset();
       setFile(null);
       setError(null);
@@ -167,7 +169,11 @@ const NewResourceForm = ({
                 <FormItem>
                   <FormLabel>Category</FormLabel>
                   <FormControl>
-                    <Select {...field}>
+                    <Select
+                      value={field.value}
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
                       <SelectTrigger>
                         <SelectValue placeholder="Select a category" />
                       </SelectTrigger>
