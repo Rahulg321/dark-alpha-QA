@@ -45,8 +45,8 @@ function PureMultimodalInput({
   handleSubmit,
   className,
   selectedVisibilityType,
-  selectedResources,
-  setSelectedResources,
+  selectedResources = [],
+  setSelectedResources = () => {},
 }: {
   chatId: string;
   input: UseChatHelpers["input"];
@@ -61,8 +61,8 @@ function PureMultimodalInput({
   handleSubmit: UseChatHelpers["handleSubmit"];
   className?: string;
   selectedVisibilityType: VisibilityType;
-  selectedResources: { id: string; name: string; createdAt: Date }[];
-  setSelectedResources: Dispatch<
+  selectedResources?: { id: string; name: string; createdAt: Date }[];
+  setSelectedResources?: Dispatch<
     SetStateAction<{ id: string; name: string; createdAt: Date }[]>
   >;
 }) {
@@ -126,7 +126,7 @@ function PureMultimodalInput({
     handleSubmit(undefined, {
       experimental_attachments: attachments,
       body: {
-        selectedResources,
+        selectedResources: selectedResources || [],
       },
     });
 
@@ -311,13 +311,13 @@ function PureMultimodalInput({
           <AttachmentsButton fileInputRef={fileInputRef} status={status} />
           <div className="flex flex-row gap-2 items-center">
             <ResourceSelectDialog
-              selectedResources={selectedResources}
-              setSelectedResources={setSelectedResources}
+              selectedResources={selectedResources || []}
+              setSelectedResources={setSelectedResources || (() => {})}
             />
-            {selectedResources.length > 0 && (
+            {selectedResources && selectedResources.length > 0 && (
               <SelectedResourceDialog
                 selectedResources={selectedResources}
-                setSelectedResources={setSelectedResources}
+                setSelectedResources={setSelectedResources || (() => {})}
               />
             )}
           </div>
