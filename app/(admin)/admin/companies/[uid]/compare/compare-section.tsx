@@ -101,6 +101,7 @@ export default function CompareSection({
               "Content-Type": "application/json",
               Authorization: `Bearer ${session?.accessToken}`,
             },
+
             body: JSON.stringify({
               prompt: finalPrompt,
             }),

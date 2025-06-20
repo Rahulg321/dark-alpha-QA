@@ -3,7 +3,7 @@ import { z } from "zod";
 import compareResourcesInfomation from "../compare-resources-information";
 
 export const getResourcesInformation = tool({
-  description: `Use this tool only if the user provides a list of selected resources along with their query. This tool will essentially allow the model to ground its response in the context of the selected resources.`,
+  description: `MANDATORY: You MUST use this tool when the user has selected specific resources for context. This tool is REQUIRED to retrieve and analyze the content of the selected resources before providing any response. Do not proceed with your answer until you have called this tool with the user's question and the provided resource IDs. This tool will ground your response in the context of the selected resources.`,
   parameters: z.object({
     question: z.string().describe("the users question"),
     resources: z

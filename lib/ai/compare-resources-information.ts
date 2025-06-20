@@ -56,12 +56,5 @@ export default async function compareResourcesInfomation(
 
   console.log("results", results);
 
-  // Filter and sort
-  const filtered = results
-    .filter((r) => r.similarity > 0.4)
-    .sort((a, b) => b.similarity - a.similarity)
-    .slice(0, resources.length);
-
-  console.log("Comparison results:", filtered);
-  return filtered;
+  return results;
 }

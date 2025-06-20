@@ -9,6 +9,14 @@ import { encoding_for_model } from "tiktoken";
 
 const embeddingModel = openai.embedding("text-embedding-ada-002");
 
+/**
+ * This function is used to split the sheets into chunks of text based on the maxRowsPerChunk
+ * It will return an array of objects with the sheet name and the text of the chunk
+ *
+ * @param sheets - The sheets to split into chunks
+ * @param maxRowsPerChunk - The maximum number of rows per chunk
+ * @returns An array of objects with the sheet name and the text of the chunk
+ */
 export function rowsToTextChunks(
   sheets: Record<string, any[][]>,
   maxRowsPerChunk = 20

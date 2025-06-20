@@ -7,12 +7,20 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft } from "lucide-react";
 import NewResourceForm from "@/components/forms/new-resource-form";
 import { getAllResourceCategories, getCompanyNameById } from "@/lib/db/queries";
+import { auth } from "@/app/(auth)/auth";
+import { redirect } from "next/navigation";
 
 export default async function NewResource({
   params,
 }: {
   params: Promise<{ uid: string }>;
 }) {
+  const userSession = await auth();
+
+  if (!userSession) {
+    redirect("/login");
+  }
+
   const { uid } = await params;
   const company = await getCompanyNameById(uid);
   const resourceCategories = await getAllResourceCategories();
@@ -38,6 +46,7 @@ export default async function NewResource({
             <NewResourceForm
               companyId={uid}
               resourceCategories={resourceCategories}
+              session={userSession}
             />
           </CardContent>
         </Card>

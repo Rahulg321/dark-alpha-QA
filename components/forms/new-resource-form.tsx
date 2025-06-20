@@ -16,7 +16,7 @@ import { toast } from "sonner";
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, FileText, Upload } from "lucide-react";
+import { Loader2, FileText } from "lucide-react";
 import axios from "axios";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -31,6 +31,7 @@ import {
   SelectValue,
 } from "../ui/select";
 import { ResourceCategory } from "@/lib/db/schema";
+import { Session } from "next-auth";
 
 const newResourceFormSchema = z.object({
   name: z.string().min(1),
@@ -41,9 +42,11 @@ const newResourceFormSchema = z.object({
 const NewResourceForm = ({
   companyId,
   resourceCategories,
+  session,
 }: {
   companyId: string;
   resourceCategories: ResourceCategory[];
+  session: Session;
 }) => {
   const router = useRouter();
   const [file, setFile] = useState<File | null>(null);
@@ -116,10 +119,24 @@ const NewResourceForm = ({
       formData.append("companyId", companyId);
       formData.append("categoryId", values.categoryId);
 
-      const response = await axios.post("/api/add-resource", formData);
-      if (response.status !== 200) {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/add-resource`,
+        {
+          method: "POST",
+          body: formData,
+          headers: {
+            Authorization: `Bearer ${session?.accessToken}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
         throw new Error("Failed to process file");
       }
+
+      console.log("response", response);
+
+      // Refresh the page to show updated data
 
       toast.success("Successful!!", {
         description: `${values.name} created successfully`,
@@ -131,12 +148,21 @@ const NewResourceForm = ({
         },
       });
 
+      router.refresh();
       form.reset();
       setFile(null);
       setError(null);
     } catch (err) {
-      toast.error("Failed to create resource. Please try again.");
-      setError("Failed to create resource. Please try again.");
+      toast.error(
+        err instanceof Error
+          ? err.message
+          : "Failed to create resource. Please try again."
+      );
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Failed to create resource. Please try again."
+      );
       console.error(err);
     } finally {
       setIsLoading(false);
@@ -221,7 +247,7 @@ const NewResourceForm = ({
               )}
               {file && !error && (
                 <p className="text-sm text-green-600 mt-1">
-                  <FileText className="inline mr-1 h-4 w-4" />
+                  <FileText className="inline mr-1 size-4" />
                   {file.name} ({(file.size / 1024).toFixed(2)} KB)
                 </p>
               )}
@@ -230,7 +256,7 @@ const NewResourceForm = ({
           <Button type="submit" disabled={isLoading} className="shrink-0">
             {isLoading ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <Loader2 className="mr-2 size-4 animate-spin" />
                 Processing
               </>
             ) : (
