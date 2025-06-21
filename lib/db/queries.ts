@@ -16,6 +16,8 @@ import {
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 
+import { Resend } from 'resend';
+
 import {
   user,
   chat,
@@ -34,6 +36,8 @@ import {
   companyQuestions,
   answers,
   resourceCategories,
+  verificationToken,
+  type verificationToken,
 } from "./schema";
 import type { ArtifactKind } from "@/components/artifact";
 import { generateUUID } from "../utils";
@@ -49,6 +53,7 @@ import { ResourcesWithoutContent } from "../types";
 // biome-ignore lint: Forbidden non-null assertion.
 const client = postgres(process.env.POSTGRES_URL!);
 export const db = drizzle(client);
+export const resend = new Resend(process.env.RESEND_API_KEY!);
 
 export async function getUser(email: string): Promise<Array<User>> {
   try {
@@ -543,6 +548,51 @@ export async function getAllTickets() {
 }
 
 /**
+ * Returns true if a user is not verified
+ * @param userEmail - the email of the user to Checks
+ * @returns true if the user is not verified, false if otherwise
+ */
+export async function notUserVerified(userEmail: string) {
+  try {
+    const [user] = await getUserByEmail(userEmail);
+    return !user.verified;
+  } catch (error) {
+    throw new ChatSDKError(
+      'bad_request:database',
+      "Failed to get user's verification"
+    );
+  }
+}
+
+/**
+ * Checks the timestamp of the user's verification token to confirm it is valid, and then verifies them
+ * @param userId - the id of the user
+ * @param verificationTokenId - the token used to verify the user
+ * @returns true if the user was verified, false if verification failed
+ */
+export async function verifyUser(userId: string, verificationTokenId: string) {
+  try {
+    const [ verifyingUser ] = await db.select().from(user).where(eq(user.id, userId));
+    const [ userVerificationToken ] = await db.select().from(verificationToken).where(eq(verificationToken.id, verifyingUser.verificationTokenId));
+
+    if (userVerificationToken.id == verifyingUser.verificationTokenId && userVerificationToken.id == verificationTokenId) {
+      await db.transaction(async (tx) => {
+        await tx.update(user).set({verified: true}).where(eq(user.id, userId));
+        await tx.delete(verificationToken).where(eq(verificationToken.id, verifyingUser.verificationTokenId));
+      });
+      return true;
+    } else {
+      return false;
+    }
+  } catch (error) {
+    throw new ChatSDKError(
+      "bad_request:database",
+      "Failed to verify user"
+    );
+  }
+}
+
+/**
  * Get the name of a company by id
  * @param companyId - The id of the company
  * @returns The name of the company
@@ -564,12 +614,33 @@ export async function getCompanyNameById(companyId: string) {
   }
 }
 
+export async function generateVerificationToken(userEmail: string, userId: string) {
+  const [token] = await db.insert(verificationToken).values({}).returning();
+  try {
+    const [oldToken] = await db.select({id: user.verificationTokenId}).from(user).where(eq(user.id, userId));
+    console.log(oldToken)
+    await db.delete(verificationToken).where(eq(verificationToken.id, oldToken.id));
+  } catch (error) {
+    const oldToken = null;
+  }
+  db.update(user).set({verificationTokenId: token.id}).where(eq(user.id, userId));
+  /**resend.emails.send({
+    from: 'dark-alpha-capital@resend.dev',
+    to: userEmail,
+    subject: "Account Verificaiton",
+    html: "<p>Thank you for creating an account. To verify it, please go to <a href=\"http://localhost:3000/verify?userId=" + userId + "&verificationToken=" + token.id + "\">this page</a>"
+  });*/
+  return token;
+}
+
 export async function createUser(email: string, password: string) {
   const hashedPassword = generateHashedPassword(password);
 
   try {
-    return await db.insert(user).values({ email, password: hashedPassword });
+    const [newUser] = await db.insert(user).values({ email, password: hashedPassword}).returning();
+    return await generateVerificationToken(email, newUser.id);
   } catch (error) {
+    console.log(error)
     throw new ChatSDKError("bad_request:database", "Failed to create user");
   }
 }

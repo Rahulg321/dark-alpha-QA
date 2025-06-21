@@ -11,6 +11,7 @@ import {
   boolean,
   index,
   vector,
+  sql,
 } from "drizzle-orm/pg-core";
 import { z } from "zod";
 import { createSelectSchema } from "drizzle-zod";
@@ -19,9 +20,18 @@ export const user = pgTable("User", {
   id: uuid("id").primaryKey().notNull().defaultRandom(),
   email: varchar("email", { length: 64 }).notNull(),
   password: varchar("password", { length: 64 }),
+  verified: boolean("verified").default(false),
+  verificationTokenId: uuid("verificationTokenId").references(() => verificationToken.id, {onDelete: 'set null'}),
 });
 
 export type User = InferSelectModel<typeof user>;
+
+export const verificationToken = pgTable("verificationToken", {
+  id: uuid("id").primaryKey().notNull().defaultRandom(),
+  createdAt: timestamp("createdAt").notNull().defaultNow(),
+});
+
+export type VerificationToken = InferSelectModel<typeof verificationToken>;
 
 export const chat = pgTable("Chat", {
   id: uuid("id").primaryKey().notNull().defaultRandom(),
