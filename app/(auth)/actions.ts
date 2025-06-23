@@ -1,6 +1,7 @@
 "use server";
 
 import { z } from "zod";
+import { AuthError } from "next-auth";
 
 import {
   createUser,
@@ -69,7 +70,15 @@ export const login = async (
       redirectTo: `${DEFAULT_LOGIN_REDIRECT}?login=success`,
     });
   } catch (error) {
-    return { status: "failed" };
+    if (error instanceof AuthError) {
+      switch (error.type) {
+        case "CredentialsSignin":
+          return { status: "failed" };
+        default:
+          throw error;
+      }
+    }
+    throw error;
   }
 
   // This part is unreachable because signIn with redirect throws an error.
