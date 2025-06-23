@@ -8,22 +8,27 @@ import { toast } from "@/components/toast";
 import { AuthForm } from "@/components/auth-form";
 import { SubmitButton } from "@/components/submit-button";
 
-import { login, type LoginActionState } from "../actions";
+import {
+  login,
+  ResetPasswordActionState,
+  resetPassword,
+  type LoginActionState,
+} from "../actions";
 import { useSession } from "next-auth/react";
 import SigninGoogle from "@/components/buttons/google-sign-in-button";
+import { ResetPasswordForm } from "@/components/forms/reset-password-form";
 
 export default function Page() {
   const router = useRouter();
-
   const [email, setEmail] = useState("");
   const [isSuccessful, setIsSuccessful] = useState(false);
 
-  const [state, formAction] = useActionState<LoginActionState, FormData>(
-    login,
-    {
-      status: "idle",
-    }
-  );
+  const [state, formAction] = useActionState<
+    ResetPasswordActionState,
+    FormData
+  >(resetPassword, {
+    status: "idle",
+  });
 
   const { update: updateSession } = useSession();
 
@@ -64,19 +69,23 @@ export default function Page() {
     <div className="flex h-dvh w-screen items-start pt-12 md:pt-0 md:items-center justify-center bg-background">
       <div className="w-full max-w-md overflow-hidden rounded-2xl flex flex-col gap-12">
         <div className="flex flex-col items-center justify-center gap-2 px-4 text-center sm:px-16">
-          <h3 className="text-xl font-semibold dark:text-zinc-50">Sign In</h3>
+          <h3 className="text-xl font-semibold dark:text-zinc-50">
+            Reset Password
+          </h3>
           <p className="text-sm text-gray-500 dark:text-zinc-400">
-            Use your email and password to sign in
+            Enter your email to reset your password
           </p>
         </div>
-        <AuthForm action={handleSubmit} defaultEmail={email}>
-          <SubmitButton isSuccessful={isSuccessful}>Sign in</SubmitButton>
+        <ResetPasswordForm action={handleSubmit}>
+          <SubmitButton isSuccessful={isSuccessful}>
+            Reset Password
+          </SubmitButton>
           <div className="mt-4 flex flex-col items-center justify-center gap-2 text-center text-sm text-gray-600 dark:text-zinc-400">
             <Link
-              href="/new-password"
+              href="/login"
               className="font-semibold text-gray-800 hover:underline dark:text-zinc-200"
             >
-              Forgot password?
+              Back to login
             </Link>
             <p>
               {"Don't have an account? "}
@@ -89,8 +98,7 @@ export default function Page() {
               {" for free."}
             </p>
           </div>
-        </AuthForm>
-        <SigninGoogle />
+        </ResetPasswordForm>
       </div>
     </div>
   );

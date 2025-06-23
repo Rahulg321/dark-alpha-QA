@@ -19,15 +19,7 @@ export default async function compareResourcesInfomation(
   userQuery: string,
   resources: { id: string; name: string }[]
 ) {
-  console.log("=== compareResourcesInfomation called ===");
-  console.log("User query:", userQuery);
-  console.log(
-    "Resources to search:",
-    resources.map((r) => ({ id: r.id, name: r.name }))
-  );
-
   if (!resources || resources.length === 0) {
-    console.log("No resources provided, returning empty results");
     return [];
   }
 
@@ -39,8 +31,6 @@ export default async function compareResourcesInfomation(
     const resourceIds = resources.map((r) => r.id);
     console.log("Resource IDs to search:", resourceIds);
 
-    // Fetch all embeddings for the specified resources
-    console.log("Fetching embeddings from database...");
     const embeddingRows = await db
       .select({
         resourceId: embeddingsTable.resourceId,
@@ -51,29 +41,17 @@ export default async function compareResourcesInfomation(
       .where(inArray(embeddingsTable.resourceId, resourceIds))
       .orderBy(embeddingsTable.resourceId, desc(embeddingsTable.id));
 
-    console.log("Found embeddings for resources:", embeddingRows.length);
-
     if (embeddingRows.length === 0) {
-      console.log("No embeddings found for the specified resources");
       return [];
     }
 
-    // Group embeddings by resource
     const embeddingsByResource = groupEmbeddingsByResource(embeddingRows);
-    console.log(
-      "Embeddings grouped by resource:",
-      Object.keys(embeddingsByResource).length
-    );
 
     let results: ComparisonResult[] = [];
 
     if (isCompleteRequest) {
-      // For complete requests, return ALL content from all resources
-      console.log("Processing complete request - returning all content");
       results = await processCompleteRequest(embeddingsByResource, resources);
     } else {
-      // For specific queries, use similarity-based search
-      console.log("Processing specific query - using similarity search");
       results = await processSimilarityRequest(
         userQuery,
         embeddingsByResource,
@@ -274,12 +252,21 @@ async function processSimilarityRequest(
   return results;
 }
 
+/**
+ * This function ensures that all requested resources are covered in the results.
+ * If a resource is missing, it will be added to the results with all its content.
+ * @param results - The results of the comparison.
+ * @param requestedResources - The resources that were requested.
+ * @param embeddingsByResource - The embeddings by resource.
+ * @returns The results with all requested resources covered.
+ */
 function ensureAllResourcesCovered(
   results: ComparisonResult[],
   requestedResources: { id: string; name: string }[],
   embeddingsByResource: Record<string, any[]>
 ): ComparisonResult[] {
   const coveredResourceIds = new Set(results.map((r) => r.resourceId));
+
   const missingResources = requestedResources.filter(
     (r) => !coveredResourceIds.has(r.id)
   );
@@ -287,12 +274,6 @@ function ensureAllResourcesCovered(
   if (missingResources.length === 0) {
     return results;
   }
-
-  console.log(
-    `Adding missing resources: ${missingResources
-      .map((r) => r.name)
-      .join(", ")}`
-  );
 
   // Add missing resources with all their content
   for (const missingResource of missingResources) {
@@ -306,13 +287,9 @@ function ensureAllResourcesCovered(
         resourceId: missingResource.id,
         name: missingResource.name,
         content: combinedContent,
-        similarity: 0.5, // Default similarity for fallback
-        isComplete: true, // Mark as complete since we're including all content
+        similarity: 0.5,
+        isComplete: true,
       });
-
-      console.log(
-        `Added fallback content for ${missingResource.name} (${combinedContent.length} chars)`
-      );
     }
   }
 

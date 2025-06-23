@@ -15,66 +15,59 @@ interface TicketCardProps {
 }
 
 export function TicketCard({ ticket }: TicketCardProps) {
-  const getStatusIcon = () => {
+  const getStatusProps = () => {
     switch (ticket.status) {
       case "open":
-        return <AlertCircle className="h-4 w-4" />;
+        return {
+          icon: <AlertCircle className="h-3 w-3" />,
+          text: "Open",
+          className:
+            "text-blue-800 bg-blue-100 hover:bg-blue-100 dark:text-blue-300 dark:bg-blue-900",
+        };
       case "closed":
-        return <CheckCircle className="h-4 w-4" />;
-      default:
-        return null;
+        return {
+          icon: <CheckCircle className="h-3 w-3" />,
+          text: "Closed",
+          className:
+            "text-green-800 bg-green-100 hover:bg-green-100 dark:text-green-300 dark:bg-green-900",
+        };
     }
   };
 
-  const getStatusColor = () => {
-    switch (ticket.status) {
-      case "open":
-        return "bg-red-100 text-red-800 hover:bg-red-100";
-      case "closed":
-        return "bg-yellow-100 text-yellow-800 hover:bg-yellow-100";
-      default:
-        return "";
-    }
-  };
-
-  const formatDate = (date: Date) => {
-    return date.toLocaleString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      hour: "numeric",
-      minute: "numeric",
-    });
-  };
+  const statusProps = getStatusProps();
 
   return (
-    <Link href={`/tickets/${ticket.id}`}>
-      <Card className="overflow-hidden transition-all hover:shadow-md">
-        <CardHeader className="p-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-            <div className="flex items-center gap-2">
-              <h4 className="font-semibold">{ticket.title}</h4>
-            </div>
-            <div className="flex flex-wrap items-center gap-2">
-              <Badge variant="outline" className={getStatusColor()}>
-                <span className="flex items-center gap-1">
-                  {getStatusIcon()}
-                  {ticket.status.charAt(0).toUpperCase() +
-                    ticket.status.slice(1).replace("-", " ")}
-                </span>
-              </Badge>
-            </div>
+    <Link href={`/tickets/${ticket.id}`} className="block h-full">
+      <Card className="flex flex-col h-full transition-all hover:shadow-lg">
+        <CardHeader>
+          <div className="flex justify-between items-start gap-4">
+            <h3 className="font-semibold text-base line-clamp-2">
+              {ticket.title}
+            </h3>
+            <Badge
+              variant="secondary"
+              className={`shrink-0 ${statusProps.className}`}
+            >
+              <div className="flex items-center gap-1.5">
+                {statusProps.icon}
+                <span className="font-medium text-xs">{statusProps.text}</span>
+              </div>
+            </Badge>
           </div>
         </CardHeader>
-        <CardContent className="p-4">
-          <p className="text-gray-700">{ticket.description}</p>
+        <CardContent className="flex-grow">
+          <p className="text-sm text-muted-foreground line-clamp-3">
+            {ticket.description}
+          </p>
         </CardContent>
-        <CardFooter className="border-t bg-gray-50 px-4 py-2 text-sm text-muted-foreground">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between w-full">
-            <div>Submitted: {formatDate(ticket.createdAt)}</div>
-            <div>
-              {formatDistanceToNow(ticket.createdAt, { addSuffix: true })}
-            </div>
+        <CardFooter className="text-xs text-muted-foreground">
+          <div className="flex items-center gap-1">
+            <Clock className="h-3 w-3" />
+            <span>
+              {formatDistanceToNow(new Date(ticket.createdAt), {
+                addSuffix: true,
+              })}
+            </span>
           </div>
         </CardFooter>
       </Card>

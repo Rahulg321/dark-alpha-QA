@@ -22,13 +22,8 @@ Do not proceed with your answer until you have called this tool with the user's 
       .describe("the resources selected and provided by the user"),
   }),
   execute: async ({ question, resources }) => {
-    console.log("=== getResourcesInformation tool called ===");
-    console.log("Question:", question);
-    console.log("Resources:", resources);
-
     try {
       const results = await compareResourcesInfomation(question, resources);
-      console.log("Tool execution completed. Results:", results);
 
       if (!results || results.length === 0) {
         return {

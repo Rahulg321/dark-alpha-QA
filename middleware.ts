@@ -1,60 +1,38 @@
-import { NextResponse, type NextRequest } from "next/server";
-import { getToken } from "next-auth/jwt";
-import { isDevelopmentEnvironment } from "./lib/constants";
+import NextAuth from "next-auth";
+import { authConfig } from "./app/(auth)/auth.config";
+import {
+  DEFAULT_LOGIN_REDIRECT,
+  AUTH_ROUTES,
+  PUBLIC_ROUTES,
+  PROTECTED_BASE_ROUTES,
+} from "./routes";
 
-export async function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
+const { auth } = NextAuth(authConfig);
 
-  // Allow public routes and API routes to pass through
-  if (
-    pathname.startsWith("/ping") ||
-    pathname.startsWith("/api/auth") ||
-    pathname.startsWith("/api/scrape-email") ||
-    pathname.startsWith("/api/chat") ||
-    pathname.startsWith("/_next") ||
-    pathname.startsWith("/static") ||
-    pathname.includes(".") // This will allow static files
-  ) {
-    return NextResponse.next();
+export default auth((req) => {
+  const { nextUrl } = req;
+
+  const isLoggedIn = !!req.auth;
+
+  const isProtectedRoute = PROTECTED_BASE_ROUTES.some((route) =>
+    nextUrl.pathname.startsWith(route)
+  );
+  const isPublicRoute = PUBLIC_ROUTES.includes(nextUrl.pathname);
+  const isAuthRoute = AUTH_ROUTES.includes(nextUrl.pathname);
+
+  if (isProtectedRoute && !isLoggedIn) {
+    return Response.redirect(new URL("/login", nextUrl));
   }
 
-  const token = await getToken({
-    req: request,
-    secret: process.env.AUTH_SECRET,
-    secureCookie: !isDevelopmentEnvironment,
-  });
-
-  // Handle auth pages
-  if (["/login", "/register"].includes(pathname)) {
-    if (token) {
-      // If user is authenticated, redirect to home
-      return NextResponse.redirect(new URL("/", request.url));
-    }
-    // If not authenticated, allow access to auth pages
-    return NextResponse.next();
+  if (isAuthRoute && isLoggedIn) {
+    return Response.redirect(new URL(DEFAULT_LOGIN_REDIRECT, nextUrl));
   }
 
-  // For all other routes, check authentication
-  if (!token) {
-    // Store the original URL to redirect back after login
-    const callbackUrl = encodeURIComponent(request.url);
-    return NextResponse.redirect(
-      new URL(`/login?callbackUrl=${callbackUrl}`, request.url)
-    );
+  if (isPublicRoute) {
+    return;
   }
-
-  return NextResponse.next();
-}
+});
 
 export const config = {
-  matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - public folder
-     */
-    "/((?!_next/static|_next/image|favicon.ico|public/).*)",
-  ],
+  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
 };

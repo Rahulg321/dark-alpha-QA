@@ -34,6 +34,8 @@ import {
   companyQuestions,
   answers,
   resourceCategories,
+  verificationToken,
+  passwordResetToken,
 } from "./schema";
 import type { ArtifactKind } from "@/components/artifact";
 import { generateUUID } from "../utils";
@@ -50,16 +52,119 @@ import { ResourcesWithoutContent } from "../types";
 const client = postgres(process.env.POSTGRES_URL!);
 export const db = drizzle(client);
 
-export async function getUser(email: string): Promise<Array<User>> {
+/**
+ * Get a user by id
+ * @param id - The id of the user
+ * @returns The user
+ */
+export async function getUserById(id: string) {
+  try {
+    const [foundUser] = await db.select().from(user).where(eq(user.id, id));
+    return foundUser;
+  } catch (error) {
+    console.log("An error occured trying to get user by id", error);
+    return null;
+  }
+}
+
+/**
+ * Get a password reset token by email
+ * @param email - The email to get the password reset token for
+ * @returns The password reset token
+ */
+export async function getPasswordResetTokenByEmail(email: string) {
+  try {
+    const [foundPasswordResetToken] = await db
+      .select()
+      .from(passwordResetToken)
+      .where(eq(passwordResetToken.email, email));
+    return foundPasswordResetToken;
+  } catch (error) {
+    console.log(
+      "An error occured trying to get password reset token by email",
+      error
+    );
+    return null;
+  }
+}
+
+/**
+ * Get a password reset token by token
+ * @param token - The token to get the password reset token for
+ * @returns The password reset token
+ */
+export async function getPasswordResetTokenByToken(token: string) {
+  try {
+    const [foundPasswordResetToken] = await db
+      .select()
+      .from(passwordResetToken)
+      .where(eq(passwordResetToken.token, token));
+
+    return foundPasswordResetToken;
+  } catch (error) {
+    console.log(
+      "An error occured trying to get password reset token by token",
+      error
+    );
+    return null;
+  }
+}
+
+/**
+ * Get a verification token by token
+ * @param token - The token to get the verification token for
+ * @returns The verification token
+ */
+export async function getVerificationTokenByToken(token: string) {
+  try {
+    const [foundVerificationToken] = await db
+      .select()
+      .from(verificationToken)
+      .where(eq(verificationToken.token, token));
+    return foundVerificationToken;
+  } catch (error) {
+    console.log(
+      "An error occured trying to get verification token by token",
+      error
+    );
+    return null;
+  }
+}
+
+/**
+ * Get a user by email
+ * @param email - The email of the user
+ * @returns The user
+ */
+export async function getUser(email: string) {
   try {
     return await db.select().from(user).where(eq(user.email, email));
   } catch (error) {
-    throw new ChatSDKError(
-      "bad_request:database",
-      "Failed to get user by email"
-    );
+    console.error("Error getting user", error);
+    return null;
   }
 }
+
+/**
+ * Get a verification token by email
+ * @param email - The email to get the verification token for
+ * @returns The verification token
+ */
+export const getVerificationTokenByEmail = async (email: string) => {
+  try {
+    const [userVerificationToken] = await db
+      .select()
+      .from(verificationToken)
+      .where(eq(verificationToken.email, email));
+    return userVerificationToken;
+  } catch (error) {
+    console.log(
+      "An error occured trying to get verification token by email",
+      error
+    );
+    return null;
+  }
+};
 
 /**
  * Get a user by email
@@ -350,17 +455,17 @@ export async function getFilteredResourcesByCompanyId(
       typeof categories === "string"
         ? [categories]
         : Array.isArray(categories)
-        ? categories
-        : [];
+          ? categories
+          : [];
 
     const whereClause = query
       ? ilike(resources.name, `%${query}%`)
       : categoryArray.length > 0
-      ? and(
-          eq(resources.companyId, companyId),
-          inArray(resources.categoryId, categoryArray)
-        )
-      : eq(resources.companyId, companyId);
+        ? and(
+            eq(resources.companyId, companyId),
+            inArray(resources.categoryId, categoryArray)
+          )
+        : eq(resources.companyId, companyId);
 
     const filteredResources = await db
       .select({
@@ -567,10 +672,19 @@ export async function getCompanyNameById(companyId: string) {
 export async function createUser(email: string, password: string) {
   const hashedPassword = generateHashedPassword(password);
 
+  console.log("hashedPassword", hashedPassword);
+
   try {
-    return await db.insert(user).values({ email, password: hashedPassword });
+    const [newUser] = await db
+      .insert(user)
+      .values({ email, password: hashedPassword })
+      .returning({ id: user.id, email: user.email });
+
+    console.log("newUser", newUser);
+    return newUser;
   } catch (error) {
-    throw new ChatSDKError("bad_request:database", "Failed to create user");
+    console.log("Error creating user", error);
+    return null;
   }
 }
 
