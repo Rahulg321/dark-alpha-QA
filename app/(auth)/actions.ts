@@ -2,7 +2,7 @@
 
 import { z } from 'zod';
 
-import { createUser, getUser, verifyUser, notUserVerified, generateVerificationToken} from '@/lib/db/queries';
+import { createUser, getUser, verifyUser, userVerified, generateVerificationToken} from '@/lib/db/queries';
 
 import { signIn } from './auth';
 
@@ -42,7 +42,7 @@ export const login = async (
       password: formData.get('password'),
     });
 
-    if (notUserVerified(validatedData.email)) {
+    if (!userVerified(validatedData.email)) {
       return {status: 'unverified_account'};
     }
 

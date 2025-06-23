@@ -10,6 +10,7 @@ import {
   gte,
   inArray,
   ilike,
+  execute,
   lt,
   type SQL,
 } from "drizzle-orm";
@@ -552,10 +553,10 @@ export async function getAllTickets() {
  * @param userEmail - the email of the user to Checks
  * @returns true if the user is not verified, false if otherwise
  */
-export async function notUserVerified(userEmail: string) {
+export async function userVerified(userEmail: string) {
   try {
-    const [user] = await getUserByEmail(userEmail);
-    return !user.verified;
+    const user = await getUserByEmail(userEmail);
+    return user.verified;
   } catch (error) {
     throw new ChatSDKError(
       'bad_request:database',
@@ -616,21 +617,20 @@ export async function getCompanyNameById(companyId: string) {
 
 export async function generateVerificationToken(userEmail: string, userId: string) {
   const [token] = await db.insert(verificationToken).values({}).returning();
+  let oldToken = null;
   try {
-    const [oldToken] = await db.select({id: user.verificationTokenId}).from(user).where(eq(user.id, userId));
-    console.log(oldToken)
+    oldToken = await db.select({id: user.verificationTokenId}).from(user).where(eq(user.id, userId))[0];
     await db.delete(verificationToken).where(eq(verificationToken.id, oldToken.id));
   } catch (error) {
     const oldToken = null;
   }
-  db.update(user).set({verificationTokenId: token.id}).where(eq(user.id, userId));
-  /**resend.emails.send({
+  await db.update(user).set({verificationTokenId: token.id}).where(eq(user.id, userId));
+  resend.emails.send({
     from: 'dark-alpha-capital@resend.dev',
     to: userEmail,
     subject: "Account Verificaiton",
     html: "<p>Thank you for creating an account. To verify it, please go to <a href=\"http://localhost:3000/verify?userId=" + userId + "&verificationToken=" + token.id + "\">this page</a>"
-  });*/
-  return token;
+  });
 }
 
 export async function createUser(email: string, password: string) {
@@ -1119,32 +1119,5 @@ export async function getStreamIdsByChatId({ chatId }: { chatId: string }) {
       "bad_request:database",
       "Failed to get stream ids by chat id"
     );
-  }
-}
-
-/**
- * Get company resources by company id
- * @param companyId - The id of the company
- * @returns The company resources
- */
-export async function getCompanyResources(companyId: string) {
-  try {
-    const companyResources = await db
-      .select({
-        id: resources.id,
-        name: resources.name,
-        description: resources.description,
-        kind: resources.kind,
-        createdAt: resources.createdAt,
-      })
-      .from(resources)
-      .where(eq(resources.companyId, companyId));
-    return companyResources;
-  } catch (error) {
-    console.log(
-      "An error occured trying to get company resources by company id",
-      error
-    );
-    return [];
   }
 }
