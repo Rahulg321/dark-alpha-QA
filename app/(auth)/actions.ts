@@ -41,43 +41,38 @@ export const login = async (
   _: LoginActionState,
   formData: FormData
 ): Promise<LoginActionState> => {
-  try {
-    const validatedData = authFormSchema.parse({
-      email: formData.get("email"),
-      password: formData.get("password"),
-    });
+  const validatedData = authFormSchema.safeParse({
+    email: formData.get("email"),
+    password: formData.get("password"),
+  });
 
-    console.log("validatedData", validatedData);
-
-    const existingUser = (await getUser(validatedData.email))?.[0];
-
-    console.log("existingUser", existingUser);
-
-    if (!existingUser) {
-      console.log("user not found");
-      return { status: "user_not_found" };
-    }
-
-    if (!existingUser.password) {
-      console.log("user has no password");
-      return { status: "invalid_method" };
-    }
-
-    await signIn("credentials", {
-      email: validatedData.email,
-      password: validatedData.password,
-      redirect: false,
-    });
-
-    return { status: "success" };
-  } catch (error) {
-    console.log("An error occured trying to login", error);
-    if (error instanceof z.ZodError) {
-      return { status: "invalid_data" };
-    }
-
-    return { status: "failed" };
+  if (!validatedData.success) {
+    return { status: "invalid_data" };
   }
+
+  const { email, password } = validatedData.data;
+
+  const existingUser = (await getUser(email))?.[0];
+
+  if (!existingUser || !existingUser.email || !existingUser.password) {
+    return { status: "user_not_found" };
+  }
+
+  if (!existingUser.password) {
+    return { status: "invalid_method" };
+  }
+
+  await signIn("credentials", {
+    email,
+    password,
+    redirectTo: `${DEFAULT_LOGIN_REDIRECT}?login=success`,
+  });
+
+  // This part is unreachable because signIn with redirect throws an error.
+  // It's here to satisfy the type-checker for the cases where redirect does not happen.
+  return {
+    status: "success",
+  };
 };
 
 export interface RegisterActionState {
