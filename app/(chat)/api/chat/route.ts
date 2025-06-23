@@ -5,7 +5,7 @@ import {
   smoothStream,
   streamText,
 } from "ai";
-import { auth, type UserType } from "@/app/(auth)/auth";
+import { auth } from "@/app/(auth)/auth";
 import { type RequestHints, systemPrompt } from "@/lib/ai/prompts";
 import {
   createStreamId,
@@ -26,7 +26,7 @@ import { getWeather } from "@/lib/ai/tools/get-weather";
 import { darkAlphaOps } from "@/lib/ai/tools/get-darkalphacapitalOps";
 import { isProductionEnvironment } from "@/lib/constants";
 import { myProvider } from "@/lib/ai/providers";
-import { entitlementsByUserType } from "@/lib/ai/entitlements";
+import { entitlements } from "@/lib/ai/entitlements";
 import { postRequestBodySchema, type PostRequestBody } from "./schema";
 import { geolocation } from "@vercel/functions";
 import {
@@ -95,14 +95,12 @@ export async function POST(request: Request) {
       selectedResources
     );
 
-    const userType: UserType = session.user.type;
-
     const messageCount = await getMessageCountByUserId({
       id: session.user.id,
       differenceInHours: 24,
     });
 
-    if (messageCount > entitlementsByUserType[userType].maxMessagesPerDay) {
+    if (messageCount > entitlements.maxMessagesPerDay) {
       return new ChatSDKError("rate_limit:chat").toResponse();
     }
 

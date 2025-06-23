@@ -1,4 +1,3 @@
-import type { UserType } from "@/app/(auth)/auth";
 import type { ChatModel } from "./models";
 
 interface Entitlements {
@@ -6,34 +5,12 @@ interface Entitlements {
   availableChatModelIds: Array<ChatModel["id"]>;
 }
 
-export const entitlementsByUserType: Record<UserType, Entitlements> = {
-  /*
-   * For users without an account
-   */
-  guest: {
-    maxMessagesPerDay: 100,
-    availableChatModelIds: [
-      "chat-model",
-      "chat-model-reasoning",
-      "gemini-flash",
-      "gemini-reasoning",
-    ],
-  },
-
-  /*
-   * For users with an account
-   */
-  regular: {
-    maxMessagesPerDay: 100,
-    availableChatModelIds: [
-      "chat-model",
-      "chat-model-reasoning",
-      "gemini-flash",
-      "gemini-reasoning",
-    ],
-  },
-
-  /*
-   * TODO: For users with an account and a paid membership
-   */
+export const entitlements: Entitlements = {
+  maxMessagesPerDay: 100,
+  availableChatModelIds: [
+    "chat-model",
+    "chat-model-reasoning",
+    "gemini-flash",
+    "gemini-reasoning",
+  ],
 };
