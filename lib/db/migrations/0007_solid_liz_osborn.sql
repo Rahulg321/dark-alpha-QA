@@ -1,1 +1,0 @@
-ALTER TABLE "resources" ALTER COLUMN "category_id" DROP NOT NULL;
