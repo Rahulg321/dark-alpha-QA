@@ -62,11 +62,15 @@ export const login = async (
     return { status: "invalid_method" };
   }
 
-  await signIn("credentials", {
-    email,
-    password,
-    redirectTo: `${DEFAULT_LOGIN_REDIRECT}?login=success`,
-  });
+  try {
+    await signIn("credentials", {
+      email,
+      password,
+      redirectTo: `${DEFAULT_LOGIN_REDIRECT}?login=success`,
+    });
+  } catch (error) {
+    return { status: "failed" };
+  }
 
   // This part is unreachable because signIn with redirect throws an error.
   // It's here to satisfy the type-checker for the cases where redirect does not happen.

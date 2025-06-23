@@ -46,6 +46,11 @@ const NewPasswordFormSection = () => {
     } else if (state.status === "success") {
       setIsSuccessful(true);
       updateSession();
+      toast({
+        type: "success",
+        description:
+          "Password reset successfully! You can now login with your new password.",
+      });
     } else if (state.status === "invalid_token") {
       toast({
         type: "error",
@@ -65,19 +70,19 @@ const NewPasswordFormSection = () => {
   };
 
   return (
-    <div>
-      <NewPasswordForm action={handleSubmit}>
-        <SubmitButton isSuccessful={isSuccessful}>
-          {state.status === "in_progress" ? "Saving..." : "Save"}
-        </SubmitButton>
+    <NewPasswordForm action={handleSubmit}>
+      <SubmitButton isSuccessful={isSuccessful}>
+        {state.status === "in_progress" ? "Saving..." : "Save"}
+      </SubmitButton>
+      <div className="mt-4 text-center text-sm">
         <Link
           href="/login"
           className="font-semibold text-gray-800 hover:underline dark:text-zinc-200"
         >
           Back to login
         </Link>
-      </NewPasswordForm>
-    </div>
+      </div>
+    </NewPasswordForm>
   );
 };
 

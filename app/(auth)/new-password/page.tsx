@@ -1,8 +1,6 @@
 import NewPasswordFormSection from "./new-password-form-section";
 import { getPasswordResetTokenByToken } from "@/lib/db/queries";
-import Image from "next/image";
 import Link from "next/link";
-import React, { Suspense } from "react";
 
 const ResetPasswordPage = async (props: {
   params: Promise<{ token: string }>;
@@ -18,31 +16,46 @@ const ResetPasswordPage = async (props: {
 
   if (!dbToken) {
     return (
-      <section className="block-space container relative">
-        <div className="mt-8 text-center">
-          <h1 className="mb-2 text-2xl font-semibold">Reset Your Password</h1>
-          <p className="mb-4 text-gray-600">Enter your updated password</p>
-          <p className="mb-6 text-red-600">
-            The token is invalid or has expired. Please request a new password
-            reset link.
-          </p>
-          <Link href="/reset-password">Request New Password Reset</Link>
+      <div className="flex h-dvh w-screen items-start pt-12 md:pt-0 md:items-center justify-center bg-background">
+        <div className="w-full max-w-md overflow-hidden rounded-2xl flex flex-col gap-6">
+          <div className="flex flex-col items-center justify-center gap-2 px-4 text-center sm:px-16">
+            <h3 className="text-xl font-semibold dark:text-zinc-50">
+              Invalid Token
+            </h3>
+            <p className="text-sm text-gray-500 dark:text-zinc-400">
+              The token is invalid or has expired. Please request a new password
+              reset link.
+            </p>
+          </div>
+          <div className="px-4 sm:px-16 pb-12 text-center">
+            <Link
+              href="/reset-password"
+              className="font-semibold text-gray-800 hover:underline dark:text-zinc-200"
+            >
+              Request New Password Reset
+            </Link>
+          </div>
         </div>
-      </section>
+      </div>
     );
   }
 
   return (
-    <section className="block-space container">
-      <div className="space-y-2">
-        <h2>Set up a new Password</h2>
-        <h3 className="">
-          Email:- <span className="text-baseC">{dbToken.email}</span>
-        </h3>
-        <p>Enter your new password below.</p>
+    <div className="flex h-dvh w-screen items-start pt-12 md:pt-0 md:items-center justify-center bg-background">
+      <div className="w-full max-w-md overflow-hidden rounded-2xl flex flex-col gap-12">
+        <div className="flex flex-col items-center justify-center gap-2 px-4 pt-12 text-center sm:px-16">
+          <h3 className="text-xl font-semibold dark:text-zinc-50">
+            Set up a new Password
+          </h3>
+          <p className="text-sm text-gray-500 dark:text-zinc-400">
+            Enter your new password below for {dbToken.email}.
+          </p>
+        </div>
+        <div className="px-4 sm:px-16 pb-12">
+          <NewPasswordFormSection />
+        </div>
       </div>
-      <NewPasswordFormSection />
-    </section>
+    </div>
   );
 };
 
