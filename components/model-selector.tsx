@@ -14,7 +14,6 @@ import { chatModels } from "@/lib/ai/models";
 import { cn } from "@/lib/utils";
 
 import { CheckCircleFillIcon, ChevronDownIcon } from "./icons";
-
 import type { Session } from "next-auth";
 
 export function ModelSelector({
