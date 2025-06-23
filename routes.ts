@@ -6,13 +6,11 @@
 export const AUTH_ROUTES = [
   "/login",
   "/signup",
-  "/admin",
   "/auth/reset",
   "/auth/error",
   "/auth/new-password",
   "/auth/verify-email",
   "/auth/verify-email-token",
-  "/auth/verify-email-token-error",
   "/auth/verify-email-token-success",
   "/auth/verify-email-token-expired",
   "/auth/verify-email-token-expired-error",
@@ -31,7 +29,7 @@ export const PROTECTED_ROUTES = [
   "/settings",
 ];
 
-export const PROTECTED_BASE_ROUTES = ["/dashboard"];
+export const PROTECTED_BASE_ROUTES = ["/dashboard", "/admin"];
 
 /**
  *
@@ -40,7 +38,7 @@ export const PROTECTED_BASE_ROUTES = ["/dashboard"];
  */
 export const DEFAULT_LOGIN_REDIRECT = "/";
 
-export const PUBLIC_ROUTES = ["/new-password", "/new-verification"];
+export const PUBLIC_ROUTES = ["/", "/new-password", "/new-verification"];
 
 // export const PUBLIC_ROUTES = [""];
 // export const PUBLIC_ROUTES = [""];

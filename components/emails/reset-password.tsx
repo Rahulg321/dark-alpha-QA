@@ -23,86 +23,81 @@ export const ResetPasswordEmail: React.FC<
 > = ({ resetPasswordLink }) => (
   <Html>
     <Head />
-    <Preview>Reset your Hydranode password</Preview>
+    <Preview>Reset your password for Diligence Dark Alpha</Preview>
     <Body style={main}>
       <Container style={container}>
-        <Section style={box}>
-          {/* Optional: Add Logo */}
-          {/* <Img src={`${baseUrl}/static/logo.png`} width="49" height="21" alt="Logo" /> */}
-          <Heading style={heading}>Reset Your Password</Heading>
-          <Text style={paragraph}>
-            You&apos;ve requested to reset your password for your Dark Alpha
-            Capital account. Click the button below to set a new password:
-          </Text>
-
+        <Heading style={h1}>Reset Your Password</Heading>
+        <Text style={text}>
+          You&apos;ve requested to reset your password for your Diligence Dark
+          Alpha account. Click the button below to set a new password.
+        </Text>
+        <Section style={buttonContainer}>
           <Button style={button} href={resetPasswordLink}>
             Reset Password
           </Button>
-
-          <Text style={paragraph}>
-            If you didn&apos;t request a password reset, please ignore this
-            email or contact support if you have concerns.
-          </Text>
         </Section>
+        <Text style={text}>
+          If you didn&apos;t request a password reset, please ignore this email
+          or contact support if you have concerns.
+        </Text>
+        <Text style={footer}>
+          ©2024 Diligence Dark Alpha. All rights reserved.
+        </Text>
       </Container>
     </Body>
   </Html>
 );
 
+export default ResetPasswordEmail;
+
 const main = {
-  backgroundColor: "#f6f9fc",
+  backgroundColor: "#f4f4f5",
   fontFamily:
-    '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Ubuntu,sans-serif',
+    "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif",
+  padding: "20px",
 };
 
 const container = {
   backgroundColor: "#ffffff",
   margin: "0 auto",
-  padding: "20px 0 48px",
-  marginBottom: "64px",
+  padding: "40px",
+  borderRadius: "8px",
+  boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
   maxWidth: "600px",
-  borderRadius: "5px",
-  border: "1px solid #eaeaea",
 };
 
-const box = {
-  padding: "0 48px",
+const h1 = {
+  color: "#18181b",
+  fontSize: "28px",
+  fontWeight: "600",
+  margin: "0 0 20px",
 };
 
-const heading = {
-  color: "#333",
-  fontSize: "24px",
-  fontWeight: "bold",
-  textAlign: "center" as const,
-  marginBottom: "20px",
-};
-
-const paragraph = {
-  color: "#525f7f",
+const text = {
+  color: "#3f3f46",
   fontSize: "16px",
   lineHeight: "1.5",
-  textAlign: "left" as const,
-  marginBottom: "20px",
+  margin: "0 0 20px",
+};
+
+const buttonContainer = {
+  textAlign: "center" as const,
+  margin: "30px 0",
 };
 
 const button = {
-  backgroundColor: "#007bff", // Blue color
-  borderRadius: "5px",
-  color: "#ffffff",
+  backgroundColor: "#09090b",
+  color: "#fafafa",
   fontSize: "16px",
-  fontWeight: "bold",
   textDecoration: "none",
-  textAlign: "center" as const,
-  display: "block",
-  width: "200px", // Adjust width as needed
-  padding: "12px 20px",
-  margin: "20px auto", // Center the button
+  borderRadius: "6px",
+  padding: "14px 24px",
+  display: "inline-block",
 };
 
 const footer = {
-  color: "#8898aa",
+  color: "#71717a",
   fontSize: "12px",
-  lineHeight: "16px",
   textAlign: "center" as const,
-  marginTop: "16px",
+  marginTop: "20px",
 };

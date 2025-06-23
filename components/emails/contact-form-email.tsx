@@ -1,19 +1,15 @@
 import {
   Body,
-  Button,
+  Container,
   Head,
+  Heading,
   Hr,
   Html,
-  Img,
-  Link,
   Preview,
   Section,
   Text,
 } from "@react-email/components";
 import * as React from "react";
-import { Container } from "@react-email/components";
-
-const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "";
 
 interface ContactMessageEmailProps {
   firstName: string;
@@ -28,54 +24,45 @@ export default function ContactMessageEmail({
   email,
   message,
 }: ContactMessageEmailProps) {
+  const previewText = `New message from ${firstName} ${lastName}`;
   return (
     <Html>
-      <Head>
-        <title>New Contact Form Message</title>
-      </Head>
-      <Preview>
-        New message from {firstName} {lastName}
-      </Preview>
+      <Head />
+      <Preview>{previewText}</Preview>
       <Body style={main}>
         <Container style={container}>
-          <Section style={box}>
-            <Text style={heading}>New Contact Message</Text>
-            <Text style={paragraph}>
-              You have received a new message through the contact form:
+          <Heading style={h1}>New Contact Form Message</Heading>
+
+          <Text style={text}>
+            You have received a new message through the contact form on the
+            Diligence Dark Alpha website.
+          </Text>
+
+          <Hr style={hr} />
+
+          <Section>
+            <Text style={subtleText}>
+              <strong>From:</strong> {firstName} {lastName}
             </Text>
-
-            <Section style={detailsContainer}>
-              <Text style={detailsHeading}>Contact Details:</Text>
-              <Text style={detailsText}>
-                <strong>First Name:</strong> {firstName}
-              </Text>
-              <Text style={detailsText}>
-                <strong>Last Name:</strong> {lastName}
-              </Text>
-              <Text style={detailsText}>
-                <strong>Email:</strong> {email}
-              </Text>
-            </Section>
-
-            <Section style={detailsContainer}>
-              <Text style={detailsHeading}>Message:</Text>
-              <Text style={detailsText}>{message}</Text>
-            </Section>
-
-            <Hr style={hr} />
-            <Text style={paragraph}>
-              You can reply directly to this email to respond to the message.
-            </Text>
-
-            <Button style={button} href={`${baseUrl}`}>
-              Back to home
-            </Button>
-
-            <Hr style={hr} />
-            <Text style={footer}>
-              Extractr Inc., 123 Tech Street, San Francisco, CA 94122
+            <Text style={subtleText}>
+              <strong>Email:</strong> {email}
             </Text>
           </Section>
+
+          <Heading as="h2" style={h2}>
+            Message:
+          </Heading>
+          <Text style={messageBox}>{message}</Text>
+
+          <Hr style={hr} />
+
+          <Text style={text}>
+            You can reply directly to {email} to respond to this message.
+          </Text>
+
+          <Text style={footer}>
+            ©2024 Diligence Dark Alpha. All rights reserved.
+          </Text>
         </Container>
       </Body>
     </Html>
@@ -83,81 +70,68 @@ export default function ContactMessageEmail({
 }
 
 const main = {
-  backgroundColor: "#f6f9fc",
+  backgroundColor: "#f4f4f5",
   fontFamily:
-    '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Ubuntu,sans-serif',
+    "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif",
+  padding: "20px",
 };
 
 const container = {
   backgroundColor: "#ffffff",
   margin: "0 auto",
-  padding: "20px 0 48px",
-  marginBottom: "64px",
+  padding: "40px",
+  borderRadius: "8px",
+  boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+  maxWidth: "600px",
 };
 
-const box = {
-  padding: "0 48px",
+const h1 = {
+  color: "#18181b",
+  fontSize: "28px",
+  fontWeight: "600",
+  margin: "0 0 20px",
+  textAlign: "center" as const,
+};
+
+const h2 = {
+  color: "#18181b",
+  fontSize: "20px",
+  fontWeight: "600",
+  margin: "30px 0 10px",
+};
+
+const text = {
+  color: "#3f3f46",
+  fontSize: "16px",
+  lineHeight: "1.5",
+  margin: "0 0 20px",
+};
+
+const subtleText = {
+  color: "#71717a",
+  fontSize: "14px",
+  lineHeight: "1.5",
+  margin: "0 0 5px",
+};
+
+const messageBox = {
+  backgroundColor: "#f4f4f5",
+  borderRadius: "6px",
+  padding: "20px",
+  color: "#3f3f46",
+  fontSize: "16px",
+  lineHeight: "1.5",
+  whiteSpace: "pre-wrap",
 };
 
 const hr = {
-  borderColor: "#e6ebf1",
-  margin: "20px 0",
-};
-
-const logo = {
-  margin: "0 auto",
-  marginBottom: "20px",
-};
-
-const heading = {
-  color: "#333",
-  fontSize: "24px",
-  fontWeight: "bold",
-  textAlign: "center" as const,
+  borderColor: "#e4e4e7",
   margin: "30px 0",
 };
 
-const paragraph = {
-  color: "#525f7f",
-  fontSize: "16px",
-  lineHeight: "24px",
-  textAlign: "left" as const,
-};
-
-const detailsContainer = {
-  backgroundColor: "#f4f7fa",
-  borderRadius: "4px",
-  padding: "24px",
-  marginBottom: "24px",
-};
-
-const detailsHeading = {
-  fontSize: "18px",
-  fontWeight: "bold",
-  marginBottom: "12px",
-};
-
-const detailsText = {
-  margin: "3px 0",
-};
-
-const button = {
-  backgroundColor: "#656ee8",
-  borderRadius: "5px",
-  color: "#fff",
-  fontSize: "16px",
-  fontWeight: "bold",
-  textDecoration: "none",
-  textAlign: "center" as const,
-  display: "block",
-  width: "100%",
-  padding: "10px",
-};
-
 const footer = {
-  color: "#8898aa",
+  color: "#71717a",
   fontSize: "12px",
-  lineHeight: "16px",
   textAlign: "center" as const,
-  marginTop: "16px",
+  marginTop: "20px",
 };
