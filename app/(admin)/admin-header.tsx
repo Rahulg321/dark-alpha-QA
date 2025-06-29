@@ -26,7 +26,7 @@ const AdminHeader = ({ session }: { session: Session | null }) => {
             <Sheet>
               <SheetTrigger asChild className="md:hidden">
                 <Button variant="ghost" size="icon">
-                  <Menu className="h-5 w-5" />
+                  <Menu className="size-5" />
                 </Button>
               </SheetTrigger>
               <SheetContent side="left" className="w-[300px] sm:w-[400px]">
@@ -86,15 +86,15 @@ function ProfileMenu({ session }: { session: Session | null }) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className="flex items-center gap-2">
-        <Avatar className="h-8 w-8">
-          <AvatarImage src={"https://github.com/shadcn.png"} alt={"User"} />
+        <Avatar className="size-8">
+          <AvatarImage src={session?.user?.image || ""} alt={"User"} />
           <AvatarFallback>
             {session?.user?.name?.charAt(0)}
             {session?.user?.name?.charAt(1)}
           </AvatarFallback>
         </Avatar>
         <span className="hidden md:flex items-center font-medium text-primary">
-          Account <ChevronDown className="ml-1 h-4 w-4" />
+          Account <ChevronDown className="ml-1 size-4" />
         </span>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">

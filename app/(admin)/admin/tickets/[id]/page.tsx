@@ -1,10 +1,6 @@
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   ArrowLeft,
@@ -15,20 +11,28 @@ import {
   Clock,
   Mail,
   MessageSquare,
-  Send,
-  Reply,
   ExternalLink,
 } from "lucide-react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { db } from "@/lib/db/queries";
 import { ticket } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
+import AdminTicketEmailResponseForm from "@/components/forms/admin-ticket-email-response-form";
+import AdminTicketResponseForm from "@/components/forms/admin-ticket-response-form";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+
+  const [userTicket] = await db.select().from(ticket).where(eq(ticket.id, id));
+
+  return {
+    title: `Ticket ${userTicket.title}`,
+    description: `Ticket ${userTicket.title} with tags ${userTicket.tags?.join(", ")}`,
+  };
+}
 
 export default async function TicketDetail({
   params,
@@ -114,37 +118,14 @@ export default async function TicketDetail({
                 </Badge>
               </div>
             </div>
-            <div className="flex gap-2">
-              <Select defaultValue={userTicket.status}>
-                <SelectTrigger className="w-32">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="open">Open</SelectItem>
-                  <SelectItem value="closed">Closed</SelectItem>
-                </SelectContent>
-              </Select>
-              <Select defaultValue={userTicket.priority}>
-                <SelectTrigger className="w-32">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="low">Low</SelectItem>
-                  <SelectItem value="medium">Medium</SelectItem>
-                  <SelectItem value="high">High</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
           </header>
 
           <Tabs defaultValue="details" className="w-full">
             <TabsList className="mb-6">
-              <TabsTrigger value="details">
-                {userTicket.type === "email"
-                  ? "Email Response"
-                  : "Admin Response"}
-              </TabsTrigger>
-              <TabsTrigger value="history">History</TabsTrigger>
+              <TabsTrigger value="details">Details</TabsTrigger>
+              <TabsTrigger value="reply">Reply</TabsTrigger>
+              <TabsTrigger value="email-response">Email Response</TabsTrigger>
+              <TabsTrigger value="drafts">Drafts</TabsTrigger>
             </TabsList>
 
             <TabsContent value="details" className="space-y-6">
@@ -155,7 +136,7 @@ export default async function TicketDetail({
                       <CardHeader>
                         <CardTitle className="text-lg flex items-center gap-2">
                           <MessageSquare className="size-5" />
-                          User Message
+                          User Query
                         </CardTitle>
                       </CardHeader>
                       <CardContent>
@@ -235,112 +216,16 @@ export default async function TicketDetail({
               </div>
             </TabsContent>
 
-            <TabsContent value="response" className="space-y-6">
-              {userTicket.type === "email" ? (
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <Reply className="size-5" />
-                      Send Email Response
-                    </CardTitle>
-                    <p className="text-sm text-muted-foreground">
-                      Compose an email response that will be sent to{" "}
-                      {userTicket.fromEmail}
-                    </p>
-                  </CardHeader>
-                  <CardContent>
-                    <form className="space-y-4">
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="from">From</Label>
-                          <Input
-                            id="from"
-                            value="support@yourcompany.com"
-                            disabled
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="to">To</Label>
-                          <Input
-                            id="to"
-                            value={userTicket.fromEmail}
-                            disabled
-                          />
-                        </div>
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="subject">Subject</Label>
-                        <Input
-                          id="subject"
-                          defaultValue={`Re: ${userTicket.title}`}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="emailResponse">Email Message</Label>
-                        <Textarea
-                          id="emailResponse"
-                          placeholder="Type your email response here..."
-                          rows={10}
-                          className="resize-none"
-                        />
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Button
-                          type="submit"
-                          className="flex items-center gap-2"
-                        >
-                          <Send className="size-4" />
-                          Send Email & Close Ticket
-                        </Button>
-                        <Button type="button" variant="outline">
-                          Save Draft
-                        </Button>
-                        <Button type="button" variant="outline">
-                          Send Email Only
-                        </Button>
-                      </div>
-                    </form>
-                  </CardContent>
-                </Card>
-              ) : (
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <MessageSquare className="size-5" />
-                      Send Response
-                    </CardTitle>
-                    <p className="text-sm text-muted-foreground">
-                      Provide a helpful response to resolve the user&apos;s
-                      issue.
-                    </p>
-                  </CardHeader>
-                  <CardContent>
-                    <form className="space-y-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="response">Response Message</Label>
-                        <Textarea
-                          id="response"
-                          placeholder="Type your response here..."
-                          rows={8}
-                          className="resize-none"
-                        />
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Button
-                          type="submit"
-                          className="flex items-center gap-2"
-                        >
-                          <Send className="size-4" />
-                          Send Response & Close Ticket
-                        </Button>
-                        <Button type="button" variant="outline">
-                          Save Draft
-                        </Button>
-                      </div>
-                    </form>
-                  </CardContent>
-                </Card>
-              )}
+            <TabsContent value="reply" className="space-y-6">
+              <AdminTicketResponseForm ticketId={id} />
+            </TabsContent>
+
+            <TabsContent value="email-response" className="space-y-6">
+              <AdminTicketEmailResponseForm />
+            </TabsContent>
+
+            <TabsContent value="drafts" className="space-y-6">
+              <h2>Drafts</h2>
             </TabsContent>
 
             <TabsContent value="history">

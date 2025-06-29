@@ -112,7 +112,7 @@ export const chat = pgTable("Chat", {
   id: uuid("id").primaryKey().notNull().defaultRandom(),
   createdAt: timestamp("createdAt").notNull(),
   title: text("title").notNull(),
-  userId: uuid("user_id")
+  userId: uuid("userId")
     .notNull()
     .references(() => user.id),
   visibility: varchar("visibility", { enum: ["public", "private"] })
@@ -124,6 +124,7 @@ export type Chat = InferSelectModel<typeof chat>;
 
 // DEPRECATED: The following schema is deprecated and will be removed in the future.
 // Read the migration guide at https://chat-sdk.dev/docs/migration-guides/message-parts
+
 export const messageDeprecated = pgTable("Message", {
   id: uuid("id").primaryKey().notNull().defaultRandom(),
   chatId: uuid("chatId")
@@ -275,7 +276,7 @@ export const ticket = pgTable(
     status: varchar("status", { enum: ["open", "closed"] })
       .notNull()
       .default("open"),
-    userId: uuid("user_id").references(() => user.id),
+    userId: uuid("userId").references(() => user.id),
   },
   (pgTable) => ({
     pk: primaryKey({ columns: [pgTable.id] }),
@@ -295,13 +296,10 @@ export const ticketReplies = pgTable(
     ticketId: uuid("ticket_id")
       .notNull()
       .references(() => ticket.id),
+    subject: text("subject").notNull(),
     content: text("content").notNull(),
-    fromName: text("from_name").notNull(),
-    fromEmail: text("from_email").notNull(),
-    tags: text("tags").array().notNull().default([]),
-    description: text("description"),
     createdAt: timestamp("created_at").notNull().defaultNow(),
-    userId: uuid("user_id")
+    userId: uuid("userId")
       .references(() => user.id)
       .notNull(),
   },
@@ -356,6 +354,7 @@ export const company = pgTable(
     })
       .notNull()
       .default("other"),
+
     address: text("address"),
     description: text("description"),
     createdAt: timestamp("created_at").notNull().defaultNow(),
@@ -398,6 +397,7 @@ export const answers = pgTable(
       .notNull()
       .references(() => companyQuestions.id, { onDelete: "cascade" }),
     answer: text("answer").notNull(),
+
     type: varchar("type", {
       enum: ["AI_GENERATED", "MANUAL"],
     })
@@ -498,6 +498,7 @@ export const embeddings = pgTable(
       columns: [table.resourceId],
       foreignColumns: [resources.id],
     }),
+
     embeddingIndex: index("embeddingIndex").using(
       "hnsw",
       table.embedding.op("vector_cosine_ops")
@@ -549,7 +550,7 @@ export type ComparisonQuestion = InferSelectModel<typeof comparisonQuestions>;
 
 export const twoFactorConfirmation = pgTable("two_factor_confirmation", {
   id: uuid("id").primaryKey().notNull().defaultRandom(),
-  userId: uuid("user_id")
+  userId: uuid("userId")
     .references(() => user.id, { onDelete: "cascade" })
     .notNull()
     .unique(),
@@ -616,7 +617,7 @@ export type VerificationToken = InferSelectModel<typeof verificationToken>;
 export const travel = pgTable("travel", {
   id: uuid("id").primaryKey().notNull().defaultRandom(),
   name: text("name").notNull(),
-  userId: uuid("user_id")
+  userId: uuid("userId")
     .references(() => user.id)
     .notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),

@@ -103,8 +103,6 @@ export const authConfig = {
       return true;
     },
     jwt({ token, user }) {
-      console.log("inside jwt callback  ", token, user);
-
       if (user) {
         token.id = user.id as string;
         token.type = user.type;
@@ -114,8 +112,6 @@ export const authConfig = {
       return token;
     },
     session({ session, token }) {
-      console.log("inside session callback  ", session, token);
-
       if (session.user) {
         session.user.id = token.id;
         session.user.type = token.type;

@@ -277,39 +277,41 @@ function PureMultimodalInput({
         </div>
       )}
 
-      <Textarea
-        data-testid="multimodal-input"
-        ref={textareaRef}
-        placeholder="Send a message..."
-        value={input}
-        onChange={handleInput}
-        className={cx(
-          "min-h-[24px] max-h-[calc(75dvh)] overflow-hidden resize-none rounded-2xl !text-base bg-muted pb-10 dark:border-zinc-700",
-          className
-        )}
-        rows={2}
-        autoFocus
-        onKeyDown={(event) => {
-          if (
-            event.key === "Enter" &&
-            !event.shiftKey &&
-            !event.nativeEvent.isComposing
-          ) {
-            event.preventDefault();
+      <div className="relative w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-2xl shadow-sm px-4 pt-3 pb-16 flex flex-col gap-2">
+        <Textarea
+          data-testid="multimodal-input"
+          ref={textareaRef}
+          placeholder="Send a message..."
+          value={input}
+          onChange={handleInput}
+          className={cx(
+            "min-h-[48px] max-h-[40vh] overflow-y-auto resize-none rounded-xl !text-base bg-transparent focus:outline-none border-none shadow-none",
+            className
+          )}
+          rows={2}
+          autoFocus
+          onKeyDown={(event) => {
+            if (
+              event.key === "Enter" &&
+              !event.shiftKey &&
+              !event.nativeEvent.isComposing
+            ) {
+              event.preventDefault();
 
-            if (status !== "ready") {
-              toast.error("Please wait for the model to finish its response!");
-            } else {
-              submitForm();
+              if (status !== "ready") {
+                toast.error(
+                  "Please wait for the model to finish its response!"
+                );
+              } else {
+                submitForm();
+              }
             }
-          }
-        }}
-      />
+          }}
+        />
 
-      <div className="absolute bottom-0 p-2 w-fit flex flex-row justify-start">
-        <div className="flex flex-row gap-2 items-center mb-2">
-          <AttachmentsButton fileInputRef={fileInputRef} status={status} />
+        <div className="absolute left-0 bottom-0 w-full flex flex-row justify-between items-end px-4 pb-3 z-10">
           <div className="flex flex-row gap-2 items-center">
+            <AttachmentsButton fileInputRef={fileInputRef} status={status} />
             <ResourceSelectDialog
               selectedResources={selectedResources || []}
               setSelectedResources={setSelectedResources || (() => {})}
@@ -321,19 +323,18 @@ function PureMultimodalInput({
               />
             )}
           </div>
+          <div className="flex flex-row items-center gap-2">
+            {status === "submitted" ? (
+              <StopButton stop={stop} setMessages={setMessages} />
+            ) : (
+              <SendButton
+                input={input}
+                submitForm={submitForm}
+                uploadQueue={uploadQueue}
+              />
+            )}
+          </div>
         </div>
-      </div>
-
-      <div className="absolute bottom-0 right-0 p-2 w-fit flex flex-row justify-end">
-        {status === "submitted" ? (
-          <StopButton stop={stop} setMessages={setMessages} />
-        ) : (
-          <SendButton
-            input={input}
-            submitForm={submitForm}
-            uploadQueue={uploadQueue}
-          />
-        )}
       </div>
     </div>
   );

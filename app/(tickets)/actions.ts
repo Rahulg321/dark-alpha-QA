@@ -52,6 +52,7 @@ export async function createTicketServerAction(formData: FormData) {
         fromName: data.fromName,
         fromEmail: data.fromEmail,
         priority: data.priority,
+        userId: authSession.user.id,
         type: "website",
       })
       .returning();

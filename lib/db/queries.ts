@@ -36,6 +36,7 @@ import {
   resourceCategories,
   verificationToken,
   passwordResetToken,
+  ticketReplies,
 } from "./schema";
 import type { ArtifactKind } from "@/components/artifact";
 import { generateUUID } from "../utils";
@@ -584,13 +585,31 @@ export async function getTicketById({ id }: { id: string }) {
     const [selectedTicket] = await db
       .select()
       .from(ticket)
+      .leftJoin(user, eq(ticket.userId, user.id))
       .where(eq(ticket.id, id));
+
     return selectedTicket;
   } catch (error) {
-    throw new ChatSDKError(
-      "bad_request:database",
-      "Failed to get ticket by id"
-    );
+    console.error("error fetching ticket by id", error);
+    return null;
+  }
+}
+
+/**
+ * Get ticket replies by ticket id
+ * @param id - The id of the ticket
+ * @returns The ticket replies
+ */
+export async function getTicketRepliesByTicketId({ id }: { id: string }) {
+  try {
+    return await db
+      .select()
+      .from(ticketReplies)
+      .where(eq(ticketReplies.ticketId, id))
+      .orderBy(desc(ticketReplies.createdAt));
+  } catch (error) {
+    console.error("error fetching ticket replies by ticket id", error);
+    return [];
   }
 }
 
@@ -640,7 +659,7 @@ export async function getFilteredTickets(
  */
 export async function getAllTickets() {
   try {
-    return await db.select().from(ticket);
+    return await db.select().from(ticket).orderBy(desc(ticket.createdAt));
   } catch (error) {
     console.error(error);
     throw new ChatSDKError("bad_request:database", "Failed to get all tickets");
@@ -1116,11 +1135,11 @@ export async function getMessageCountByUserId({
           gte(message.createdAt, twentyFourHoursAgo),
           eq(message.role, "user")
         )
-      )
-      .execute();
+      );
 
     return stats?.count ?? 0;
   } catch (error) {
+    console.error("Database error in getMessageCountByUserId:", error);
     throw new ChatSDKError(
       "bad_request:database",
       "Failed to get message count by user id"

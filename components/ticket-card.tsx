@@ -1,5 +1,6 @@
 import { formatDistanceToNow } from "date-fns";
-import { AlertCircle, CheckCircle, Clock } from "lucide-react";
+import { AlertCircle, CheckCircle, Clock, Globe } from "lucide-react";
+import { Mail } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import {
   Card,
@@ -15,6 +16,25 @@ interface TicketCardProps {
 }
 
 export function TicketCard({ ticket }: TicketCardProps) {
+  const getTypeProps = () => {
+    switch (ticket.type) {
+      case "website":
+        return {
+          icon: <Globe className="h-3 w-3" />,
+          text: "Website",
+          className:
+            "text-blue-800 bg-blue-100 hover:bg-blue-100 dark:text-blue-300 dark:bg-blue-900",
+        };
+      case "email":
+        return {
+          icon: <Mail className="h-3 w-3" />,
+          text: "Email",
+          className:
+            "text-green-800 bg-green-100 hover:bg-green-100 dark:text-green-300 dark:bg-green-900",
+        };
+    }
+  };
+
   const getStatusProps = () => {
     switch (ticket.status) {
       case "open":
@@ -44,6 +64,10 @@ export function TicketCard({ ticket }: TicketCardProps) {
             <h3 className="font-semibold text-base line-clamp-2">
               {ticket.title}
             </h3>
+            <div className="flex items-center gap-1.5">
+              {getTypeProps().icon}
+              <span className="font-medium text-xs">{getTypeProps().text}</span>
+            </div>
             <Badge
               variant="secondary"
               className={`shrink-0 ${statusProps.className}`}
