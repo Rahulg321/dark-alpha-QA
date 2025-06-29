@@ -54,16 +54,19 @@ export default function Page() {
         description: "Invalid method!",
       });
     } else if (state.status === "success") {
+      setIsSuccessful(true);
       toast({
         type: "success",
         description:
           "Password reset email sent! Check your email for the link to reset your password.",
       });
-      setIsSuccessful(true);
-      updateSession();
-      router.refresh();
+
+      setTimeout(() => {
+        setIsSuccessful(false);
+        router.refresh();
+      }, 2000);
     }
-  }, [state.status, updateSession, router]);
+  }, [state.status, router]);
 
   const handleSubmit = (formData: FormData) => {
     setEmail(formData.get("email") as string);
@@ -81,7 +84,7 @@ export default function Page() {
             Enter your email to reset your password
           </p>
         </div>
-        <div className="px-4 sm:px-16 pb-12">
+        <div className="px-4 sm:px-16 pb-12 w-full">
           <ResetPasswordForm action={handleSubmit}>
             <SubmitButton isSuccessful={isSuccessful}>
               Reset Password

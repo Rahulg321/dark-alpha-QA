@@ -13,7 +13,7 @@ export function ResetPasswordForm({
   children: React.ReactNode;
 }) {
   return (
-    <Form action={action} className="flex flex-col gap-4 px-4 sm:px-16">
+    <Form action={action} className="flex flex-col gap-4 px-4 w-full">
       <div className="flex flex-col gap-2">
         <Label
           htmlFor="email"
@@ -25,7 +25,7 @@ export function ResetPasswordForm({
         <Input
           id="email"
           name="email"
-          className="bg-muted text-md md:text-sm"
+          className="bg-muted w-full text-md md:text-sm"
           type="email"
           required
         />

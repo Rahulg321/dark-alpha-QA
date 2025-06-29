@@ -1,6 +1,6 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import React, { useActionState, useEffect, useState } from "react";
 import {
   newPasswordVerification,
@@ -17,6 +17,7 @@ const NewPasswordFormSection = () => {
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
   const [isSuccessful, setIsSuccessful] = useState(false);
+  const router = useRouter();
 
   const [state, formAction] = useActionState<
     NewPasswordVerificationActionState,
@@ -24,8 +25,6 @@ const NewPasswordFormSection = () => {
   >(newPasswordVerification, {
     status: "idle",
   });
-
-  const { update: updateSession } = useSession();
 
   useEffect(() => {
     if (state.status === "failed") {
@@ -45,12 +44,12 @@ const NewPasswordFormSection = () => {
       });
     } else if (state.status === "success") {
       setIsSuccessful(true);
-      updateSession();
       toast({
         type: "success",
         description:
           "Password reset successfully! You can now login with your new password.",
       });
+      router.push("/login");
     } else if (state.status === "invalid_token") {
       toast({
         type: "error",
@@ -62,7 +61,7 @@ const NewPasswordFormSection = () => {
         description: "The token has expired!",
       });
     }
-  }, [state.status, updateSession]);
+  }, [state.status, router]);
 
   const handleSubmit = (formData: FormData) => {
     formData.set("token", token as string);

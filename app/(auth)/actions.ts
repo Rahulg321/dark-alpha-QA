@@ -260,6 +260,8 @@ export const resetPassword = async (
       email: formData.get("email"),
     });
 
+    console.log("validatedData", validatedData);
+
     const existingUser = (await getUser(validatedData.email))?.[0];
 
     if (!existingUser) {
@@ -279,7 +281,7 @@ export const resetPassword = async (
       newPasswordResetToken.token
     );
 
-    if (!emailResponse || emailResponse.error) {
+    if (emailResponse.error) {
       return { status: "failed" };
     }
 

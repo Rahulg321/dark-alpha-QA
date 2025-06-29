@@ -65,4 +65,8 @@ export const sendPasswordResetEmail = async (email: string, token: string) => {
       error: `could not send email -> ${error.message}}`,
     };
   }
+
+  return {
+    success: true,
+  };
 };
