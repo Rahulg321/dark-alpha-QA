@@ -66,6 +66,7 @@ export function SidebarUserNav({ user }: { user: User }) {
               </SidebarMenuButton>
             )}
           </DropdownMenuTrigger>
+
           <DropdownMenuContent
             data-testid="user-nav-menu"
             side="top"
@@ -77,6 +78,14 @@ export function SidebarUserNav({ user }: { user: User }) {
               onSelect={() => setTheme(theme === "dark" ? "light" : "dark")}
             >
               {`Toggle ${theme === "light" ? "dark" : "light"} mode`}
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onSelect={() => {
+                router.push("/admin");
+              }}
+            >
+              Admin
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild data-testid="user-nav-item-auth">
