@@ -81,6 +81,7 @@ export function SidebarUserNav({ user }: { user: User }) {
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
+              className="cursor-pointer"
               onSelect={() => {
                 router.push("/admin");
               }}
