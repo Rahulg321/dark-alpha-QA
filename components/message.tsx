@@ -277,7 +277,7 @@ const PurePreviewMessage = ({
                                 ) => (
                                   <div
                                     key={index}
-                                    className="flex items-center justify-between p-2 rounded-md bg-muted/50"
+                                    className="flex whitespace-pre-wrap items-center justify-between p-2 rounded-md bg-muted/50"
                                   >
                                     <span className="whitespace-pre-wrap  prose text-sm text-muted-foreground font-medium">
                                       {item.content}
@@ -296,7 +296,7 @@ const PurePreviewMessage = ({
                           </div>
                         </div>
                       ) : toolName === "getResourcesInformation" ? (
-                        <div className="flex flex-col gap-3 p-4 rounded-lg border bg-card">
+                        <div className="flex flex-col gap-3 p-4 rounded-lg border bg-card whitespace-pre-wrap">
                           <div className="flex items-center gap-2">
                             <div className="text-primary">
                               <SparklesIcon size={16} />
@@ -335,7 +335,7 @@ const PurePreviewMessage = ({
                                         match
                                       </span>
                                     </div>
-                                    <span className="text-sm text-muted-foreground whitespace-pre-wrap">
+                                    <span className="text-sm break-words text-muted-foreground whitespace-pre-wrap">
                                       {item.content}
                                     </span>
                                   </div>
