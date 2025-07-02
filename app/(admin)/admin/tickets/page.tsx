@@ -9,7 +9,7 @@ import TicketTypeFilter       from './TicketTypeFilter';
 import SearchTicketFilter     from './SearchTicketFilter';
 import TicketPaginationFilter from './TicketPaginationFilter';
 
-import TagDropdown            from './TagDropdown';
+import TagSearchFilter        from './TagSearchFilter';
 import TimelineSidebar        from './TimelineSidebar';
 import AdminTicketCard        from './AdminTicketCard';
 import AdminTicketRow         from './AdminTicketRow';
@@ -47,45 +47,37 @@ export default async function AdminTickets({
   const status     = p.status ?? '';
   const type       = p.type   ?? '';
   const query      = p.query  ?? '';
-  const tagFilter  = p.tag    ?? '';
+  const tagParam   = p.tag    ?? '';
+  const tagFilters = tagParam ? tagParam.split(',').filter(Boolean) : [];
   const view       = p.view === 'list' ? 'list' : 'card';
   const currentPage= Number(p.page) || 1;
   const limit      = 50;
   const offset     = (currentPage - 1) * limit;
 
   /* ─ fetch tickets ─────────────────────────────────────────────────────── */
-  const { tickets: rawTickets, totalPages } = await getFilteredTickets({
+  const { tickets, totalPages } = await getFilteredTickets({
     status,
     type,
     query,
+    tags: tagFilters,
     limit,
     offset,
   });
 
-  /* ─ tags & optional filtering ─────────────────────────────────────────── */
+  /* unique tags */
   const uniqueTags = Array.from(
-    new Set(
-      rawTickets.flatMap(t => t.tags.map(tt => tt.tag.name)),
-    ),
+    new Set(tickets.flatMap(t => t.tags.map(tt => tt.tag.name))),
   ).sort();
 
-  const tickets = tagFilter
-    ? rawTickets.filter(t =>
-        t.tags.some(tt => tt.tag.name === tagFilter),
-      )
-    : rawTickets;
-
-  /* ─ build timeline dates (YYYY-MM-DD) newest → oldest ─────────────────── */
+  /* build timeline dates */
   const dates = Array.from(
-    new Set(
-      tickets.map(t => t.createdAt.toISOString().slice(0, 10)),
-    ),
+    new Set(tickets.map(t => t.createdAt.toISOString().slice(0, 10))),
   ).sort((a, b) => (a < b ? 1 : -1));
 
-  /* base QS without tag / view – used to build links */
+  /* base QS for links */
   const baseQS = new URLSearchParams();
   Object.entries(p).forEach(([k, v]) => {
-    if (v && k !== 'tag' && k !== 'view') baseQS.set(k, v);
+    if (v && k !== 'view') baseQS.set(k, v);
   });
 
   /* ─────────────────────────────────────────────────────────────────────── */
@@ -115,7 +107,7 @@ export default async function AdminTickets({
           <div className="flex items-center gap-1">
             <Link
               href={buildHref(baseQS, { view: 'card' })}
-              scroll={false}
+              replace
               className={`inline-flex h-8 w-8 items-center justify-center rounded-md border transition-colors ${
                 view === 'card'
                   ? 'bg-accent text-accent-foreground'
@@ -126,7 +118,7 @@ export default async function AdminTickets({
             </Link>
             <Link
               href={buildHref(baseQS, { view: 'list' })}
-              scroll={false}
+              replace
               className={`inline-flex h-8 w-8 items-center justify-center rounded-md border transition-colors ${
                 view === 'list'
                   ? 'bg-accent text-accent-foreground'
@@ -138,23 +130,20 @@ export default async function AdminTickets({
           </div>
         </div>
 
-        {/* searchable tag dropdown */}
-        {uniqueTags.length > 0 && <TagDropdown tags={uniqueTags} />}
+        {/* tag search */}
+        {uniqueTags.length > 0 && <TagSearchFilter tags={uniqueTags} />}
 
         {/* page header */}
         <div className="flex items-center justify-between">
           <h2 className="text-2xl font-semibold">
-            {tickets.length}{' '}
-            {tickets.length === 1 ? 'ticket' : 'tickets'} found
+            {tickets.length} {tickets.length === 1 ? 'ticket' : 'tickets'} found
           </h2>
-          {totalPages > 1 && (
-            <TicketPaginationFilter totalPages={totalPages} />
-          )}
+          {totalPages > 1 && <TicketPaginationFilter totalPages={totalPages} />}
         </div>
 
-        {/* main layout: sticky timeline + scrollable list */}
+        {/* main layout */}
         <div className="flex">
-          {dates.length > 1 && (
+          {dates.length >= 1 && (
             <TimelineSidebar dates={dates} containerId="tickets-scroll" />
           )}
 
@@ -169,7 +158,7 @@ export default async function AdminTickets({
               );
 
               return (
-                <section key={date} id={`date-${date}`} className="space-y-4">
+                <section key={date} id={`date-${date}`} data-day={date} className="space-y-4">
                   <h3 className="text-lg font-semibold capitalize tracking-tight">
                     {new Date(date).toLocaleDateString(undefined, {
                       weekday: 'long',
@@ -192,16 +181,12 @@ export default async function AdminTickets({
                             ticketId={ticket.id}
                             status={ticket.status as 'open' | 'closed'}
                             type={ticket.type as 'email' | 'website'}
-                            priority={ticket.priority as
-                              | 'low'
-                              | 'medium'
-                              | 'high'}
+                            priority={ticket.priority as 'low' | 'medium' | 'high'}
                             title={ticket.title}
-                            description={
-                              ticket.description ?? 'No description'
-                            }
+                            description={ticket.description ?? 'No description'}
                             fromName={ticket.fromName ?? 'Unknown'}
                             createdAt={ticket.createdAt}
+                            tags={ticket.tags}
                           />
                         ))}
                       </Suspense>

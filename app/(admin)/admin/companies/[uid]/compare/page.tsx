@@ -1,10 +1,10 @@
 import React from "react";
 import CompareSection from "./compare-section";
 import { db, getResourcesByCompanyId } from "@/lib/db/queries";
-import { company, resources } from "@/lib/db/schema";
+import { company, } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { auth } from "@/app/(auth)/auth";
-import { Session } from "next-auth";
+import type { Session } from "next-auth";
 import { redirect } from "next/navigation";
 
 export const generateMetadata = async ({

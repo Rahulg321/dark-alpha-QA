@@ -1,5 +1,4 @@
 import React from "react";
-import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Building2, Ticket, Mail, MessageSquare } from "lucide-react";
 

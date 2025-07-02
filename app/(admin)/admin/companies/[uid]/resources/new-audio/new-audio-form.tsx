@@ -18,7 +18,7 @@ import { Loader2, FileText } from "lucide-react";
 import axios from "axios";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
+import type { z } from "zod";
 import { Textarea } from "@/components/ui/textarea";
 import { useRouter } from "next/navigation";
 import { newAudioFormSchema } from "@/lib/schemas/add-audio-resource";

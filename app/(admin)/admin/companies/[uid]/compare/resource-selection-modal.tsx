@@ -1,9 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Dialog,
   DialogContent,
@@ -11,7 +9,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Resource } from "@/lib/db/schema";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface ResourceSelectionModalProps {

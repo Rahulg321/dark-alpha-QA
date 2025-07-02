@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Filter } from "lucide-react";
-import { company } from "@/lib/db/schema";
+import { companyTypes } from "@/lib/db/types";
 
 const FilterCompanyType = () => {
   const searchParams = useSearchParams();
@@ -55,7 +55,7 @@ const FilterCompanyType = () => {
         <DropdownMenuContent className="w-56">
           <DropdownMenuLabel>Filter by Type</DropdownMenuLabel>
           <DropdownMenuSeparator />
-          {company.type.enumValues.map((type) => (
+          {companyTypes.map((type) => (
             <DropdownMenuCheckboxItem
               key={type}
               checked={selectedTypes.includes(type)}

@@ -2,11 +2,7 @@
 
 import {
   insertResourceSchema,
-  resources,
-  embeddings as embeddingsTable,
 } from "@/lib/db/schema";
-import { db } from "@/lib/db/queries";
-import { generateEmbeddings } from "../ai/embedding";
 
 export const createResource = async (input: { content: string }) => {
   try {

@@ -1,4 +1,4 @@
-import { Metadata } from "next";
+import type { Metadata } from "next";
 import React from "react";
 import NewAudioForm from "./new-audio-form";
 import Link from "next/link";

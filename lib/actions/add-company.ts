@@ -3,7 +3,7 @@
 import { db } from "../db/queries";
 import { newCompanySchema } from "../schemas/new-company-schema";
 import { auth } from "../../app/(auth)/auth";
-import { z } from "zod";
+import type { z } from "zod";
 import { company } from "../db/schema";
 
 export async function addCompany(values: z.infer<typeof newCompanySchema>) {

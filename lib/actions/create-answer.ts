@@ -2,7 +2,7 @@
 
 import { auth } from "@/app/(auth)/auth";
 import {
-  AddAnswerFormValues,
+  type AddAnswerFormValues,
   addAnswerSchema,
 } from "@/lib/schemas/add-answer-schema";
 import { answers } from "../db/schema";

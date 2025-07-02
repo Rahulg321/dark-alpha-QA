@@ -2,24 +2,18 @@ import React from "react";
 import Link from "next/link";
 import {
   Plus,
-  Search,
-  Trash2,
   Upload,
-  ChevronLeft,
-  ChevronRight,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import {
-  getCompanyQuestionsByCompanyId,
   getFilteredCompanyQuestionsByCompanyId,
 } from "@/lib/db/queries";
 import QuestionItem from "./question-item";
 import SearchQuestionFilter from "./search-question-filter";
 import { db } from "@/lib/db/queries";
-import { eq, desc } from "drizzle-orm";
+import { eq, } from "drizzle-orm";
 import { company } from "@/lib/db/schema";
 import QuestionsPagination from "./questions-pagination";
 

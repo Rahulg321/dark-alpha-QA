@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { PDFLoader } from "@/lib/pdf-loader";
 import { DocxLoader } from "@/lib/docx-loader";
 import {
@@ -48,11 +48,11 @@ export async function POST(request: NextRequest) {
     const fileType = file.type;
     const buffer = await file.arrayBuffer();
 
-    let content: string = "";
+    let content = "";
     let sheets: Record<string, any[][]> | undefined;
     let chunks: any;
     let embeddingInput: string[];
-    let kind: string = "";
+    let kind = "";
 
     if (fileType === "application/pdf") {
       const pdfLoader = new PDFLoader();

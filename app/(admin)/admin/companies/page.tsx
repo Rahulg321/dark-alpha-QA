@@ -1,20 +1,12 @@
 import React from "react";
-import NewResourceForm from "@/components/forms/new-resource-form";
-import { Metadata } from "next";
+import type { Metadata } from "next";
 import { Button } from "@/components/ui/button";
 import { Building2, Calendar, PlusCircle, Briefcase, Tag } from "lucide-react";
 import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { MoreHorizontal } from "lucide-react";
-import { getCompanies, getFilteredCompaniesWithTypes } from "@/lib/db/queries";
-import { Company } from "@/lib/db/schema";
+import { getFilteredCompaniesWithTypes } from "@/lib/db/queries";
 import FilterCompanyType from "./filter-company-type";
 
 export const metadata: Metadata = {

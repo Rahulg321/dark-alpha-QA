@@ -1,7 +1,7 @@
 import { auth } from "@/app/(auth)/auth";
 import { extractQuestionsSchema } from "@/lib/schemas/extract-questions-schema";
-import { NextRequest, NextResponse } from "next/server";
-import { openaiProvider, openaiClient } from "@/lib/ai/providers";
+import { type NextRequest, NextResponse } from "next/server";
+import { openaiProvider, } from "@/lib/ai/providers";
 import { generateObject } from "ai";
 import { z } from "zod";
 

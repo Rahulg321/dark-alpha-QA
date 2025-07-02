@@ -1,4 +1,4 @@
-import { Metadata } from "next";
+import type { Metadata } from "next";
 import { getAllResourceCategories } from "@/lib/db/queries";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";

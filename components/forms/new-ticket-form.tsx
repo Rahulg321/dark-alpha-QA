@@ -1,27 +1,22 @@
 "use client";
 
-import { z } from "zod";
+import type { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import MDEditor from "@uiw/react-md-editor";
 import { useState, useTransition } from "react";
-import rehypeSanitize from "rehype-sanitize";
 import { useTheme } from "next-themes";
-import ReactMarkdown from "react-markdown";
 import { TagInput } from "../tag-input";
 import { Label } from "../ui/label";
-import MarkdownEditor from "../MDXEditors/MarkdownEditor";
 import { createTicketServerAction } from "@/app/(tickets)/actions";
 import { toast } from "sonner";
 import { newTicketFormSchema } from "@/lib/schemas/new-ticket-form-schema";
@@ -34,6 +29,7 @@ import {
 } from "../ui/select";
 import { useRouter } from "next/navigation";
 import { Textarea } from "../ui/textarea";
+import { ticketPriorities } from "@/lib/db/types";
 
 const NewTicketForm = () => {
   const { theme } = useTheme();
@@ -159,9 +155,11 @@ const NewTicketForm = () => {
                       <SelectValue placeholder="Select a priority" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="low">Low</SelectItem>
-                      <SelectItem value="medium">Medium</SelectItem>
-                      <SelectItem value="high">High</SelectItem>
+                      {ticketPriorities.map((priority) => (
+                        <SelectItem key={priority} value={priority}>
+                          {priority.charAt(0).toUpperCase() + priority.slice(1)}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </FormControl>

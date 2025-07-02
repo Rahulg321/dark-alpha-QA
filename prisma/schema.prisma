@@ -14,16 +14,16 @@ datasource db {
 }
 
 model User {
-  id          String      @id @default(uuid())
+  id          String       @id @default(uuid())
   chats       Chat[]
   documents   Document[]
   suggestions Suggestion[]
 }
 
 model Chat {
-  id       String      @id @default(uuid())
+  id       String    @id @default(uuid())
   userId   String
-  user     User        @relation(fields: [userId], references: [id])
+  user     User      @relation(fields: [userId], references: [id])
   messages Message[]
   votes    Vote[]
   streams  Stream[]
@@ -63,23 +63,23 @@ model Suggestion {
 }
 
 model Company {
-  id                    Int                    @id @default(autoincrement())
-  questions            CompanyQuestion[]
-  comparisonQuestions  ComparisonQuestion[]
-  resources            Resource[]
+  id                  Int                  @id @default(autoincrement())
+  questions           CompanyQuestion[]
+  comparisonQuestions ComparisonQuestion[]
+  resources           Resource[]
 }
 
 model CompanyQuestion {
-  id         Int      @id @default(autoincrement())
-  companyId  Int
-  company    Company  @relation(fields: [companyId], references: [id])
-  answers    Answer[]
+  id        Int      @id @default(autoincrement())
+  companyId Int
+  company   Company  @relation(fields: [companyId], references: [id])
+  answers   Answer[]
 }
 
 model Answer {
-  id                  Int             @id @default(autoincrement())
-  companyQuestionId   Int
-  companyQuestion     CompanyQuestion @relation(fields: [companyQuestionId], references: [id])
+  id                Int             @id @default(autoincrement())
+  companyQuestionId Int
+  companyQuestion   CompanyQuestion @relation(fields: [companyQuestionId], references: [id])
 }
 
 model ComparisonQuestion {
@@ -95,12 +95,12 @@ model ResourceCategory {
 }
 
 model Resource {
-  id          Int              @id @default(autoincrement())
-  categoryId  Int
-  companyId   Int
-  category    ResourceCategory @relation(fields: [categoryId], references: [id])
-  company     Company         @relation(fields: [companyId], references: [id])
-  embeddings  Embedding[]
+  id         Int              @id @default(autoincrement())
+  categoryId Int
+  companyId  Int
+  category   ResourceCategory @relation(fields: [categoryId], references: [id])
+  company    Company          @relation(fields: [companyId], references: [id])
+  embeddings Embedding[]
 }
 
 model Embedding {
@@ -113,33 +113,53 @@ model Embedding {
 }
 
 model Ticket {
-  id          String   @id @default(uuid())
+  id          String  @id @default(uuid())
   title       String
-  description String
-  priority    String   @default("medium")
-  status      String   @default("open")
-  type        String   @default("website")          // email | website
-  fromName    String   @map("from_name")            // <─ only ONE field here
-  createdBy   String?
-  createdAt   DateTime @default(now())
+  description String? // ← keep as you wish
+  priority    String  @default("medium")
+  status      String  @default("open")
+  type        String  @default("website")
 
-  tags TicketTag[]
+  fromName  String @map("from_name")
+  fromEmail String @map("from_email")
+
+  createdBy String?
+  createdAt DateTime @default(now())
+
+  /**
+   * ─── relations ───────────────────────────────────────────────
+   */
+  tags    TicketTag[]
+  replies Reply[] // ← ***add this line***
 
   @@index([type])
 }
 
+model Reply {
+  id        String   @id @default(uuid())
+  ticketId  String
+  body      String
+  fromName  String
+  fromEmail String
+  isAdmin   Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  ticket Ticket @relation(fields: [ticketId], references: [id])
+
+  @@index([ticketId])
+}
 
 model Tag {
-  id    Int     @id @default(autoincrement())
-  name  String  @unique                            // ← ensure unique
+  id      Int         @id @default(autoincrement())
+  name    String      @unique // ← ensure unique
   tickets TicketTag[]
 }
 
 model TicketTag {
-  ticketId String                                  // String if Ticket.id is String
+  ticketId String // String if Ticket.id is String
   tagId    Int
   ticket   Ticket @relation(fields: [ticketId], references: [id])
-  tag      Tag    @relation(fields: [tagId],    references: [id])
+  tag      Tag    @relation(fields: [tagId], references: [id])
 
   @@id([ticketId, tagId])
 }

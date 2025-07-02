@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { createTicket, NewTicketInput } from '@/lib/db/queries/createTicket';
+import { createTicket, type NewTicketInput } from '@/lib/db/queries/createTicket';
 import NewTicketForm from './NewTicketForm';
 
 export const metadata = { title: 'New Ticket' };

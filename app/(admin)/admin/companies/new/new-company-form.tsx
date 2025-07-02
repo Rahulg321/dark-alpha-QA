@@ -4,7 +4,6 @@ import React, { useTransition } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft } from "lucide-react";
@@ -26,12 +25,12 @@ import {
 } from "@/components/ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
+import type { z } from "zod";
 import { toast } from "sonner";
 import { addCompany } from "@/lib/actions/add-company";
 import { useRouter } from "next/navigation";
 import { newCompanySchema } from "@/lib/schemas/new-company-schema";
-import { company } from "@/lib/db/schema";
+import { companyTypes, companyIndustries } from "@/lib/db/types";
 
 const NewCompanyForm = () => {
   const router = useRouter();
@@ -126,7 +125,7 @@ const NewCompanyForm = () => {
                             <SelectValue placeholder="Select a type" />
                           </SelectTrigger>
                           <SelectContent>
-                            {company.type.enumValues.map((type) => (
+                            {companyTypes.map((type) => (
                               <SelectItem key={type} value={type}>
                                 {type
                                   .replace(/_/g, " ")
@@ -155,7 +154,7 @@ const NewCompanyForm = () => {
                             <SelectValue placeholder="Select an industry" />
                           </SelectTrigger>
                           <SelectContent>
-                            {company.industry.enumValues.map((industry) => (
+                            {companyIndustries.map((industry) => (
                               <SelectItem key={industry} value={industry}>
                                 {industry
                                   .replace(/_/g, " ")

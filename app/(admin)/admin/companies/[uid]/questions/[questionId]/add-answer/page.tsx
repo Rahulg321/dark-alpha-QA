@@ -1,5 +1,4 @@
 import React from "react";
-import { getCompanyQuestionById } from "@/lib/db/queries";
 import AddAnswerForm from "./add-answer-form";
 
 const AddAnswerPage = async ({

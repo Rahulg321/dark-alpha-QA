@@ -3,6 +3,7 @@
 import React, { useEffect, useState, useTransition } from "react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
+import { ticketStatuses } from "@/lib/db/types";
 
 const StatusTicketFilter = () => {
   const searchParams = useSearchParams();
@@ -39,8 +40,11 @@ const StatusTicketFilter = () => {
       <Tabs value={status} onValueChange={handleTabChange} className="w-full">
         <TabsList className="mb-2">
           <TabsTrigger value="all">All</TabsTrigger>
-          <TabsTrigger value="open">Open</TabsTrigger>
-          <TabsTrigger value="closed">Closed</TabsTrigger>
+          {ticketStatuses.map((status) => (
+            <TabsTrigger key={status} value={status}>
+              {status.charAt(0).toUpperCase() + status.slice(1)}
+            </TabsTrigger>
+          ))}
         </TabsList>
       </Tabs>
     </div>

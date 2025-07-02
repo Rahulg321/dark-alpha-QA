@@ -1,7 +1,7 @@
 "use client";
 
-import { Answers } from "@/lib/db/schema";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import type { Answers } from "@/lib/db/schema";
+import { Card, CardContent, CardHeader, } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { formatDistanceToNow } from "date-fns";
 import ReactMarkdown from "react-markdown";

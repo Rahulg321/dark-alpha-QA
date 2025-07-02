@@ -1,4 +1,4 @@
-import { createResource } from "@/lib/actions/resources";
+
 import { tool } from "ai";
 import { z } from "zod";
 import { findRelevantForASpecificCompany } from "../embedding";

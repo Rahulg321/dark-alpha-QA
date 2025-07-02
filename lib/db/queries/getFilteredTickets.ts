@@ -1,10 +1,10 @@
 import prisma from '@/lib/prisma';     // your Prisma client instance
-import { Prisma } from '@prisma/client';
+import type { Prisma } from '@prisma/client';
 
 export type TicketFilterOptions = {
-  status?:  string;        // "open" | "closed"
+  status?:  string;        // "open" | "closed"  
   type?:    string;        // "email" | "website"
-  tag?:     string;        // tag name
+  tags?:    string[];      // array of tag names
   query?:   string;        // free-text search in title / description
   limit?:   number;
   offset?:  number;
@@ -14,7 +14,7 @@ export async function getFilteredTickets(opts: TicketFilterOptions = {}) {
   const {
     status,
     type,
-    tag,
+    tags,
     query,
     limit  = 50,
     offset = 0,
@@ -34,10 +34,12 @@ export async function getFilteredTickets(opts: TicketFilterOptions = {}) {
     ];
   }
 
-  if (tag) {
-    where.tags = {
-      some: { tag: { name: tag } },
-    };
+  if (tags && tags.length > 0) {
+    where.AND = tags.map(tagName => ({
+      tags: {
+        some: { tag: { name: tagName } },
+      },
+    }));
   }
 
   /* ---------- main query ------------------------------------------------ */

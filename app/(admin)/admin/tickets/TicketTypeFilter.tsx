@@ -4,6 +4,7 @@ import React, { useEffect, useState, useTransition } from "react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { Mail, MessageSquare } from "lucide-react";
+import { ticketTypes } from "@/lib/db/types";
 
 const TicketTypeFilter = () => {
   const searchParams = useSearchParams();
@@ -40,12 +41,19 @@ const TicketTypeFilter = () => {
       <Tabs value={type} onValueChange={handleTabChange} className="w-full">
         <TabsList className="mb-2">
           <TabsTrigger value="all">All</TabsTrigger>
-          <TabsTrigger value="email">
-            <Mail className="size-3 mr-1 inline" /> Email Tickets
-          </TabsTrigger>
-          <TabsTrigger value="website">
-            <MessageSquare className="size-3 mr-1 inline" /> Website Tickets
-          </TabsTrigger>
+          {ticketTypes.map((type) => (
+            <TabsTrigger key={type} value={type}>
+              {type === "email" ? (
+                <>
+                  <Mail className="size-3 mr-1 inline" /> Email Tickets
+                </>
+              ) : (
+                <>
+                  <MessageSquare className="size-3 mr-1 inline" /> Website Tickets
+                </>
+              )}
+            </TabsTrigger>
+          ))}
         </TabsList>
       </Tabs>
     </div>

@@ -3,18 +3,13 @@ import {
   getCompanyQuestionById,
 } from "@/lib/db/queries";
 import React from "react";
-import AddAnswerDialog from "./add-answer-dialog";
-import GenerateAnswerSection from "./generate-answer/generate-answer-section";
-import QuestionItem from "../question-item";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { formatDistanceToNow } from "date-fns";
-import ReactMarkdown from "react-markdown";
-import { ArrowLeft, Pencil, Trash2 } from "lucide-react";
+import { ArrowLeft, } from "lucide-react";
 import AnswerItem from "./answer-item";
-import { Metadata } from "next";
+import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Question Details",

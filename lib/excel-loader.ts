@@ -28,7 +28,7 @@ export class ExcelLoader {
       });
     });
 
-    console.log("First 5 items:", sheets["Sheet1"].slice(0, 10));
+    console.log("First 5 items:", sheets.Sheet1.slice(0, 10));
     return sheets;
   }
 }

@@ -1,8 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  serverExternalPackages: ["pdf-parse", "tiktoken"],
   experimental: {
-    serverComponentsExternalPackages: ["pdf-parse", "tiktoken"],
     ppr: true,
   },
   images: {

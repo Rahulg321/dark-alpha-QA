@@ -8,34 +8,16 @@ import {
   PlusCircle,
   ExternalLink,
   Calendar,
-  FileText,
-  ImageIcon,
-  File,
-  MoreHorizontal,
   Building2,
   MessageCircle,
 } from "lucide-react";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
   getAllResourceCategoriesNameAndId,
   getCompanyById,
   getFilteredResourcesByCompanyId,
-  getResourcesWithCategoryByCompanyId,
 } from "@/lib/db/queries";
 import DeleteCompanyButton from "./delete-company-button";
 import ResourceCard from "./resource-card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Suspense } from "react";
 import DocumentSkeleton from "@/components/skeletons/DocumentSkeleton";
 import FilterResourceCategory from "./filter-resource-category";

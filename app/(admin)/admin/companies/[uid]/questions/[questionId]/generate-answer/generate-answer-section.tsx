@@ -2,16 +2,11 @@
 
 import {
   useCompletion,
-  experimental_useObject as useObject,
 } from "@ai-sdk/react";
 
 import React, { useState, useTransition } from "react";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import axios from "axios";
-import { generateAnswerSchema } from "@/lib/schemas/generate-answer-schema";
 import { toast } from "sonner";
-import ReactMarkdown from "react-markdown";
 import {
   Card,
   CardContent,

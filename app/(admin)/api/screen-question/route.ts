@@ -1,6 +1,5 @@
-import { openai } from "@ai-sdk/openai";
-import { Output, streamObject, streamText } from "ai";
-import { generateAnswerSchema } from "@/lib/schemas/generate-answer-schema";
+
+import { streamText } from "ai";
 import { openaiProvider } from "@/lib/ai/providers";
 import { screenQuestionCompany } from "@/lib/ai/tools/screen-question-company";
 import { auth } from "@/app/(auth)/auth";

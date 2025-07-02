@@ -1,5 +1,4 @@
 import React from "react";
-import { Button } from "@/components/ui/button";
 import GenerateAnswerSection from "./generate-answer-section";
 import { getCompanyQuestionById } from "@/lib/db/queries";
 import { notFound } from "next/navigation";

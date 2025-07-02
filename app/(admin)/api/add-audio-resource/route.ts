@@ -1,13 +1,11 @@
 import { auth } from "@/app/(auth)/auth";
-import { googleGenAIProvider, openaiClient } from "@/lib/ai/providers";
+import { googleGenAIProvider, } from "@/lib/ai/providers";
 import { newAudioFormSchema } from "@/lib/schemas/add-audio-resource";
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import {
-  GoogleGenAI,
   createUserContent,
   createPartFromUri,
 } from "@google/genai";
-import { put } from "@vercel/blob";
 import { db } from "@/lib/db/queries";
 import {
   generateEmbeddingsFromChunks,

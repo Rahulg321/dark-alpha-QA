@@ -40,7 +40,6 @@ import { generateUUID } from "../utils";
 import { generateHashedPassword } from "./utils";
 import type { VisibilityType } from "@/components/visibility-selector";
 import { ChatSDKError } from "../errors";
-import { ResourcesWithoutContent } from "../types";
 
 // Optionally, if not using email/pass login, you can
 // use the Drizzle adapter for Auth.js / NextAuth
@@ -539,6 +538,31 @@ export async function getAllTickets() {
   } catch (error) {
     console.error(error);
     throw new ChatSDKError("bad_request:database", "Failed to get all tickets");
+  }
+}
+
+export async function getAllTicketsWithReplyCounts() {
+  try {
+    // Use Prisma to get tickets with reply counts
+    const prisma = (await import('@/lib/prisma')).default;
+    
+    const tickets = await prisma.ticket.findMany({
+      include: {
+        _count: {
+          select: {
+            replies: true
+          }
+        }
+      },
+      orderBy: {
+        createdAt: 'desc'
+      }
+    });
+
+    return tickets;
+  } catch (error) {
+    console.error(error);
+    throw new ChatSDKError("bad_request:database", "Failed to get tickets with reply counts");
   }
 }
 

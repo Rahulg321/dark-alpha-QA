@@ -2,8 +2,7 @@
 
 import { createCompanyQuestionSchema } from "@/lib/schemas/create-company-question";
 import { companyQuestions } from "@/lib/db/schema";
-import { eq } from "drizzle-orm";
-import { z } from "zod";
+import type { z } from "zod";
 import { auth } from "@/app/(auth)/auth";
 import { db } from "@/lib/db/queries";
 import { revalidatePath } from "next/cache";

@@ -3,7 +3,6 @@
 import React, { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
 import {
   Form,
   FormField,
@@ -15,7 +14,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import {
-  AddAnswerFormValues,
+  type AddAnswerFormValues,
   addAnswerSchema,
 } from "@/lib/schemas/add-answer-schema";
 import { AddAnswerForCompanyQuestion } from "@/lib/actions/create-answer";

@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 
-import { CompanyQuestions } from "@/lib/db/schema";
+import type { CompanyQuestions } from "@/lib/db/schema";
 import { Loader2, Trash2 } from "lucide-react";
 import Link from "next/link";
 

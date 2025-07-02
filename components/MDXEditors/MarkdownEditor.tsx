@@ -70,7 +70,7 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ value, onChange }) => {
         // If selection spans multiple lines, operate on all of them
         // If selection is on a single line or empty, operate on that line
         const lines = value.substring(currentLineStart, actualEnd).split("\n");
-        let processedLines = lines.map((line, index) => {
+        const processedLines = lines.map((line, index) => {
           // Determine if the current line is part of the original selection
           // This logic is simplified; for precise multi-line selection highlighting, it's more complex
           const isSelected =

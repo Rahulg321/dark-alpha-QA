@@ -2,7 +2,6 @@ import React from "react";
 import ResourceEditForm from "./ResourceEditForm";
 import {
   getAllResourceCategories,
-  getAllResourceCategoriesNameAndId,
   getResourceById,
 } from "@/lib/db/queries";
 

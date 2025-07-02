@@ -1,4 +1,4 @@
-import { Metadata } from "next";
+import type { Metadata } from "next";
 import ResourceCategoryForm from "./resource-category-form";
 
 export const metadata: Metadata = {

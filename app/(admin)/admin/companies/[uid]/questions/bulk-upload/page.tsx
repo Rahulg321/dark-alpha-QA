@@ -1,4 +1,4 @@
-import { Metadata } from "next";
+import type { Metadata } from "next";
 import BulkUploadForm from "./bulk-upload-form";
 
 export const metadata: Metadata = {

@@ -76,7 +76,6 @@ const ResourceCard = ({
   return (
     <div
       className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 px-3 sm:px-6 py-3 hover:bg-muted/30 group transition-colors border-b rounded-md w-full"
-      tabIndex={0}
       aria-label={`Resource card for ${resourceName}`}
     >
       <div className="flex items-start sm:items-center gap-3 min-w-0 flex-1 pr-0 sm:pr-3 w-full">

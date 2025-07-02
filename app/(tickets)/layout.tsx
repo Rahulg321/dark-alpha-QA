@@ -1,5 +1,4 @@
 import TicketHeader from "@/components/TicketHeader";
-import TicketFooter from "@/components/TicketFooter";
 import React from "react";
 import { auth } from "../(auth)/auth";
 import { redirect } from "next/navigation";

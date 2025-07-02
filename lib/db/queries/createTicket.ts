@@ -22,6 +22,7 @@ export async function createTicket(data: NewTicketInput) {
       type:        data.type,
       fromName:    data.fromName,
       createdBy:   data.createdBy,
+      fromEmail: 'unknown@example.com',
 
       tags: data.tags.length
         ? {
