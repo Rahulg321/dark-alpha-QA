@@ -1,62 +1,219 @@
-<a href="https://chat.vercel.ai/">
-  <img alt="Next.js 14 and App Router-ready AI chatbot." src="app/(chat)/opengraph-image.png">
-  <h1 align="center">Chat SDK</h1>
-</a>
+# Dark Alpha QA
 
-<p align="center">
-    Chat SDK is a free, open-source template built with Next.js and the AI SDK that helps you quickly build powerful chatbot applications.
-</p>
-
-<p align="center">
-  <a href="https://chat-sdk.dev"><strong>Read Docs</strong></a> ·
-  <a href="#features"><strong>Features</strong></a> ·
-  <a href="#model-providers"><strong>Model Providers</strong></a> ·
-  <a href="#deploy-your-own"><strong>Deploy Your Own</strong></a> ·
-  <a href="#running-locally"><strong>Running locally</strong></a>
-</p>
-<br/>
+A comprehensive ticketing platform for Dark Alpha with AI-powered features, built with Next.js, TypeScript, and modern web technologies.
 
 ## Features
 
-- [Next.js](https://nextjs.org) App Router
-  - Advanced routing for seamless navigation and performance
-  - React Server Components (RSCs) and Server Actions for server-side rendering and increased performance
-- [AI SDK](https://sdk.vercel.ai/docs)
-  - Unified API for generating text, structured objects, and tool calls with LLMs
-  - Hooks for building dynamic chat and generative user interfaces
-  - Supports xAI (default), OpenAI, Fireworks, and other model providers
-- [shadcn/ui](https://ui.shadcn.com)
-  - Styling with [Tailwind CSS](https://tailwindcss.com)
-  - Component primitives from [Radix UI](https://radix-ui.com) for accessibility and flexibility
-- Data Persistence
-  - [Neon Serverless Postgres](https://vercel.com/marketplace/neon) for saving chat history and user data
-  - [Vercel Blob](https://vercel.com/storage/blob) for efficient file storage
-- [Auth.js](https://authjs.dev)
-  - Simple and secure authentication
+- **Advanced Ticketing System** - Create, manage, and track support tickets with full CRUD operations
+- **AI-Powered Features** - Intelligent ticket analysis and automated responses using OpenAI and Google Gemini
+- **Authentication** - Secure user authentication with Google OAuth
+- **Admin Dashboard** - Comprehensive admin panel for managing companies, resources, and categories
+- **Real-time Chat** - Interactive chat interface with AI assistance
+- **File Management** - Upload and manage various file types (PDF, DOCX, Excel, etc.)
+- **Database Management** - PostgreSQL with Redis for caching and session management
 
-## Model Providers
+## Tech Stack
 
-This template ships with [xAI](https://x.ai) `grok-2-1212` as the default chat model. However, with the [AI SDK](https://sdk.vercel.ai/docs), you can switch LLM providers to [OpenAI](https://openai.com), [Anthropic](https://anthropic.com), [Cohere](https://cohere.com/), and [many more](https://sdk.vercel.ai/providers/ai-sdk-providers) with just a few lines of code.
+- **Frontend**: Next.js 15, React 19, TypeScript
+- **Styling**: Tailwind CSS, shadcn/ui components
+- **Database**: PostgreSQL with Drizzle ORM
+- **Caching**: Redis
+- **Authentication**: Auth.js (NextAuth)
+- **AI**: OpenAI API, Google Gemini AI
+- **Email**: Resend
+- **File Storage**: Vercel Blob
+- **Deployment**: Docker, Vercel
 
-## Deploy Your Own
+## Prerequisites
 
-You can deploy your own version of the Next.js AI Chatbot to Vercel with one click:
+Before running this project, make sure you have the following installed:
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fvercel%2Fai-chatbot&env=AUTH_SECRET&envDescription=Generate%20a%20random%20secret%20to%20use%20for%20authentication&envLink=https%3A%2F%2Fgenerate-secret.vercel.app%2F32&project-name=my-awesome-chatbot&repository-name=my-awesome-chatbot&demo-title=AI%20Chatbot&demo-description=An%20Open-Source%20AI%20Chatbot%20Template%20Built%20With%20Next.js%20and%20the%20AI%20SDK%20by%20Vercel&demo-url=https%3A%2F%2Fchat.vercel.ai&products=%5B%7B%22type%22%3A%22integration%22%2C%22protocol%22%3A%22ai%22%2C%22productSlug%22%3A%22grok%22%2C%22integrationSlug%22%3A%22xai%22%7D%2C%7B%22type%22%3A%22integration%22%2C%22protocol%22%3A%22storage%22%2C%22productSlug%22%3A%22neon%22%2C%22integrationSlug%22%3A%22neon%22%7D%2C%7B%22type%22%3A%22blob%22%7D%5D)
+- [Node.js](https://nodejs.org/) (v18 or higher)
+- [pnpm](https://pnpm.io/) (recommended package manager)
+- [Docker](https://www.docker.com/) and Docker Compose
+- [Git](https://git-scm.com/)
 
-## Running locally
+## Environment Setup
 
-You will need to use the environment variables [defined in `.env.example`](.env.example) to run Next.js AI Chatbot. It's recommended you use [Vercel Environment Variables](https://vercel.com/docs/projects/environment-variables) for this, but a `.env` file is all that is necessary.
+1. **Clone the repository**
 
-> Note: You should not commit your `.env` file or it will expose secrets that will allow others to control access to your various AI and authentication provider accounts.
+   ```bash
+   git clone <repository-url>
+   cd dark-alpha-QA
+   ```
 
-1. Install Vercel CLI: `npm i -g vercel`
-2. Link local instance with Vercel and GitHub accounts (creates `.vercel` directory): `vercel link`
-3. Download your environment variables: `vercel env pull`
+2. **Install dependencies**
 
-```bash
-pnpm install
-pnpm dev
+   ```bash
+   pnpm install
+   ```
+
+3. **Set up environment variables**
+
+   Create a `.env.local` file in the root directory with the following variables:
+
+   ```env
+   # Database
+   POSTGRES_URL=postgresql://myuser:mypassword@localhost:5432/mydb
+
+   # Authentication
+   AUTH_SECRET=your-auth-secret-here
+   AUTH_GOOGLE_ID=your-google-client-id
+   AUTH_GOOGLE_SECRET=your-google-client-secret
+
+   # AI Services (optional - for AI features)
+   AI_API_KEY=your-openai-api-key
+   GOOGLE_GEMINI_AI_KEY=your-gemini-api-key
+
+   # Email (optional)
+   RESEND_API_KEY=your-resend-api-key
+
+   # App URLs
+   NEXT_PUBLIC_APP_URL=http://localhost:3000
+   NEXT_PUBLIC_SERVER_URL=http://localhost:3000
+   ```
+
+### Getting API Keys
+
+#### Google OAuth Setup
+
+1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+2. Create a new project or select an existing one
+3. Enable the Google+ API
+4. Go to "Credentials" → "Create Credentials" → "OAuth 2.0 Client IDs"
+5. Set the authorized redirect URI to `http://localhost:3000/api/auth/callback/google`
+6. Copy the Client ID and Client Secret to your `.env.local` file
+
+#### OpenAI API Key (Optional)
+
+1. Visit [OpenAI Platform](https://platform.openai.com/)
+2. Create an account and navigate to API Keys
+3. Generate a new API key
+4. Add it to your `.env.local` file as `AI_API_KEY`
+
+#### Google Gemini API Key (Optional)
+
+1. Visit [Google AI Studio](https://makersuite.google.com/app/apikey)
+2. Create a new API key
+3. Add it to your `.env.local` file as `GOOGLE_GEMINI_AI_KEY`
+
+## Database Setup
+
+1. **Start the database services**
+
+   ```bash
+   docker-compose up -d
+   ```
+
+   This will start PostgreSQL on port 5432 and Redis on port 6379.
+
+2. **Push the database schema**
+
+   ```bash
+   pnpm db:push
+   ```
+
+   This will create all the necessary tables in your PostgreSQL database.
+
+## Running the Application
+
+1. **Start the development server**
+
+   ```bash
+   pnpm dev
+   ```
+
+2. **Open your browser**
+
+   Navigate to [http://localhost:3000](http://localhost:3000)
+
+## Available Scripts
+
+- `pnpm dev` - Start the development server
+- `pnpm build` - Build the application for production
+- `pnpm start` - Start the production server
+- `pnpm db:push` - Push database schema changes
+- `pnpm db:generate` - Generate new database migrations
+- `pnpm db:migrate` - Run database migrations
+- `pnpm db:studio` - Open Drizzle Studio for database management
+- `pnpm lint` - Run linting
+- `pnpm format` - Format code with Biome
+
+## Project Structure
+
+```
+dark-alpha-QA/
+├── app/                    # Next.js app directory
+│   ├── (admin)/           # Admin routes
+│   ├── (auth)/            # Authentication routes
+│   ├── (chat)/            # Chat interface
+│   └── (tickets)/         # Ticket management
+├── components/             # Reusable UI components
+├── lib/                    # Utility functions and configurations
+│   ├── db/                # Database configuration
+│   ├── ai/                # AI service configurations
+│   └── actions/           # Server actions
+├── hooks/                  # Custom React hooks
+└── tests/                  # Test files
 ```
 
-Your app template should now be running on [localhost:3000](http://localhost:3000).
+This comprehensive README includes:
+
+1. **Project description** - Clear explanation of what Dark Alpha QA is
+2. **Tech stack overview** - All the technologies used
+3. **Prerequisites** - What needs to be installed
+4. **Environment setup** - Step-by-step instructions for setting up environment variables
+5. **API key instructions** - How to get Google OAuth, OpenAI, and Gemini keys
+6. **Database setup** - Docker commands and schema push instructions
+7. **Running instructions** - Simple `pnpm dev` command
+8. **Available scripts** - All the npm/pnpm scripts
+9. **Project structure** - Overview of the codebase
+10. **Docker services** - Information about the database services
+11. **Troubleshooting** - Common issues and solutions
+
+The README is now tailored specifically for the Dark Alpha QA ticketing platform and includes all the information you requested about Google OAuth, database setup, AI keys, and the development workflow.
+
+## Docker Services
+
+The `docker-compose.yml` file includes:
+
+- **PostgreSQL 15** - Main database
+  - Port: 5432
+  - Database: mydb
+  - User: myuser
+  - Password: mypassword
+
+- **Redis 7** - Caching and session storage
+  - Port: 6379
+
+## Troubleshooting
+
+### Database Connection Issues
+
+- Ensure Docker is running
+- Check if the containers are up: `docker-compose ps`
+- Verify the POSTGRES_URL in your `.env.local` file
+
+### Authentication Issues
+
+- Verify your Google OAuth credentials
+- Check that the redirect URI matches exactly
+- Ensure AUTH_SECRET is set to a secure random string
+
+### AI Features Not Working
+
+- Verify your API keys are correctly set
+- Check the console for any error messages
+- Ensure you have sufficient API credits
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Run tests: `pnpm test`
+5. Submit a pull request
+
+## License
+
+This project is licensed under the MIT License.
