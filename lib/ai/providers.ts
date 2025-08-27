@@ -59,7 +59,7 @@ export const myProvider = isTestEnvironment
           model: openaiProvider("o3-mini"),
           middleware: extractReasoningMiddleware({ tagName: "think" }),
         }),
-        "title-model": openaiProvider("gpt-4.5-preview"),
+        "title-model": openaiProvider("gpt-4o"),
         "artifact-model": openaiProvider("gpt-4.5-preview"),
         "gemini-flash": googleAISDKProvider("gemini-2.5-flash-preview-04-17"),
         "gemini-reasoning": wrapLanguageModel({
