@@ -17,8 +17,6 @@ export const sendVerificationTokenEmail = async (
 ) => {
   const confirmLink = `${process.env.NEXT_PUBLIC_APP_URL}/new-verification?token=${token}`;
 
-  console.log("confirmLink", confirmLink);
-
   const { data, error } = await resend.emails.send({
     from: `Dark Alpha Capital <info@darkalphacapital.com>`,
     to: [email],
