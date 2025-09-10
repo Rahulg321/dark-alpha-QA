@@ -5,50 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1750682371189,
-      "tag": "0000_productive_namorita",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1750682441560,
-      "tag": "0001_perpetual_yellowjacket",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1750687433046,
-      "tag": "0002_mysterious_cobalt_man",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1750687739104,
-      "tag": "0003_rapid_lightspeed",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "7",
-      "when": 1750691613705,
-      "tag": "0004_productive_invisible_woman",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "7",
-      "when": 1750692136703,
-      "tag": "0005_melodic_ken_ellis",
-      "breakpoints": true
-    },
-    {
-      "idx": 6,
-      "version": "7",
-      "when": 1750856377533,
-      "tag": "0006_orange_prodigy",
+      "when": 1757434042218,
+      "tag": "0000_flowery_firebird",
       "breakpoints": true
     }
   ]
