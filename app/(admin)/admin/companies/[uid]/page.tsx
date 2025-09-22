@@ -14,6 +14,7 @@ import {
   MoreHorizontal,
   Building2,
   MessageCircle,
+  Upload,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -41,6 +42,10 @@ import DocumentSkeleton from "@/components/skeletons/DocumentSkeleton";
 import FilterResourceCategory from "./filter-resource-category";
 import ResourceSearchFilter from "./resource-search-filter";
 import ResourcePagination from "./resource-pagination";
+import { ResourceSelectionProvider } from "./resource-selection-context";
+import { BulkActionsToolbar } from "./bulk-actions-toolbar";
+import { SelectAllCheckbox } from "./select-all-checkbox";
+import { BulkUploadDialog } from "./bulk-upload-dialog";
 
 export const generateMetadata = async ({
   params,
@@ -220,60 +225,76 @@ export default async function CompanyDetail({
               value="resources"
               className="space-y-6"
             >
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                <h2 className="text-xl font-semibold tracking-tight">
-                  Resources
-                </h2>
-                <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-                  <ResourceSearchFilter />
-                  <FilterResourceCategory
-                    resourceCategories={resourceCategories}
-                  />
-                  <Link
-                    href={`/admin/companies/${company.id}/resources/new-audio`}
-                    className="w-full sm:w-auto"
-                  >
-                    <Button className="w-full sm:w-auto">
-                      <PlusCircle className="size-4 mr-2" />
-                      Add Audio Resource
-                    </Button>
-                  </Link>
+              <ResourceSelectionProvider>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <h2 className="text-xl font-semibold tracking-tight">
+                    Resources
+                  </h2>
+                  <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                    <ResourceSearchFilter />
+                    <FilterResourceCategory
+                      resourceCategories={resourceCategories}
+                    />
 
-                  <Link
-                    href={`/admin/companies/${company.id}/compare`}
-                    className="w-full sm:w-auto"
-                  >
-                    <Button className="w-full sm:w-auto">Compare</Button>
-                  </Link>
+                    <BulkUploadDialog
+                      companyId={company.id}
+                      categoryId={resourceCategories[0]?.id || ""}
+                      trigger={
+                        <Button variant="outline" className="w-full sm:w-auto">
+                          <Upload className="size-4 mr-2" />
+                          Bulk Upload
+                        </Button>
+                      }
+                    />
 
-                  <Link
-                    href={`/admin/companies/${company.id}/resources/new`}
-                    className="w-full sm:w-auto"
-                  >
-                    <Button className="w-full sm:w-auto">
-                      <PlusCircle className="size-4 mr-2" />
-                      Add Resource
-                    </Button>
-                  </Link>
-                </div>
-              </div>
+                    <Link
+                      href={`/admin/companies/${company.id}/resources/new-audio`}
+                      className="w-full sm:w-auto"
+                    >
+                      <Button className="w-full sm:w-auto">
+                        <PlusCircle className="size-4 mr-2" />
+                        Add Audio Resource
+                      </Button>
+                    </Link>
 
-              <Suspense
-                fallback={
-                  <div>
-                    <DocumentSkeleton />
+                    <Link
+                      href={`/admin/companies/${company.id}/compare`}
+                      className="w-full sm:w-auto"
+                    >
+                      <Button className="w-full sm:w-auto">Compare</Button>
+                    </Link>
+
+                    <Link
+                      href={`/admin/companies/${company.id}/resources/new`}
+                      className="w-full sm:w-auto"
+                    >
+                      <Button className="w-full sm:w-auto">
+                        <PlusCircle className="size-4 mr-2" />
+                        Add Resource
+                      </Button>
+                    </Link>
                   </div>
-                }
-              >
-                <DisplayFetchResources
-                  companyId={company.id}
-                  categories={categories}
-                  resourceSearchQuery={resourceSearchQuery || ""}
-                  currentPage={currentPage}
-                  limit={limit}
-                  offset={offset}
-                />
-              </Suspense>
+                </div>
+
+                <BulkActionsToolbar companyId={company.id} />
+
+                <Suspense
+                  fallback={
+                    <div>
+                      <DocumentSkeleton />
+                    </div>
+                  }
+                >
+                  <DisplayFetchResources
+                    companyId={company.id}
+                    categories={categories}
+                    resourceSearchQuery={resourceSearchQuery || ""}
+                    currentPage={currentPage}
+                    limit={limit}
+                    offset={offset}
+                  />
+                </Suspense>
+              </ResourceSelectionProvider>
             </TabsContent>
 
             <TabsContent value="activity">
@@ -327,26 +348,34 @@ async function DisplayFetchResources({
     );
   }
 
+  const resourceIds = resources.map(r => r.id);
+
   return (
-    <div className="flex flex-col group-has-[[data-pending]]:animate-pulse gap-2 w-full">
-      <p className="text-muted-foreground">
-        {totalPages} {totalPages === 1 ? "page" : "pages"}
-      </p>
-      <p className="text-muted-foreground">
-        {totalResources} {totalResources === 1 ? "resource" : "resources"}
-      </p>
-      <p className="text-muted-foreground">Page: {currentPage}</p>
-      {resources.map((resource) => (
-        <ResourceCard
-          key={resource.id}
-          resourceId={resource.id}
-          resourceName={resource.name}
-          resourceDescription={resource.description ?? ""}
-          resourceKind={resource.kind}
-          companyId={companyId}
-          categoryName={resource.categoryName ?? null}
-        />
-      ))}
+    <div className="flex flex-col group-has-[[data-pending]]:animate-pulse gap-0 w-full">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+        <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
+          <span>{totalPages} {totalPages === 1 ? "page" : "pages"}</span>
+          <span>{totalResources} {totalResources === 1 ? "resource" : "resources"}</span>
+          <span>Page: {currentPage}</span>
+        </div>
+      </div>
+
+      <SelectAllCheckbox resourceIds={resourceIds} />
+
+      <div className="border border-border rounded-lg overflow-hidden">
+        {resources.map((resource, index) => (
+          <div key={resource.id} className={index === resources.length - 1 ? "" : "border-b border-border"}>
+            <ResourceCard
+              resourceId={resource.id}
+              resourceName={resource.name}
+              resourceDescription={resource.description ?? ""}
+              resourceKind={resource.kind}
+              companyId={companyId}
+              categoryName={resource.categoryName ?? null}
+            />
+          </div>
+        ))}
+      </div>
 
       <ResourcePagination totalPages={totalPages} />
     </div>

@@ -1,5 +1,5 @@
 {
-  "id": "b43fb4ba-6c7c-4f56-8fa4-23c05c6f25c1",
+  "id": "4a937303-b511-4ca2-b70d-486384316921",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -77,10 +77,10 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "account_userId_User_id_fk": {
-          "name": "account_userId_User_id_fk",
+        "account_userId_user_id_fk": {
+          "name": "account_userId_user_id_fk",
           "tableFrom": "account",
-          "tableTo": "User",
+          "tableTo": "user",
           "columnsFrom": [
             "userId"
           ],
@@ -226,10 +226,10 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "authenticator_userId_User_id_fk": {
-          "name": "authenticator_userId_User_id_fk",
+        "authenticator_userId_user_id_fk": {
+          "name": "authenticator_userId_user_id_fk",
           "tableFrom": "authenticator",
-          "tableTo": "User",
+          "tableTo": "user",
           "columnsFrom": [
             "userId"
           ],
@@ -277,8 +277,8 @@
           "primaryKey": false,
           "notNull": true
         },
-        "user_id": {
-          "name": "user_id",
+        "userId": {
+          "name": "userId",
           "type": "uuid",
           "primaryKey": false,
           "notNull": true
@@ -293,12 +293,12 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "Chat_user_id_User_id_fk": {
-          "name": "Chat_user_id_User_id_fk",
+        "Chat_userId_user_id_fk": {
+          "name": "Chat_userId_user_id_fk",
           "tableFrom": "Chat",
-          "tableTo": "User",
+          "tableTo": "user",
           "columnsFrom": [
-            "user_id"
+            "userId"
           ],
           "columnsTo": [
             "id"
@@ -582,10 +582,10 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "Document_userId_User_id_fk": {
-          "name": "Document_userId_User_id_fk",
+        "Document_userId_user_id_fk": {
+          "name": "Document_userId_user_id_fk",
           "tableFrom": "Document",
-          "tableTo": "User",
+          "tableTo": "user",
           "columnsFrom": [
             "userId"
           ],
@@ -1079,10 +1079,10 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "session_userId_User_id_fk": {
-          "name": "session_userId_User_id_fk",
+        "session_userId_user_id_fk": {
+          "name": "session_userId_user_id_fk",
           "tableFrom": "session",
-          "tableTo": "User",
+          "tableTo": "user",
           "columnsFrom": [
             "userId"
           ],
@@ -1215,10 +1215,10 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "Suggestion_userId_User_id_fk": {
-          "name": "Suggestion_userId_User_id_fk",
+        "Suggestion_userId_user_id_fk": {
+          "name": "Suggestion_userId_user_id_fk",
           "tableFrom": "Suggestion",
-          "tableTo": "User",
+          "tableTo": "user",
           "columnsFrom": [
             "userId"
           ],
@@ -1326,21 +1326,21 @@
           "notNull": true,
           "default": "'open'"
         },
-        "user_id": {
-          "name": "user_id",
+        "userId": {
+          "name": "userId",
           "type": "uuid",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         }
       },
       "indexes": {},
       "foreignKeys": {
-        "Ticket_user_id_User_id_fk": {
-          "name": "Ticket_user_id_User_id_fk",
+        "Ticket_userId_user_id_fk": {
+          "name": "Ticket_userId_user_id_fk",
           "tableFrom": "Ticket",
-          "tableTo": "User",
+          "tableTo": "user",
           "columnsFrom": [
-            "user_id"
+            "userId"
           ],
           "columnsTo": [
             "id"
@@ -1379,36 +1379,17 @@
           "primaryKey": false,
           "notNull": true
         },
+        "subject": {
+          "name": "subject",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
         "content": {
           "name": "content",
           "type": "text",
           "primaryKey": false,
           "notNull": true
-        },
-        "from_name": {
-          "name": "from_name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "from_email": {
-          "name": "from_email",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "tags": {
-          "name": "tags",
-          "type": "text[]",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'{}'"
-        },
-        "description": {
-          "name": "description",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
         },
         "created_at": {
           "name": "created_at",
@@ -1417,8 +1398,8 @@
           "notNull": true,
           "default": "now()"
         },
-        "user_id": {
-          "name": "user_id",
+        "userId": {
+          "name": "userId",
           "type": "uuid",
           "primaryKey": false,
           "notNull": true
@@ -1439,12 +1420,12 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "ticket_replies_user_id_User_id_fk": {
-          "name": "ticket_replies_user_id_User_id_fk",
+        "ticket_replies_userId_user_id_fk": {
+          "name": "ticket_replies_userId_user_id_fk",
           "tableFrom": "ticket_replies",
-          "tableTo": "User",
+          "tableTo": "user",
           "columnsFrom": [
-            "user_id"
+            "userId"
           ],
           "columnsTo": [
             "id"
@@ -1466,6 +1447,59 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
+    "public.travel": {
+      "name": "travel",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "userId": {
+          "name": "userId",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "travel_userId_user_id_fk": {
+          "name": "travel_userId_user_id_fk",
+          "tableFrom": "travel",
+          "tableTo": "user",
+          "columnsFrom": [
+            "userId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.two_factor_confirmation": {
       "name": "two_factor_confirmation",
       "schema": "",
@@ -1477,8 +1511,8 @@
           "notNull": true,
           "default": "gen_random_uuid()"
         },
-        "user_id": {
-          "name": "user_id",
+        "userId": {
+          "name": "userId",
           "type": "uuid",
           "primaryKey": false,
           "notNull": true
@@ -1486,12 +1520,12 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "two_factor_confirmation_user_id_User_id_fk": {
-          "name": "two_factor_confirmation_user_id_User_id_fk",
+        "two_factor_confirmation_userId_user_id_fk": {
+          "name": "two_factor_confirmation_userId_user_id_fk",
           "tableFrom": "two_factor_confirmation",
-          "tableTo": "User",
+          "tableTo": "user",
           "columnsFrom": [
-            "user_id"
+            "userId"
           ],
           "columnsTo": [
             "id"
@@ -1502,11 +1536,11 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "two_factor_confirmation_user_id_unique": {
-          "name": "two_factor_confirmation_user_id_unique",
+        "two_factor_confirmation_userId_unique": {
+          "name": "two_factor_confirmation_userId_unique",
           "nullsNotDistinct": false,
           "columns": [
-            "user_id"
+            "userId"
           ]
         }
       },
@@ -1582,8 +1616,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.User": {
-      "name": "User",
+    "public.user": {
+      "name": "user",
       "schema": "",
       "columns": {
         "id": {
@@ -1592,6 +1626,12 @@
           "primaryKey": true,
           "notNull": true,
           "default": "gen_random_uuid()"
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
         },
         "email": {
           "name": "email",
@@ -1613,6 +1653,12 @@
         },
         "image": {
           "name": "image",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "facebookUrl": {
+          "name": "facebookUrl",
           "type": "text",
           "primaryKey": false,
           "notNull": false

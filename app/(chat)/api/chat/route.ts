@@ -40,6 +40,8 @@ import { ChatSDKError } from "@/lib/errors";
 import { addResource } from "@/lib/ai/tools/add-resource";
 import { getInformation } from "@/lib/ai/tools/get-information";
 import { getResourcesInformation } from "@/lib/ai/tools/get-resources-information";
+import { globalSearch } from "@/lib/ai/tools/global-search";
+import { enhancedInformationSearch } from "@/lib/ai/tools/enhanced-information-search";
 
 export const maxDuration = 60;
 
@@ -171,6 +173,8 @@ export async function POST(request: Request) {
             "getWeather",
             "addResource",
             "getInformation",
+            "globalSearch",
+            "enhancedInformationSearch",
             "createDocument",
             "updateDocument",
             "requestSuggestions",
@@ -183,6 +187,8 @@ export async function POST(request: Request) {
             getWeather,
             // darkAlphaOps,
             getResourcesInformation,
+            globalSearch,
+            enhancedInformationSearch,
             addResource,
             getInformation,
             createDocument: createDocument({ session, dataStream }),
