@@ -10,9 +10,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect, useRef } from "react";
 import Link from "next/link";
-import { ArrowLeft, Upload, FileText, X, CheckCircle } from "lucide-react";
+import { ArrowLeft, Upload, FileText, X, CheckCircle, Loader2 } from "lucide-react";
 import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
@@ -21,68 +21,145 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Progress } from "@/components/ui/progress";
 
 import axios from "axios";
 import { extractQuestionsSchema } from "@/lib/schemas/extract-questions-schema";
 import { bulkAddQuestions } from "@/lib/actions/bulk-add-questions";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { io, Socket } from "socket.io-client";
+
+interface JobProgress {
+  currentFile: number;
+  totalFiles: number;
+  status: string;
+  fileName: string;
+  fileSize?: number;
+  fileType?: string;
+  progress?: number;
+}
 
 export default function BulkUploadForm({ companyId }: { companyId: string }) {
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [error, setError] = useState<string>("");
   const [isUploading, setIsUploading] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
   const [questions, setQuestions] = useState<{ title: string }[]>([]);
+  const [jobId, setJobId] = useState<string | null>(null);
+  const [progress, setProgress] = useState<JobProgress | null>(null);
+  const socketRef = useRef<Socket | null>(null);
+
+  // Cleanup socket on unmount
+  useEffect(() => {
+    return () => {
+      if (socketRef.current) {
+        socketRef.current.disconnect();
+      }
+    };
+  }, []);
+
+  const connectWebSocket = (id: string) => {
+    const socket = io({
+      path: '/api/socket',
+    });
+
+    socketRef.current = socket;
+
+    socket.on('connect', () => {
+      console.log('🔌 WebSocket connected');
+      socket.emit('subscribe', id);
+    });
+
+    socket.on('progress', (data: JobProgress) => {
+      console.log('📡 Progress update:', data);
+      setProgress(data);
+
+      if (data.status === 'completed' || data.status === 'failed') {
+        setIsUploading(false);
+        socket.emit('unsubscribe', id);
+        setTimeout(() => socket.disconnect(), 1000);
+      }
+    });
+
+    socket.on('disconnect', () => {
+      console.log('🔌 WebSocket disconnected');
+    });
+
+    socket.on('error', (error) => {
+      console.error('❌ WebSocket error:', error);
+    });
+  };
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
+    const fileList = event.target.files;
+    if (!fileList || fileList.length === 0) return;
 
-    try {
-      extractQuestionsSchema.parse({ file });
-      setSelectedFile(file);
+    const files = Array.from(fileList);
+    const validFiles: File[] = [];
+    let hasError = false;
+
+    for (const file of files) {
+      try {
+        extractQuestionsSchema.parse({ file });
+        validFiles.push(file);
+      } catch (err) {
+        if (err instanceof z.ZodError) {
+          setError(err.errors[0].message);
+          hasError = true;
+          break;
+        }
+      }
+    }
+
+    if (!hasError) {
+      setSelectedFiles(validFiles);
       setError("");
       setIsComplete(false);
-    } catch (err) {
-      if (err instanceof z.ZodError) {
-        setError(err.errors[0].message);
-      }
-      setSelectedFile(null);
     }
   };
 
   const handleUpload = async () => {
-    if (!selectedFile) return;
+    if (selectedFiles.length === 0) return;
 
     setIsUploading(true);
+    setError("");
 
     try {
       const formData = new FormData();
-      formData.append("file", selectedFile);
 
-      const response = await axios.post("/api/extract-questions", formData);
+      // Append all files
+      selectedFiles.forEach((file, index) => {
+        formData.append(`files[${index}]`, file);
+      });
+
+      const response = await axios.post("/api/extract-questions-bulk", formData);
 
       setQuestions(response.data.questions);
+      setJobId(response.data.jobId);
       setIsComplete(true);
+
+      // Connect to WebSocket for progress tracking
+      if (response.data.jobId) {
+        connectWebSocket(response.data.jobId);
+      }
     } catch (err) {
+      console.error("Upload error:", err);
       setError("Upload failed. Please try again.");
-    } finally {
       setIsUploading(false);
     }
   };
 
-  const removeFile = () => {
-    setSelectedFile(null);
-    setError("");
-    setIsComplete(false);
+  const removeFile = (index: number) => {
+    setSelectedFiles(prev => prev.filter((_, i) => i !== index));
   };
 
   const resetForm = () => {
-    setSelectedFile(null);
+    setSelectedFiles([]);
     setError("");
     setIsComplete(false);
     setIsUploading(false);
+    setProgress(null);
   };
 
   return (
@@ -119,19 +196,20 @@ export default function BulkUploadForm({ companyId }: { companyId: string }) {
             <div className="space-y-6">
               <div className="space-y-3">
                 <Label htmlFor="file-upload" className="text-sm font-medium">
-                  Select PDF File
+                  Select PDF Files (Multiple)
                 </Label>
                 <div className="relative">
                   <Input
                     id="file-upload"
                     type="file"
                     accept=".pdf"
+                    multiple
                     onChange={handleFileSelect}
                     className="file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:bg-muted file:text-muted-foreground hover:file:bg-muted/80"
                   />
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Maximum file size: 5MB. Only PDF files are supported.
+                  Maximum file size: 5MB per file. Select multiple PDF files for bulk upload.
                 </p>
               </div>
 
@@ -143,51 +221,111 @@ export default function BulkUploadForm({ companyId }: { companyId: string }) {
                 </Alert>
               )}
 
-              {selectedFile && (
+              {selectedFiles.length > 0 && (
                 <Card className="border-border/40">
                   <CardContent className="p-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <FileText className="h-5 w-5 text-muted-foreground flex-shrink-0" />
-                        <div className="min-w-0">
-                          <p className="text-sm font-medium truncate">
-                            {selectedFile.name}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
-                          </p>
-                        </div>
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm font-medium">
+                          {selectedFiles.length} file{selectedFiles.length > 1 ? 's' : ''} selected
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                          Total: {(selectedFiles.reduce((sum, f) => sum + f.size, 0) / 1024 / 1024).toFixed(2)} MB
+                        </span>
                       </div>
-                      {!isUploading && (
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={removeFile}
-                          className="h-8 w-8 flex-shrink-0"
-                        >
-                          <X className="h-4 w-4" />
-                        </Button>
+
+                      <div className="max-h-64 overflow-y-auto space-y-2">
+                        {selectedFiles.map((file, index) => {
+                          const fileNumber = index + 1;
+                          const isCurrentFile = isUploading && progress && progress.currentFile === fileNumber;
+                          const isCompleted = isUploading && progress && progress.currentFile > fileNumber;
+
+                          return (
+                            <div key={index} className="p-3 border rounded space-y-2">
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-3 min-w-0 flex-1">
+                                  {isCompleted ? (
+                                    <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                                  ) : isCurrentFile ? (
+                                    <Loader2 className="h-4 w-4 text-primary animate-spin flex-shrink-0" />
+                                  ) : (
+                                    <FileText className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                                  )}
+                                  <div className="min-w-0 flex-1">
+                                    <p className="text-sm font-medium truncate">
+                                      {file.name}
+                                    </p>
+                                    <p className="text-xs text-muted-foreground">
+                                      {(file.size / 1024 / 1024).toFixed(2)} MB
+                                      {isUploading && (
+                                        <span className="ml-2">
+                                          {isCompleted ? '✓ Completed' : isCurrentFile ? 'Processing...' : 'Pending'}
+                                        </span>
+                                      )}
+                                    </p>
+                                  </div>
+                                </div>
+                                {!isUploading && (
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() => removeFile(index)}
+                                    className="h-6 w-6 flex-shrink-0"
+                                  >
+                                    <X className="h-3 w-3" />
+                                  </Button>
+                                )}
+                              </div>
+
+                              {isCurrentFile && progress && (
+                                <div className="space-y-1">
+                                  <Progress value={progress.progress || 0} className="h-1.5" />
+                                  <div className="flex justify-between text-xs text-muted-foreground">
+                                    <span>File {fileNumber} of {selectedFiles.length}</span>
+                                    <span>{progress.progress}%</span>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                      {isUploading && progress && (
+                        <div className="mt-4 space-y-2 p-3 bg-muted/30 rounded">
+                          <div className="flex justify-between text-sm font-semibold">
+                            <span>Processing Files</span>
+                            <span className="text-primary">
+                              {progress.currentFile} / {progress.totalFiles}
+                            </span>
+                          </div>
+                          {progress.fileName && (
+                            <div className="text-xs text-muted-foreground truncate">
+                              Current: {progress.fileName}
+                            </div>
+                          )}
+                          <div className="flex justify-between text-xs">
+                            <span>Progress</span>
+                            <span>{progress.progress}%</span>
+                          </div>
+                          <Progress value={progress.progress || 0} className="h-2" />
+                        </div>
                       )}
                     </div>
-
-                    {isUploading && (
-                      <div className="mt-4 space-y-2">
-                        <div className="flex justify-between text-sm">
-                          <span>Processing...</span>
-                        </div>
-                      </div>
-                    )}
                   </CardContent>
                 </Card>
               )}
 
               <Button
                 onClick={handleUpload}
-                disabled={!selectedFile || isUploading}
+                disabled={selectedFiles.length === 0 || isUploading}
                 className="w-full h-10"
               >
                 <Upload className="h-4 w-4 mr-2" />
-                {isUploading ? "Processing..." : "Upload and Process"}
+                {isUploading
+                  ? `Processing ${progress?.currentFile || 0}/${progress?.totalFiles || selectedFiles.length}...`
+                  : `Upload and Process ${selectedFiles.length} File${selectedFiles.length > 1 ? 's' : ''}`
+                }
               </Button>
 
               <div className="border-t pt-6">
@@ -195,7 +333,7 @@ export default function BulkUploadForm({ companyId }: { companyId: string }) {
                 <ul className="text-sm text-muted-foreground space-y-2">
                   <li className="flex items-start gap-2">
                     <span className="text-primary flex-shrink-0">•</span>
-                    <span>Upload a PDF containing due diligence questions</span>
+                    <span>Upload one or multiple PDFs containing due diligence questions</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-primary flex-shrink-0">•</span>
